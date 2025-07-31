@@ -22,10 +22,18 @@ export interface token {
   username?: string | undefined;
   email?: string | undefined;
   phoneNumber?: number | undefined;
-  avatar?: string | undefined;
+  avatar?: File | null;
   bio?: string | undefined;
   isOnline?: boolean | undefined;
   lastSeen?: Date | undefined;
   createdAt?: Date | undefined;
   password?: string | undefined;
+}
+
+export interface RegisterProps {
+  username:string,
+  phoneNumber:string,
+  email:string,
+  password:string,
+  bio:string
 }

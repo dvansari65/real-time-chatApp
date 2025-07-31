@@ -1,5 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { NextResponse } from "next/server";
+
 import { NextAuthOptions, User } from "next-auth";
 import bcrypt from "bcryptjs";
 
@@ -9,20 +9,17 @@ export const authOptions:NextAuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        phoneNumber: { label: "phone Number", type: "Number", placeholder: "dan@gmail.com"},
+        email: { label: "Email", type: "email", placeholder: "dan@gmail.com"},
         password: {label: "Password",type: "password",placeholder: "enter password"},
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials?.phoneNumber  || !credentials.password) {
+        if (!credentials?.email  || !credentials.password) {
           throw new Error("please provide atleast one identifier!");
-        }
-        if(credentials.phoneNumber.length > 10 || credentials.phoneNumber.length < 10 ){
-            throw new Error("enter 10 digit number!")
         }
         try {
           const user = await prisma?.user.findUnique({
             where: {
-              email: credentials.phoneNumber,
+              email: credentials.email,
             },
           });
           if (!user) {
@@ -61,7 +58,6 @@ export const authOptions:NextAuthOptions = {
     },
   },
   pages:{
-     
      error:"/error"
   },
   session: {

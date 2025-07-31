@@ -17,8 +17,8 @@ model User {
   id          Int      @id @default(autoincrement())
   username    String   @unique
   email       String   @unique
-  phoneNumber Int      @unique
-  avatar      String
+  phoneNumber String      @unique
+  avatar      String 
   bio         String
   isOnline    Boolean  @default(false)
   lastSeen    DateTime @default(now())
