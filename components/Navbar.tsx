@@ -17,7 +17,9 @@ export function SimpleNavbar() {
   
             {/* Auth */}
             <div className="flex items-center space-x-4">
-             
+            <Link href="/login" className="text-xl font-bold text-gray-600 bg-slate-200 px-4 rounded-[3px] py-1 hover:cursor-pointer hover:bg-slate-100 ">
+                Login
+              </Link>
             </div>
           </div>
         </div>

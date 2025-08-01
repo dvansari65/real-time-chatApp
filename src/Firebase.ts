@@ -24,3 +24,4 @@ export const db = getFirestore(app);
 
 export const analytics =
   typeof window !== "undefined" && await isSupported() ? getAnalytics(app) : null;
+export default app
