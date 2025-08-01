@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "./Providers";
+
 import { SimpleNavbar as Navbar } from "../../components/Navbar";
 import { Toaster } from "sonner";
 
@@ -30,11 +30,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <Navbar/>
-          <Toaster richColors position="top-right"/>
-          {children}
-        </Providers>
+        <Navbar />
+        <Toaster richColors position="top-right" />
+        {children}
       </body>
     </html>
   );
