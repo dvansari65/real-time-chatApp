@@ -37,3 +37,7 @@ export interface RegisterProps {
   password:string,
   bio:string
 }
+export interface loginProps {
+  email:string,
+  password:string
+}

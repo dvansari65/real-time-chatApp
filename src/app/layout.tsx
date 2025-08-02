@@ -5,6 +5,7 @@ import "./globals.css";
 import { SimpleNavbar as Navbar } from "../../components/Navbar";
 import { Toaster } from "sonner";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
