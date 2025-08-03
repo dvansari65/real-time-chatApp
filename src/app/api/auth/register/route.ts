@@ -7,17 +7,14 @@ import {prisma} from "../../../../../lib/prisma"
 export const POST = async (req: NextRequest) => {
   const formData = await req.formData();
     console.log("formdata:",formData)
-  // Extract fields from FormData
+  
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const phoneNumber = formData.get("phoneNumber") as string;
   const password = formData.get("password") as string;
   const bio = (formData.get("bio") as string) || "";
   const avatar = formData.get("avatar") as File | null;
-    console.log("number",phoneNumber)
-    console.log("email",email)
-    console.log("username",username)
-    console.log("password",password)
+   
   // Validation
   if (!username || !email || !phoneNumber || !password) {
     return NextResponse.json(

@@ -95,10 +95,10 @@ function Signup() {
     }
   };
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full h-screen bg-slate-200 flex justify-center items-center">
       <form
         onSubmit={handleSubmit}
-        className=" relative flex flex-col gap-3  p-6 rounded-[10px] bg-[rgb(45,45,45)] "
+        className=" relative flex flex-col gap-3  p-6 rounded-[10px] bg-transparent  border border-gray-300"
       >
         {
             error && <span className="w-full text-center text-red-400 bg-gray-500 py-2 rounded-xl">{error }</span>
@@ -109,23 +109,23 @@ function Signup() {
             </div>
         }
         <div className="w-full">
-          <h1 className="text-center font-extrabold text-2xl ">SINGUP</h1>
+          <h1 className="text-center font-extrabold text-2xl text-slate-500 ">SINGUP</h1>
         </div>
 
         <div className="flex flex-col justify-center items-start gap-1">
-          <label className="font-bold ml-2 " htmlFor="avatar">
+          <label className=" ml-2 text-gray-600 " htmlFor="avatar">
             Profile photo
           </label>
           <input
             type="file"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-2 text-base text-black shadow-sm placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition"
+            className="w-full text-gray-600 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-base  shadow-sm placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition"
             id="avatar"
             name="avatar"
             onChange={handleAvatarChange}
           />
         </div>
         <div className="flex flex-col justify-center items-start gap-1">
-          <label className="font-bold ml-2 " htmlFor="email">
+          <label className=" ml-2  text-gray-600" htmlFor="email">
             Email
           </label>
           <Input
@@ -137,7 +137,7 @@ function Signup() {
           />
         </div>
         <div className="flex flex-col justify-center items-start gap-1">
-          <label className="font-bold ml-2 " htmlFor="username">
+          <label className=" ml-2 text-gray-600" htmlFor="username">
             Username
           </label>
           <Input
@@ -149,7 +149,7 @@ function Signup() {
           />
         </div>
         <div className="flex flex-col justify-center items-start gap-1">
-          <label className="font-bold ml-2 " htmlFor="phoneNumber">
+          <label className=" ml-2 text-gray-600" htmlFor="phoneNumber">
             Phone number
           </label>
           <Input
@@ -161,7 +161,7 @@ function Signup() {
           />
         </div>
         <div className="flex flex-col justify-center items-start gap-1">
-          <label className="font-bold ml-2 " htmlFor="password">
+          <label className=" ml-2 text-gray-600" htmlFor="password">
             Password
           </label>
           <Input
@@ -175,7 +175,7 @@ function Signup() {
         <div>
           <label
             htmlFor="bio"
-            className="block text-sm font-medium text-white mb-1"
+            className="block text-sm  text-gray-500 mb-1"
           >
             Bio
           </label>
@@ -185,11 +185,11 @@ function Signup() {
             value={formData.bio}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full px-3 py-2 text-gray-400 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
             placeholder="Tell us about yourself..."
           />
         </div>
-        <Button type="submit">Register</Button>
+        <Button disabled={isLoading === true} type="submit">Register</Button>
       </form>
     </div>
   );

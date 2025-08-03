@@ -8,7 +8,7 @@ export interface User {
   isOnline: boolean;
   lastSeen: Date;
   createdAt: Date;
-  password: string;
+  password?: string;
 }
 
 export type partialUser = Partial<User>;
