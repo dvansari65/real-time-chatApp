@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+
 import { NextRequest } from "next/server";
 import { cache } from "react";
 import { verifySession } from "./auth";
@@ -17,10 +17,14 @@ export const getUser = cache( async (req:NextRequest)=>{
                 id:Number(session.userId)
             },
             select:{
+                id:true,
                 email:true,
                 username:true,
                 avatar:true,
-                password:false
+                phoneNumber:true,
+                bio:true,
+                isOnline:true,
+                lastSeen:true
             }
         })
         if(!user){

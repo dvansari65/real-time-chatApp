@@ -33,6 +33,9 @@ export const createSession = async (email:string,userId:string,role?:string)=>{
         httpOnly:true,
         path:"/"
     })
+    return {
+        success:true , session
+    }
 }
 
 export const verifySession = async ()=>{
@@ -43,13 +46,14 @@ export const verifySession = async ()=>{
         const session = await decrypt(cookie)
         console.log("session",session);
         
-        if(!session) return null;
+        if(!session || !session.expiresAt) return null;
         if(new Date(session.expiresAt) < new Date()){
             return null;
         }
         return session;
     } catch (error) {
         console.log("failed to verify session",error)
+        return null
     }
 }
 export const deleteSession = async ()=>{
