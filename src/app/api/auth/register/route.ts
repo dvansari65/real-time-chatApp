@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { partialUser } from "../../../../../types/user";
+import { partialUser } from "../../../../types/user";
 import { error } from "console";
-import { uploadFile } from "../../../../../lib/uploadAvatar";
+import { uploadFile } from "../../../../lib/uploadAvatar";
 import bcrypt from "bcryptjs";
-import {prisma} from "../../../../../lib/prisma"
+import {prisma} from "../../../../lib/prisma"
 export const POST = async (req: NextRequest) => {
   const formData = await req.formData();
     console.log("formdata:",formData)
