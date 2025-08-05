@@ -1,15 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/Button";
-import { loginProps } from "../../../../types/user";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/Button";
+import { loginProps } from "../../../types/user";
+import { useRouter } from "next/navigation";
+
 
 function Login() {
   const [formData, setFormData] = useState<loginProps>({
     email: "",
     password: "",
   });
-
+  const router = useRouter()
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
@@ -24,7 +26,6 @@ function Login() {
       setIsLoading(false)
       return;
     }
-
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -34,15 +35,14 @@ function Login() {
         body: JSON.stringify(formData),
       });
       const result = await response.json();
-      console.log("result", result);
-
       if (!response.ok) {
-        setError(result.message || "something went wrong!");
+        setError(result.error || "something went wrong!");
         setIsLoading(false);
         return;
       }
       setError("");
       setSuccess("logged in successfully");
+      router.push("/")
     } catch (error: any) {
       console.error("failed to login!", error);
       setError(error.Error || "server error!");
@@ -66,7 +66,7 @@ function Login() {
             </span>
           )}
           {success && (
-            <span className="absolute bg-transparent border border-slate-200 text-red-400 py-2 px-3">
+            <span className="absolute left-[43%] top-[35%] bg-transparent border border-slate-200 text-green-500 py-2 px-3">
               {success}
             </span>
           )}

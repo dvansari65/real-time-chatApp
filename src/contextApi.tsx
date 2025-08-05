@@ -1,6 +1,6 @@
 "use client"
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "../types/user"
+import { User } from "./types/user"
 
 
 type authContextTypes = {
@@ -13,20 +13,20 @@ type authContextTypes = {
 
 const AuthContext = createContext<authContextTypes | undefined>(undefined)
 
-export const authProvider = ({children}:{children:React.ReactNode})=>{
+export const AuthProvider = ({children}:{children:React.ReactNode})=>{
     const [user,setUser] = useState<User | null>(null)
     const [loading,setLoading] = useState(true)
     useEffect(()=>{
         const fetchUser = async ()=>{
             try {
                 const response = await fetch("/api/auth/me")
-                console.log("response:",response)
                 if(response.ok){
                     const data = await response.json()
                     setUser(data.user)
                 }
             } catch (error:any) {
                 console.log("failed to fetch user!",error)
+                throw error
             }finally{
                 setLoading(false)
             }

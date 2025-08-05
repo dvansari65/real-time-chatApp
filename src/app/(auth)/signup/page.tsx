@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import {  RegisterProps } from "../../../../types/user";
-import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/Button";
+import {  RegisterProps } from "../../../types/user";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/Button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import Loader from "../../../../components/ui/Loader";
+import Loader from "../../../components/ui/Loader";
 
 function Signup() {
   const [formData, setFormData] = useState<RegisterProps>({
