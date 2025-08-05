@@ -1,11 +1,15 @@
-import Chat from "@/components/Chat";
-import Sidebar from "@/components/sidebar";
+import Chat from "@/components/Conversation";
+import InnerSidebar from "@/components/ui/Sidebars/InnerSidebar";
+import OuterSidebar from "@/components/ui/Sidebars/OuterSidebar";
 
 export default function Home() {
  return (
    <div className="w-full h-screen flex">
+    <div>
+      <OuterSidebar/>
+    </div>
      <div className="hidden md:block">
-       <Sidebar />
+       <InnerSidebar />
      </div>
      <div className="flex-1 flex flex-col">
        <div className="flex-1 flex justify-center items-center">
