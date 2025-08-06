@@ -1,5 +1,5 @@
 
-import { MessageCircle } from "lucide-react";
+import { MessageCircle , Users2} from "lucide-react";
 
 // Define the type for your link items
 export type LinkItem = {
@@ -13,5 +13,10 @@ export const SIDEBAR_LINKS:LinkItem[] = [
         name:"Chat",
         path:"/chat",
         icon:MessageCircle
+    },
+    {
+        name:"Users",
+        path:"/Users",
+        icon:Users2
     }
 ]

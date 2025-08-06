@@ -45,8 +45,8 @@ model Chat {
 
 model chatMember {
   id       Int      @id @default(autoincrement())
-  userId   Int      @unique
-  chatId   Int      @unique
+  userId   Int    
+  chatId   Int     
   joinedAt DateTime @default(now())
   leftAt   DateTime @default(now())
   //relationships

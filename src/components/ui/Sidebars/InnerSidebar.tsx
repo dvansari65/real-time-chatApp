@@ -1,6 +1,7 @@
+import { User } from '@/types/user';
+import Users from "../../Users"
 import { 
     MessageCircle, 
-    Users, 
     Settings, 
     Phone, 
     Video, 
@@ -10,7 +11,7 @@ import {
     Search
   } from 'lucide-react';
   
-  export default function InnerSidebar() {
+  export default function InnerSidebar({users}:{users:User[]}) {
     return (
       <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
         {/* Header */}
@@ -44,7 +45,7 @@ import {
               <span className="text-sm font-medium">New Chat</span>
             </div>
             <div className="flex items-center space-x-2 text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg">
-              <Users className="w-4 h-4" />
+              {/* <Users className ="w-4 h-4" /> */}
               <span className="text-sm font-medium">New Group</span>
             </div>
           </div>
@@ -52,35 +53,18 @@ import {
   
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer">
-                <MessageCircle className="w-5 h-5 text-gray-600" />
-                <span className="text-sm font-medium">Users</span>
-              </div>
-             
-            </div>
-          </div>
   
           {/* Recent Chats Header */}
-          <div className="px-5 py-3 border-t border-gray-200 bg-gray-50">
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Recent Chats</h3>
+          <div className="px-5 py-3 border-t border-gray-200 bg-gray-50 flex justify-start gap-2 items-center">
+            <MessageCircle/>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Users</h3>
           </div>
   
           {/* Chat List Placeholder */}
           <div className="p-2 space-y-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer">
-                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                  <span className="text-gray-600 font-medium">U{i}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-gray-900 truncate">User {i}</p>
-                    <p className="text-xs text-gray-500">2:30 PM</p>
-                  </div>
-                  <p className="text-sm text-gray-500 truncate">Last message preview...</p>
-                </div>
+            {users?.map((i) => (
+              <div key={i.id} className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer">
+                <Users avatar={i.avatar} isOnline={i.isOnline} username={i.username} id={i.id}  />
               </div>
             ))}
           </div>
