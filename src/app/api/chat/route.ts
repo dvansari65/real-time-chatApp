@@ -52,7 +52,7 @@ export const POST = async(req:NextResponse)=>{
             }
         })
         if(chat){
-            return NextResponse.json({chat})
+            return NextResponse.json({success:true , chat})
         }
         const newChat = await prisma.chat.create({
             data:{

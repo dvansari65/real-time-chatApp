@@ -10,21 +10,20 @@ import {
 } from "lucide-react";
 import socket from "@/lib/socket";
 import { useParams } from "next/navigation";
+import { useCreateChat } from "@/hooks/useCreateChat";
 
 export default function Conversation() {
   const params = useParams();
   const chatId = params.id;
+  const {} = useCreateChat()
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  useEffect(()=>{
-    
-  },[])
 
   useEffect(() => {
     scrollToBottom();

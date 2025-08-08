@@ -1,6 +1,6 @@
 "use client";
 
-import { useFetchResponse } from "@/types/hooksTypes/useFetchUserResponse";
+import { useFetchResponse } from "@/lib/api/useFetchUserResponse";
 import { User } from "@/types/user";
 import { useState } from "react";
 
@@ -8,11 +8,11 @@ interface returnType  {
     loading:boolean,
     error:string,
     fetchUsers: ()=>Promise<void>
-    data : useFetchResponse[] | []
+    data : useFetchResponse | null
 }
 
 export const useFetchUsers =  ():returnType => {
-  const [data, setData] = useState<useFetchResponse[] | []>([]);
+  const [data, setData] = useState<useFetchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fetchUsers = async () => {
@@ -23,6 +23,8 @@ export const useFetchUsers =  ():returnType => {
         credentials: "include",
       });
       const data = await res.json();
+      console.log("data",data);
+      
       if (!res.ok) {
         setError(data.error || "something went wrong!");
         setLoading(false);
@@ -31,7 +33,7 @@ export const useFetchUsers =  ():returnType => {
       if (data === null) {
         setError("response not found!");
         setLoading(false);
-        setData([]);
+        setData(null);
       }
       setData(data);
       setError("");
