@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "../../../../lib/prisma"
-export const GET = async(req:NextRequest , {params}:{params:{id:number}})=>{
+export const GET = async(req:NextRequest , {params}:{params:Promise<{id:number}>})=>{
     try {
-        const chatId = params.id
-        if(!chatId){
+        const chatId = (await params).id
+       if(!chatId){
             return NextResponse.json(
                 {message:"chatId not found!" , success:false},
                 {status:404}
@@ -11,7 +11,14 @@ export const GET = async(req:NextRequest , {params}:{params:{id:number}})=>{
         }
         const chat = await prisma.chat.findFirst({
             where:{
-                id:chatId
+                id:Number(chatId)
+            },
+            select:{
+                members:true,
+                messages:true,
+                description:true,
+                id:true,
+                name:true
             }
         })
         if(!chat){

@@ -1,5 +1,12 @@
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
-const socket = io('http://localhost:3001');
+let socket : ReturnType<typeof io>
+export const initializeSocket = ()=>{
+    socket = io("http://localhost:3001")
+    return socket
+}
 
-export default socket;
+export const getSocket  = ()=>{
+    if(!socket) throw new Error("socket not found!")
+        return socket
+}

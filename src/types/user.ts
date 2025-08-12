@@ -41,3 +41,18 @@ export interface loginProps {
   email:string,
   password:string
 }
+
+export interface meResponseProps{
+  success:boolean,
+  user:User | null
+}
+
+export interface allUsersResponse {
+  success:boolean,
+  user:User[]
+}
+
+export interface singleUserDataResponse {
+  success:boolean,
+  user:partialUser | null
+}

@@ -4,8 +4,11 @@ import "./globals.css";
 
 import { SimpleNavbar as Navbar } from "../components/Navbar";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/contextApi";
-
+import { AuthProvider, useAuth } from "@/contextApi";
+import OuterSidebar from "@/components/ui/Sidebars/OuterSidebar";
+import InnerSidebar from "@/components/ui/Sidebars/InnerSidebar";
+import { ReactQueryProvider } from "@/ReactQueryProvider";
+import { SocketProvider } from "@/utils/SocketProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,15 +32,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-     <AuthProvider>
-     <body
+      <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        <Toaster richColors position="top-right" />
-        {children}
+        <SocketProvider>
+          <ReactQueryProvider>
+            <AuthProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </AuthProvider>
+          </ReactQueryProvider>
+        </SocketProvider>
       </body>
-     </AuthProvider>
     </html>
   );
 }

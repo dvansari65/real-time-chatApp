@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "./ui/Button";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 interface profileProps {
   avatar: string;
   username: string;
@@ -20,7 +20,9 @@ function ProfileIcon({
   return (
     <div className="flex flex-col items-center relative">
       <button className="relative" onClick={() => setModal((prev) => !prev)}>
-        <img src={avatar} className="size-11 rounded-[50%]" alt="" />
+        {
+          avatar || avatar !== "" ? <img src={avatar} className="size-11 rounded-[50%]"  /> : <User size={16}/>
+        }
       </button>
       {modal && (
         <div className="absolute top-full right-0 mt-2 border border-gray-300 p-4 rounded-xl flex flex-col gap-3  w-[300px] max-w-[70vw] sm:w-[300px] md:w-[300px] bg-white shadow-lg z-10 ">

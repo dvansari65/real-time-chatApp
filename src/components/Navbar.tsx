@@ -3,45 +3,52 @@ import { useAuth } from "@/contextApi";
 import Link from "next/link";
 import Profile from "./Profile";
 import { toast } from "sonner";
-
+import { useEffect, useState } from "react";
+import LogoutModal from "./modal/LogoutModal";
+import { useRouter } from "next/navigation";
+import { Settings, UserPlus } from "lucide-react";
 export function SimpleNavbar() {
-  const { user, loading } = useAuth();
-
-  const handleLogout = async()=>{
-    try {
-      const res = await fetch("/api/auth/logout",{
-        method:"POST"
-      })
-      const data = await res.json()
-      if(!res.ok){
-        toast.error(data.message || "failed to logout!")
-      }
-      toast.success(data.message || "logged out successfully!")
-      console.log("user",user)
-    } catch (error) {
-      console.log("failed to logout!",error)
-    }
-  }
+  const router = useRouter();
+  const [modal, setModal] = useState(false);
+  const { data, isLoading, logout } = useAuth();
+  // useEffect(() => {
+  //   if (!isLoading) {
+  //     console.log("data", data);
+  //   }
+  // }, []);
+  const handleLogout = async () => {
+   try {
+    await logout();
+    router.push("/login");
+   } catch (error) {
+    console.log("failed to logout!",error)
+   }
+  };
+  if (isLoading) return;
+  const user = data?.user;
   return (
     <nav className="bg-white shadow border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-end h-16">
-          
+        <div className="flex justify-between h-16 ">
+        <div className="flex justify-center items-center p-2">
+        <div className="flex items-center justify-between bg-green-500 px-2 py-1 rounded-[5px] ">
+          <h1 className="text-xl font-semibold">WhatsApp</h1>
+        </div>
+        </div>
           <div className="flex items-center space-x-4">
-            {loading ? (
-              // Loading state - show skeleton or spinner
-              <div className="animate-pulse bg-gray-200 h-8 w-20 rounded"></div>
-            ) : user ? (
-              // User is logged in - show logout or profile options
-              <div className="flex items-center space-x-2">
+            {user ? (
+              <div className="flex items-center space-x-2 gap-2">
                 <span className="text-sm text-gray-600">
                   Welcome, {user.username || user.email}
                 </span>
-                <Profile logout={handleLogout} email={user.email} username={user.username} avatar={user.avatar}/>
-                
+                <Profile
+                  logout={() => setModal(true)}
+                  email={user.email}
+                  username={user.username}
+                  avatar={user.avatar}
+                />
               </div>
             ) : (
-              // User is not logged in - show login and signup
               <div className="flex items-center space-x-2">
                 <Link
                   href="/login"
@@ -58,6 +65,13 @@ export function SimpleNavbar() {
               </div>
             )}
           </div>
+          {modal && (
+            <LogoutModal
+              isOpen={modal}
+              onClose={() => setModal(false)}
+              onConfirm={handleLogout}
+            />
+          )}
         </div>
       </div>
     </nav>

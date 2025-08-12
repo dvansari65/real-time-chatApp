@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import { Socket } from "socket.io";
 import { prisma } from "./src/lib/prisma";
 import { NextResponse } from "next/server";
+import { timeStamp } from "console";
 
 const server = createServer();
 const io = new Server(server, {
@@ -25,8 +26,8 @@ interface MessageData {
 interface UserAuthData {
   userId: number;
   username: string;
-  avatar: string;
-  phoneNumber: number;
+  avatar?: string;
+  phoneNumber?: number;
 }
 interface JoinChatData {
   chatId: number;
@@ -70,7 +71,7 @@ io.on("connection", (socket: Socket) => {
       });
       if (!chatExist) {
         return NextResponse.json({
-          message: "failed to join chat!",
+          message: "chat not exist!",
           success: false,
         });
       }
@@ -95,7 +96,7 @@ io.on("connection", (socket: Socket) => {
           chatId: chatId,
         },
       });
-      if (chatExist) {
+      if (!chatExist) {
         socket.emit("error", {
           message: "Not authorized to send message to this chat",
         });
@@ -152,6 +153,37 @@ io.on("connection", (socket: Socket) => {
       socket.emit("error", { message: "failed to send message!" });
     }
   });
+  socket.on("leave-chat",async(data:JoinChatData)=>{
+    const {userId,chatId} = data
+    try {
+      const chat = await prisma.chatMember.findFirst({
+        where:{
+          id:chatId,
+          userId:userId
+        }
+      })
+      if(!chat){
+        return NextResponse.json(
+          {
+            message:"chat not exist!",
+            success:false
+          },
+          {status:404}
+        )
+      }
+      socket.leave(`chat-${chatId}`)
+      console.log(`${userId} left ${chatId}`);
+      socket.to(`chat-${chatId}`).emit("user-left-chat",{
+        userId,
+        chatId,
+        timeStamp:new Date()
+      })
+    } catch (error) {
+      console.error("faile to leave chat!",error)
+      socket.emit("error",{message:"failed to leave chat!"})
+    }
+
+  })
   socket.on("disconnect", async () => {
     try {
       const userId = socketServer.get(socket.id);

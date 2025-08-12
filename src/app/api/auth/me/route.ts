@@ -3,9 +3,15 @@ import { prisma } from "../../../../lib/prisma";
 import { verifySession } from "@/lib/auth";
 
 export const GET = async (req: NextRequest) => {
+
   const session = await verifySession();
+  console.log("session",session);
+  
   if (!session) {
-    throw new Error("failed to find session!");
+    return NextResponse.json(
+        { success: false, error: "No session found" },
+        { status: 401 }
+      );
   }
   try {
     const user = await prisma.user.findUnique({

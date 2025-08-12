@@ -17,8 +17,8 @@ model User {
   id          Int      @id @default(autoincrement())
   username    String   @unique
   email       String   @unique
-  phoneNumber String      @unique
-  avatar      String 
+  phoneNumber String   @unique
+  avatar      String
   bio         String
   isOnline    Boolean  @default(false)
   lastSeen    DateTime @default(now())
@@ -32,9 +32,9 @@ model User {
 }
 
 model Chat {
-  id          Int      @id @default(autoincrement())
+  id          Int      @id  @default(autoincrement())
   name        String
-  discription String
+  description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
 
@@ -44,14 +44,16 @@ model Chat {
 }
 
 model chatMember {
-  id       Int      @id @default(autoincrement())
-  userId   Int    
-  chatId   Int     
-  joinedAt DateTime @default(now())
-  leftAt   DateTime @default(now())
+  id       Int       @id @default(autoincrement())
+  userId   Int
+  chatId   Int
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
   //relationships
-  user     User     @relation(fields: [userId], references: [id],onDelete: Cascade)
-  chat     Chat     @relation(fields: [chatId], references: [id],onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat     Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chatId])
 }
 
 model Message {
@@ -64,13 +66,13 @@ model Message {
   duration  Int?
   chatId    Int?
   senderId  Int
-  replyToId Int
+  replyToId Int?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   // Relationships
-  chat      Chat?           @relation(fields: [chatId], references: [id],onDelete: Cascade)
-  sender    User            @relation("MessageSender", fields: [senderId], references: [id],onDelete: Cascade)
-  replyTo   Message         @relation("MessageReply", fields: [replyToId], references: [id])
+  chat      Chat?           @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User            @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo   Message?         @relation("MessageReply", fields: [replyToId], references: [id])
   replies   Message[]       @relation("MessageReply")
   status    MessageStatus[]
 }
@@ -96,6 +98,7 @@ model BlockedUser {
 
   blocker User @relation("BlockerUser", fields: [blockerId], references: [id], onDelete: Cascade)
   blocked User @relation("BlockedUser", fields: [blockedId], references: [id], onDelete: Cascade)
+
   @@unique([blockerId, blockedId])
 }
 

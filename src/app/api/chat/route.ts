@@ -1,24 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "../../../lib/prisma"
 
-export const POST = async(req:NextResponse)=>{
+export const POST = async(req:NextRequest)=>{
     try {
         const body = await req.json()
-        const {userID1 , userID2} = body
+        
+        const {userId1 , userId2} = body
         const chat = await prisma.chat.findFirst({
             where:{
                 AND:[
                     {
                         members:{
                             some:{
-                                userId:userID1
+                                userId:userId1
                             }
                         }
                     },
                     {
                         members:{
                             some:{
-                                userId:userID2
+                                userId:userId2
                             }
                         }
                     },
@@ -26,8 +27,8 @@ export const POST = async(req:NextResponse)=>{
                         members:{
                             every:{
                                 OR:[
-                                    {userId:userID1},
-                                    {userId:userID2}
+                                    {userId:userId1},
+                                    {userId:userId2}
                                 ]
                             }
                         }
@@ -51,18 +52,19 @@ export const POST = async(req:NextResponse)=>{
                 }
             }
         })
+        console.log("chat",chat)
         if(chat){
             return NextResponse.json({success:true , chat})
         }
         const newChat = await prisma.chat.create({
             data:{
                 name:"",
-                discription:"",
-                createdAt:new Date,
+                description:"",
+                createdAt:new Date(),
                 members:{
                     create:[
-                        {userId:userID1},
-                        {userId:userID2}
+                        {userId:userId1},
+                        {userId:userId2}
                     ]
                 }
             },
@@ -71,16 +73,19 @@ export const POST = async(req:NextResponse)=>{
                     include:{
                         user:{
                             select:{
-                                username:true,
-                                avatar:true,
-                                phoneNumber:true,
-                                isOnline:true,
+                                id: true,
+                                username: true,
+                                avatar: true,
+                                phoneNumber: true,
+                                isOnline: true
                             }
                         }
                     }
                 }
             }
         })
+        console.log("new chat",newChat);
+        
         return NextResponse.json(
             {
                 success:true,
