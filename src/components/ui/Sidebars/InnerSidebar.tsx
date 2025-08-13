@@ -8,7 +8,7 @@ import {
   LoaderIcon,
 } from "lucide-react";
 import { useFetchUsers } from "@/lib/api/useFetchUser";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { toast } from "sonner";
 import { UserListSkeleton } from "../Skeleton";
@@ -22,6 +22,7 @@ export default function InnerSidebar() {
     isLoading: fetchUsersLoading,
     error,
   } = useFetchUsers();
+
 
   const handleChatCreation = async (userId: number) => {
     if (authLoading || fetchUsersLoading) return;

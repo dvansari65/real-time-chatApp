@@ -1,7 +1,15 @@
+interface MessageData {
+  content: string;
+  senderId: number;
+  chatId: number;
+  type: "TEXT" | "IMAGE" | "AUDIO" | "VIDEO";
+  replyToId?: number | null;
+}
+
 export interface Message {
-    content: string;
-    senderId: number;
-    chatId: number;
-    type: "TEXT" | "IMAGE" | "AUDIO" | "VIDEO";
-    replyToId: number;
-  }
+  id:number,
+  content:string,
+  chatId :number
+  senderId :number,
+  replyToId : number
+}

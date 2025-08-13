@@ -1,7 +1,6 @@
 "use client";
 
 import { useFetchResponse } from "@/types/useFetchUserResponse";
-import { allUsersResponse } from "@/types/user";
 
 import { useQuery } from "@tanstack/react-query";
 

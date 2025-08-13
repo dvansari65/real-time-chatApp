@@ -21,7 +21,7 @@ interface MessageData {
   senderId: number;
   chatId: number;
   type: "TEXT" | "IMAGE" | "AUDIO" | "VIDEO";
-  replyToId: number;
+  replyToId?: number;
 }
 interface UserAuthData {
   userId: number;
@@ -89,6 +89,7 @@ io.on("connection", (socket: Socket) => {
   });
   socket.on("send-message", async (data: MessageData) => {
     try {
+      console.log("message data",data)
       const { content, senderId, replyToId, type, chatId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {

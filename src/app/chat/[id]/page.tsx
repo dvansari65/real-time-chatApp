@@ -1,19 +1,15 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import {
-  Send,
-  Smile,
-  Paperclip,
-} from "lucide-react";
+import { Send, Smile, Paperclip } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
 import { useAuth } from "@/contextApi";
-import { getSingleUser } from "@/lib/api/getSingleUser";
+import { useSingleUser } from "@/lib/api/getSingleUser";
 import { useGetChat } from "@/lib/api/useGetchat";
 import { LoadingDots } from "@/components/ui/ThreeDotsLoader";
 import ChatHeader from "@/components/chat/chatHeader";
-import DummyMsgContainer from "@/components/chat/DummyMsgContainer";
 import { useJoinChat } from "@/hooks/useJoinRoom";
+import { toast } from "sonner";
 
 export default function Conversation() {
   const params = useParams();
@@ -21,6 +17,7 @@ export default function Conversation() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("with");
   const [messages, setMessages] = useState<any[]>([]);
+
   const [input, setInput] = useState("");
 
   const socket = useSocket();
@@ -28,7 +25,9 @@ export default function Conversation() {
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: singleUserData, isLoading: singleUserLoading } = getSingleUser(Number(userId));
+  const { data: singleUserData, isLoading: singleUserLoading } = useSingleUser(
+    Number(userId)
+  );
   const { data: chatData, isLoading: chatLoading } = useGetChat(Number(chatId));
 
   const scrollToBottom = () => {
@@ -50,8 +49,9 @@ export default function Conversation() {
       }
     });
 
-    socket.on("new-message", ({ message }) => {
-      setMessages((prev) => [...prev, message]);
+    socket.on("new-message", (data: any) => {
+      console.log("data", data);
+      setMessages((prev) => [...prev, data.message]);
     });
 
     return () => {
@@ -67,34 +67,29 @@ export default function Conversation() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
     }
   };
-
   const sendMessage = () => {
-    if (!socket || !input.trim() || !user?.id || !chatId) return;
-
     const messagePayload = {
       content: input.trim(),
-      senderId: user.id,
+      senderId: user?.id,
       chatId: Number(chatId),
-      type: "text",
+      type: "TEXT",
       replyToId: null,
-    };
+    }
+    setMessages((prev)=>(
+      [...prev, messagePayload]
+    ))
 
-    // Optimistic UI
-    setMessages((prev) => [
-      ...prev,
-      {
-        ...messagePayload,
-        sender: { username: user.username, avatar: user.avatar },
-        createdAt: new Date(),
-        pending: true,
-      },
-    ]);
-
-    socket.emit("send-message", messagePayload);
-    setInput("");
+    socket.emit("send-message");
+    if (socket && socket.connected) {
+      socket.emit("send-message",messagePayload)
+    }else{
+      socket.once("connect", () => {
+        socket.emit("send-message", messagePayload);
+      });
+    }
+    setInput("")
   };
 
   return (
@@ -117,27 +112,30 @@ export default function Conversation() {
             <LoadingDots />
           </div>
         )}
-        {chatData?.chat?.messages.length === 0 && messages.length === 0 ? (
-          <DummyMsgContainer />
-        ) : (
-          [...(chatData?.chat?.messages || []), ...messages].map((msg, idx) => (
-            <div key={idx} className="flex justify-end">
-              <div className="max-w-xs lg:max-w-md">
-                <div className="bg-green-600 text-white rounded-lg px-4 py-2 rounded-br-sm">
-                  <p className="text-sm">{msg.content}</p>
-                </div>
-                <div className="flex justify-end mt-1">
-                  <span className="text-xs text-gray-500">
-                    {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+        {
+          (
+            [...(chatData?.chat?.messages || []), ...messages].map((msg) => (
+              <div key={msg.id} className="flex justify-end">
+                <div className="max-w-xs lg:max-w-md">
+                  <div className="bg-green-600 text-white rounded-lg px-4 py-2 rounded-br-sm">
+                    <p className="text-sm">{msg.content}</p>
+                  </div>
+                  <div className="flex justify-end mt-1">
+                    <span className="text-xs text-gray-500">
+                      {new Date(msg.createdAt || Date.now()).toLocaleTimeString(
+                        [],
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )
+        }
         <div ref={messagesEndRef} />
       </div>
 

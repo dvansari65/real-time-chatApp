@@ -5,21 +5,24 @@ import { toast } from "sonner"
 
 
 
-export const getSingleUser = (id:number)=>{
+export const useSingleUser = (id: number) => {
     return useQuery<singleUserDataResponse>({
-        queryKey:["user",id],
-        queryFn: async ()=>{
-            const res = await fetch(`/api/users/${id}`,{
-                method:"GET",
-                credentials:"include"
-            })
-            const data = await res.json()
-            if(!res.ok){
-                toast.error(data.message || data.error || "failed to get user!")
-                return;
+        queryKey: ["user", id],
+        queryFn: async () => {
+            const res = await fetch(`/api/users/${id}`, {
+                method: "GET",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data.message || data.error || "Failed to get user!");
+                throw new Error(data.message || "Request failed"); // <-- important for react-query
             }
-            if(data)return data;
+
+            return data;
         },
-        staleTime:20*60*60
-    })
-}
+        staleTime: 20 * 60 * 1000, // <-- staleTime expects milliseconds, not seconds
+    });
+};
