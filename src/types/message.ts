@@ -11,5 +11,6 @@ export interface Message {
   content:string,
   chatId :number
   senderId :number,
-  replyToId : number
+  replyToId : number,
+  createdAt?:Date
 }

@@ -26,7 +26,7 @@ function Users({
             {avatar ? (
               <img
                 src={avatar}
-                className="text-gray-600 font-medium rounded-[50%]"
+                className="text-gray-600 font-medium rounded-[50%] object-cover"
               />
             ) : (
               <UserIcon size={18} />

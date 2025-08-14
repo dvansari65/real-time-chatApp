@@ -8,10 +8,12 @@ import {
   LoaderIcon,
 } from "lucide-react";
 import { useFetchUsers } from "@/lib/api/useFetchUser";
-import {  useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { toast } from "sonner";
 import { UserListSkeleton } from "../Skeleton";
+import { useChatCreation } from "@/hooks/useCreateChat";
+import { UserListItem } from "../UserListItems";
 
 export default function InnerSidebar() {
   const [chatError, setChatError] = useState("");
@@ -23,49 +25,18 @@ export default function InnerSidebar() {
     error,
   } = useFetchUsers();
 
-
-  const handleChatCreation = async (userId: number) => {
-    if (authLoading || fetchUsersLoading) return;
-    if (!user) {
-      setChatError("use is logged in!");
-      return;
-    }
-    if (authLoading) return;
-    if (!userId) {
-      setChatError("please select a user for chatting!");
-    }
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({
-          userId1: Number(user?.id),
-          userId2: userId,
-        }),
-      });
-      console.log("res:", res);
-      const data = await res.json();
-      console.log("data", data);
-
-      if (!res.ok) {
-        setChatError(data.error || "something went wrong!");
-        return;
-      }
-      const id = data?.chat?.id;
-      console.log("chatid",id)
-      if (id) {
-        window.location.href = `/chat/${id}?with=${userId}`;
-      }
-    } catch (error) {
-      console.log("failed to create chat!", error);
-    }
-  };
+  const filteredUsers = useMemo(() => {
+      if (!useFetchData?.users || !user?.id) return [];
+      return useFetchData.users.filter((u) => Number(u.id) !== Number(user.id));
+    }, [useFetchData?.users, user?.id]);
+  // 
+  const {createChat , isCreatingChat} = useChatCreation()
   if (error) return toast.error(error.message || "something went wrong!");
   if (chatError) return toast.error(chatError);
   return (
     <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
       {/* Header */}
-  
+
       {/* Search */}
       <div className="p-3 bg-white border-b">
         <div className="relative">
@@ -104,27 +75,17 @@ export default function InnerSidebar() {
 
         {fetchUsersLoading ? (
           <UserListSkeleton />
-        ) : data ? (
+        ) : (
           <div className="p-2 space-y-2">
-            {useFetchData?.users
-              ?.filter((i) => Number(i.id) !== Number(user?.id))
-              ?.map((i) => (
-                <button
-                  onClick={() => handleChatCreation(Number(i.id))}
-                  key={i.id}
-                  className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg cursor-pointer"
-                >
-                  <Users
-                    avatar={i?.avatar}
-                    isOnline={i?.isOnline}
-                    username={i?.username}
-                    id={i?.id}
-                  />
-                </button>
+            {filteredUsers?.map((user) => (
+                <UserListItem
+                key={user?.id}
+                isCreatingChat={isCreatingChat}
+                onChatCreate={createChat}
+                user={user}
+                />
               ))}
           </div>
-        ) : (
-          <div className="w-full flex justify-center">no users found!</div>
         )}
       </div>
     </div>

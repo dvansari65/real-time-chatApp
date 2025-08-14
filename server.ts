@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { Socket } from "socket.io";
 import { prisma } from "./src/lib/prisma";
 import { NextResponse } from "next/server";
-import { timeStamp } from "console";
+
 
 const server = createServer();
 const io = new Server(server, {
@@ -103,6 +103,7 @@ io.on("connection", (socket: Socket) => {
         });
         return;
       }
+    
       const message = await prisma.message.create({
         data: {
           content,
@@ -179,6 +180,7 @@ io.on("connection", (socket: Socket) => {
         chatId,
         timeStamp:new Date()
       })
+
     } catch (error) {
       console.error("faile to leave chat!",error)
       socket.emit("error",{message:"failed to leave chat!"})
