@@ -145,16 +145,37 @@ io.on("connection", (socket: Socket) => {
           updatedAt: new Date(),
         },
       });
+      await prisma.messageStatus.update({
+        where:{
+          id:message?.id
+        },
+        data:{
+          status:"DELIVERED"
+        }
+      })
       socket.to(`chat-${chatId}`).emit("new-message", {
         message,
         timeStamp: new Date(),
       });
+      socket.emit("message-delivered",{
+        messageId:message?.id,
+        Status:"DELIVERED",
+        chatId
+      })
       console.log(`Message sent in chat ${chatId} by user ${senderId}`);
     } catch (error) {
       console.log("failed to send message!", error);
       socket.emit("error", { message: "failed to send message!" });
     }
   });
+  socket.on("mark-as-read",async({chatId,userId}:{chatId:number,userId:number})=>{
+
+      socket.to(`chat-${chatId}`).emit(`mark-as-read`,{
+        Status:"READ",
+        readerId:userId,
+        chatId
+      })
+  })
   socket.on("leave-chat",async(data:JoinChatData)=>{
     const {userId,chatId} = data
     try {
@@ -182,7 +203,7 @@ io.on("connection", (socket: Socket) => {
       })
 
     } catch (error) {
-      console.error("faile to leave chat!",error)
+      console.error("failed to leave chat!",error)
       socket.emit("error",{message:"failed to leave chat!"})
     }
 

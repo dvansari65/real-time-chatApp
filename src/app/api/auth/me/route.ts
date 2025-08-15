@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { verifySession } from "@/lib/auth";
 
-export const GET = async (req: NextRequest) => {
+export const GET = async () => {
 
   const session = await verifySession();
   console.log("session",session);

@@ -10,13 +10,15 @@ import { LoadingDots } from "@/components/ui/ThreeDotsLoader";
 import ChatHeader from "@/components/chat/chatHeader";
 import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
+import { messageStatus } from "@/types/message";
+
 
 export default function Conversation() {
   const params = useParams();
   const chatId = params.id;
   const searchParams = useSearchParams();
   const userId = searchParams.get("with");
-  
+  // const [messageStatus,setMessageStatus] = useState<>("SENT")
   const [messages, setMessages] = useState<any[]>([]);
 
   const [input, setInput] = useState("");
@@ -84,7 +86,7 @@ export default function Conversation() {
       replyToId: null,
     };
     setMessages((prev) => [...prev, messagePayload]);
-
+   
     // socket.emit("send-message");
     if (socket && socket.connected) {
       socket.emit("send-message", messagePayload);
