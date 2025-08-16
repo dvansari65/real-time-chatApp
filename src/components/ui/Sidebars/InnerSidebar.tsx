@@ -14,8 +14,11 @@ import { toast } from "sonner";
 import { UserListSkeleton } from "../Skeleton";
 import { useChatCreation } from "@/hooks/useCreateChat";
 import { UserListItem } from "../UserListItems";
+import { Button } from "../Button";
+import SelectUserForNewGroup from "@/components/modal/SelectUserForNewGroup";
 
 export default function InnerSidebar() {
+  const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [chatError, setChatError] = useState("");
   const { data, isLoading: authLoading } = useAuth();
   const user = data?.user;
@@ -26,11 +29,11 @@ export default function InnerSidebar() {
   } = useFetchUsers();
 
   const filteredUsers = useMemo(() => {
-      if (!useFetchData?.users || !user?.id) return [];
-      return useFetchData.users.filter((u) => Number(u.id) !== Number(user.id));
-    }, [useFetchData?.users, user?.id]);
-  // 
-  const {createChat , isCreatingChat} = useChatCreation()
+    if (!useFetchData?.users || !user?.id) return [];
+    return useFetchData.users.filter((u) => Number(u.id) !== Number(user.id));
+  }, [useFetchData?.users, user?.id]);
+  //
+  const { createChat, isCreatingChat } = useChatCreation();
   if (error) return toast.error(error.message || "something went wrong!");
   if (chatError) return toast.error(chatError);
   return (
@@ -54,40 +57,48 @@ export default function InnerSidebar() {
         <div className="flex space-x-4">
           <div className="flex items-center space-x-2 text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg">
             <MessageCircle className="w-4 h-4" />
-            <span className="text-sm font-medium">New Chat</span>
+            <Button className="text-sm font-medium">New Chat</Button>
           </div>
           <div className="flex items-center space-x-2 text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg">
             {/* <Users className ="w-4 h-4" /> */}
-            <span className="text-sm font-medium">New Group</span>
+            <Button
+              onClick={() => setSelectUserModal(true)}
+              className="text-sm font-medium"
+            >
+              New Group
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Recent Chats Header */}
-        <div className="px-5 py-3 border-t border-gray-200 bg-gray-50 flex justify-start gap-2 items-center">
-          <MessageCircle />
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Users
-          </h3>
-        </div>
-
-        {fetchUsersLoading ? (
-          <UserListSkeleton />
-        ) : (
-          <div className="p-2 space-y-2">
-            {filteredUsers?.map((user) => (
+      {selectUserModal && (
+        <SelectUserForNewGroup
+          className="relative "
+          isOpen={selectUserModal}
+          onCloce={() => setSelectUserModal(false)}
+          proceedAction={() => {}}
+          users={filteredUsers}
+        />
+      )}
+      {!selectUserModal && (
+        <div className="flex-1 overflow-y-auto">
+          {fetchUsersLoading ? (
+            <UserListSkeleton />
+          ) : (
+            <div className="p-2 space-y-2 absolute">
+              {filteredUsers?.map((user) => (
                 <UserListItem
-                key={user?.id}
-                isCreatingChat={isCreatingChat}
-                onChatCreate={createChat}
-                user={user}
+                  key={user?.id}
+                  isCreatingChat={isCreatingChat}
+                  onChatCreate={createChat}
+                  user={user}
                 />
               ))}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
