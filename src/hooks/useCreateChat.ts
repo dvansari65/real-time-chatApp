@@ -54,5 +54,5 @@ export const useChatCreation = () => {
       }
     }, [user, authLoading, router, isCreatingChat]);
   
-    return { createChat, isCreatingChat };
+    return { createChat, isCreatingChat,authLoading };
   };

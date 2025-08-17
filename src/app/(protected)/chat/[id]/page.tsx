@@ -11,6 +11,7 @@ import ChatHeader from "@/components/chat/chatHeader";
 import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { messageStatus } from "@/types/message";
+import { useChatCreation } from "@/hooks/useCreateChat";
 
 
 export default function Conversation() {
@@ -97,9 +98,15 @@ export default function Conversation() {
     }
     setInput("");
   };
-
+  const {authLoading} = useChatCreation()
+if(authLoading) return (
+  <div className="w-full h-[100%] flex justify-center items-center">
+    redirecting to the chat....
+  </div>
+)
   return (
     <main className="flex-1 flex flex-col h-screen bg-gray-50">
+      
       {/* Chat Header */}
       {singleUserLoading ? (
         <div className="w-full h-[60px] bg-gray-200 "></div>

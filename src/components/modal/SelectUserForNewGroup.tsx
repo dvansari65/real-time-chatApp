@@ -1,10 +1,11 @@
 import { partialUser, User } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import NewGroupAddedUserCard from "../ui/NewGroupAddedUserCard";
 
 interface newGroupProps {
   isOpen: boolean;
-  onCloce: () => void;
+  onClose: () => void;
   proceedAction: () => void;
   users: partialUser[];
   className?: string;
@@ -12,13 +13,14 @@ interface newGroupProps {
 
 function SelectUserForNewGroup({
   isOpen,
-  onCloce,
+  onClose,
   proceedAction,
   users,
   className,
 }: newGroupProps) {
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  if (!isOpen) return null;
+  const [addedUsers, setAddedUser] = useState<partialUser[]>([]);
+  // if (!isOpen) return null;
   const handleSelectUsers = (id: number) => {
     setSelectedUsers((prev) =>
       selectedUsers.includes(id)
@@ -26,41 +28,65 @@ function SelectUserForNewGroup({
         : [...prev, id]
     );
   };
+  useEffect(() => {
+    const addedUser = selectedUsers.flatMap((i) => {
+      return users.filter((user) => user?.id === i);
+    });
+    setAddedUser(addedUser);
+  }, [selectedUsers]);
+
+  const handleRemoveUser = (userId:number)=>{
+    setSelectedUsers((prev) => prev.filter((id) => id !== userId));
+  }
 
   return (
     <div
-      className={`fixed inset-0  h-[100%] max-w-[330px] bg-slate-100 overflow-y-auto  ${className}`}
+      className={`fixed inset-0 z-50 h-[100%] max-w-[330px] bg-slate-100 overflow-y-auto scrollbar-hide
+        transition-transform duration-300 ease-in-out ${
+          isOpen ? `translate-x-0` : `-translate-x-full`
+        }
+          ${className}`}
     >
       <div className="flex flex-col gap-3 w-full h-screen">
         <div className="flex flex-row justify-between items-center px-2 py-1 ">
-          <button onClick={onCloce}>
+          <button onClick={onClose}>
             <ArrowLeft size={15} />
           </button>
           <div className="text-black font-bold">Add Members</div>
-          <button disabled={selectedUsers.length === 0} onClick={proceedAction} className={ selectedUsers.length === 0 ? `text-gray-500` : `text-green-500`}>
+
+          <button
+            disabled={selectedUsers.length === 0}
+            onClick={proceedAction}
+            className={
+              selectedUsers.length === 0 ? `text-gray-500` : `text-green-500`
+            }
+          >
             Next
           </button>
         </div>
-        <div>
-          {users.map((user) => (
-            <div
-              key={user?.id}
-              className="flex flex-row justify-between px-2 border-b border-gray-300 mx-2 py-1 "
-            >
-              <div className="flex justify-start items-center gap-2 px-1">
-                <img className="size-13 rounded-[50%] " src={user?.avatar} />
-                <span>{user?.username}</span>
+        <div className="flex flex-col justify-start gap-3 ">
+          <NewGroupAddedUserCard addedUsers={addedUsers} onRemoveUser={handleRemoveUser}/>
+          <div className="bg-gray-100 p-2">
+            {users.map((user) => (
+              <div
+                key={user?.id}
+                className="flex flex-row justify-between px-2 border-b border-gray-300 mx-2 py-1 mb-2 "
+              >
+                <div className="flex justify-start items-center gap-2 px-1">
+                  <img className="size-13 rounded-[50%] mb-3" src={user?.avatar} />
+                  <span>{user?.username}</span>
+                </div>
+                <div className=" flex justify-center items-center">
+                  <input
+                    checked={selectedUsers?.includes(Number(user?.id))}
+                    type="checkbox"
+                    onChange={() => handleSelectUsers(Number(user?.id))}
+                    className="w-4 h-4 bg-gray-200 outline-none"
+                  />
+                </div>
               </div>
-              <div className=" flex justify-center items-center">
-                <input
-                  checked={selectedUsers?.includes(Number(user?.id))}
-                  type="checkbox"
-                  onChange={() => handleSelectUsers(Number(user?.id))}
-                  className="w-4 h-4 bg-gray-200 outline-none"
-                />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

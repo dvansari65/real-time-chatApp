@@ -20,13 +20,20 @@ import SelectUserForNewGroup from "@/components/modal/SelectUserForNewGroup";
 export default function InnerSidebar() {
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [chatError, setChatError] = useState("");
-  const { data, isLoading: authLoading } = useAuth();
+  const { data} = useAuth();
   const user = data?.user;
   const {
     data: useFetchData,
     isLoading: fetchUsersLoading,
     error,
+    refetch
   } = useFetchUsers();
+
+  useEffect(()=>{
+    if(user?.id || !useFetchData || !fetchUsersLoading){
+      refetch?.()
+    }
+  },[user?.id, useFetchData, fetchUsersLoading , refetch])
 
   const filteredUsers = useMemo(() => {
     if (!useFetchData?.users || !user?.id) return [];
@@ -37,7 +44,7 @@ export default function InnerSidebar() {
   if (error) return toast.error(error.message || "something went wrong!");
   if (chatError) return toast.error(chatError);
   return (
-    <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
+    <div className="w-[320px] bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
       {/* Header */}
 
       {/* Search */}
@@ -59,24 +66,21 @@ export default function InnerSidebar() {
             <MessageCircle className="w-4 h-4" />
             <Button className="text-sm font-medium">New Chat</Button>
           </div>
-          <div className="flex items-center space-x-2 text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg">
-            {/* <Users className ="w-4 h-4" /> */}
-            <Button
+          <Button
               onClick={() => setSelectUserModal(true)}
-              className="text-sm font-medium"
+              className="text-sm font-medium text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg"
             >
               New Group
             </Button>
-          </div>
         </div>
       </div>
 
       {/* Navigation Links */}
       {selectUserModal && (
         <SelectUserForNewGroup
-          className="relative "
+          className= {`relative `}
           isOpen={selectUserModal}
-          onCloce={() => setSelectUserModal(false)}
+          onClose={() => setSelectUserModal(false)}
           proceedAction={() => {}}
           users={filteredUsers}
         />

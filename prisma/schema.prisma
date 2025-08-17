@@ -29,6 +29,7 @@ model User {
   chatMembers    chatMember[]
   blockedUsers   BlockedUser[] @relation("BlockerUser")
   blockedByUsers BlockedUser[] @relation("BlockedUser")
+  addedMembers   chatMember[]  @relation("AddedBy")
 }
 
 model Chat {
@@ -49,10 +50,12 @@ model chatMember {
   chatId   Int
   joinedAt DateTime  @default(now())
   leftAt   DateTime?
+  role     Role @default(MEMBER)
+  addedById Int
   //relationships
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   chat     Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
-
+  addedBy  User?     @relation("AddedBy" , fields: [addedById] , references: [id])
   @@unique([userId, chatId])
 }
 
@@ -116,4 +119,10 @@ enum MessageType {
   DOCUMENT
   VOICE
   LOCATION
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
 }

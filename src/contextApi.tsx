@@ -32,15 +32,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         credentials: "include",
       });
       console.log("res", res);
+      const data = await res.json()
+      console.log("data",data);
       if (!res.ok) {
+        toast.error(data.message)
         throw new Error(`Logout failed with status ${res.status}`);
       }
-      await queryClient.invalidateQueries();
-      await refetch();
       queryClient.clear()
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Failed to logout from console!", error);
+      throw error;
     }
   };
 
