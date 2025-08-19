@@ -6,6 +6,7 @@ import { loginProps } from "@/types/user";
 import { Input } from "./ui/input";
 import { Button } from "./ui/Button";
 import Link from "next/link";
+import { useAuth } from "@/contextApi";
 
 
 function LoginForm() {
@@ -17,6 +18,7 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
+  const {refetch} = useAuth()
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -45,9 +47,11 @@ function LoginForm() {
         setIsLoading(false);
         return;
       }
+      await refetch();
       setError("");
       setSuccess("logged in successfully");
       router.push("/")
+      router.refresh()
     } catch (error: any) {
       console.error("failed to login!", error);
       setError(error.Error || "server error!");

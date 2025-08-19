@@ -16,24 +16,27 @@ import { useChatCreation } from "@/hooks/useCreateChat";
 import { UserListItem } from "../UserListItems";
 import { Button } from "../Button";
 import SelectUserForNewGroup from "@/components/modal/SelectUserForNewGroup";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 export default function InnerSidebar() {
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [chatError, setChatError] = useState("");
-  const { data} = useAuth();
+  const { data } = useAuth();
   const user = data?.user;
+  
   const {
     data: useFetchData,
     isLoading: fetchUsersLoading,
     error,
-    refetch
+    refetch,
   } = useFetchUsers();
 
-  useEffect(()=>{
-    if(user?.id || !useFetchData || !fetchUsersLoading){
-      refetch?.()
+  useEffect(() => {
+    if (user?.id || !useFetchData || !fetchUsersLoading) {
+      refetch?.();
     }
-  },[user?.id, useFetchData, fetchUsersLoading , refetch])
+  }, [user?.id, useFetchData, fetchUsersLoading, refetch]);
 
   const filteredUsers = useMemo(() => {
     if (!useFetchData?.users || !user?.id) return [];
@@ -41,8 +44,10 @@ export default function InnerSidebar() {
   }, [useFetchData?.users, user?.id]);
   //
   const { createChat, isCreatingChat } = useChatCreation();
+
   if (error) return toast.error(error.message || "something went wrong!");
   if (chatError) return toast.error(chatError);
+  
   return (
     <div className="w-[320px] bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
       {/* Header */}
@@ -67,18 +72,18 @@ export default function InnerSidebar() {
             <Button className="text-sm font-medium">New Chat</Button>
           </div>
           <Button
-              onClick={() => setSelectUserModal(true)}
-              className="text-sm font-medium text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg"
-            >
-              New Group
-            </Button>
+            onClick={() => setSelectUserModal(true)}
+            className="text-sm font-medium text-green-600 cursor-pointer hover:bg-green-50 px-3 py-2 rounded-lg"
+          >
+            New Group
+          </Button>
         </div>
       </div>
 
       {/* Navigation Links */}
       {selectUserModal && (
         <SelectUserForNewGroup
-          className= {`relative `}
+          className={`relative `}
           isOpen={selectUserModal}
           onClose={() => setSelectUserModal(false)}
           proceedAction={() => {}}

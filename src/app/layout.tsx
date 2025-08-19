@@ -9,6 +9,9 @@ import OuterSidebar from "@/components/ui/Sidebars/OuterSidebar";
 import InnerSidebar from "@/components/ui/Sidebars/InnerSidebar";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { SocketProvider } from "@/utils/SocketProvider";
+import { Provider } from "react-redux";
+import { store } from "@/lib/store";
+import ReduxProvider from "@/_App";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +38,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SocketProvider>
+      <ReduxProvider>
+      <SocketProvider>
           <ReactQueryProvider>
             <AuthProvider>
               {children}
@@ -43,6 +47,7 @@ export default function RootLayout({
             </AuthProvider>
           </ReactQueryProvider>
         </SocketProvider>
+      </ReduxProvider>
       </body>
     </html>
   );

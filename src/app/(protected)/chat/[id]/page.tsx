@@ -4,7 +4,7 @@ import { Send, Smile, Paperclip } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
 import { useAuth } from "@/contextApi";
-import { useSingleUser } from "@/lib/api/getSingleUser";
+import { useSingleUser as useGetSingleUser} from "@/lib/api/getSingleUser";
 import { useGetChat } from "@/lib/api/useGetchat";
 import { LoadingDots } from "@/components/ui/ThreeDotsLoader";
 import ChatHeader from "@/components/chat/chatHeader";
@@ -21,7 +21,6 @@ export default function Conversation() {
   const userId = searchParams.get("with");
   // const [messageStatus,setMessageStatus] = useState<>("SENT")
   const [messages, setMessages] = useState<any[]>([]);
-
   const [input, setInput] = useState("");
 
   const socket = useSocket();
@@ -32,7 +31,7 @@ export default function Conversation() {
   const {
     data: singleUserData,
     isLoading: singleUserLoading
-  } = useSingleUser(Number(userId));
+  } = useGetSingleUser(Number(userId));
 
   const { 
     data: chatData,
@@ -101,7 +100,7 @@ export default function Conversation() {
   const {authLoading} = useChatCreation()
 if(authLoading) return (
   <div className="w-full h-[100%] flex justify-center items-center">
-    redirecting to the chat....
+    fetching chats....
   </div>
 )
   return (
