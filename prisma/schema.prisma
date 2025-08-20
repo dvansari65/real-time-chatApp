@@ -54,7 +54,7 @@ model chatMember {
   joinedAt  DateTime  @default(now())
   leftAt    DateTime?
   role      Role      @default(MEMBER)
-  addedById Int
+ 
   //relationships
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
@@ -110,10 +110,11 @@ model BlockedUser {
 
 model Group {
   id           Int     @id @default(autoincrement())
+  profileImage String
   userId       Int
   GroupMembers User[]  @relation("groupMember")
   name         String
-  description  String?
+  discription  String?
   admins       User[]  @relation("admins")
   createdBy    User    @relation("createdGroups", fields: [userId], references: [id])
 }

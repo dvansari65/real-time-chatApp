@@ -1,7 +1,7 @@
 import { partialUser, User } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import NewGroupAddedUserCard from "../ui/NewGroupAddedUserCard";
+import NewGroupAddedUserCard from "./NewGroupAddedUserCard";
 
 interface newGroupProps {
   isOpen: boolean;

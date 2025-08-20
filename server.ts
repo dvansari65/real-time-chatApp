@@ -169,7 +169,6 @@ io.on("connection", (socket: Socket) => {
     }
   });
   socket.on("mark-as-read",async({chatId,userId}:{chatId:number,userId:number})=>{
-
       socket.to(`chat-${chatId}`).emit(`mark-as-read`,{
         Status:"READ",
         readerId:userId,

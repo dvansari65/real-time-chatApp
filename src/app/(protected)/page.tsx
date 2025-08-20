@@ -23,9 +23,6 @@ export default function Home() {
   if (!data?.user) {
     return null; // Briefly shows nothing while redirecting
   }
-  useEffect(()=>{
-    console.log("chatCreationLaoding",chatCreationLaoding);
-  },[])
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold">Welcome, {data?.user?.username}!</h1>

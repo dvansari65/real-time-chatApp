@@ -15,7 +15,7 @@ import { UserListSkeleton } from "../Skeleton";
 import { useChatCreation } from "@/hooks/useCreateChat";
 import { UserListItem } from "../UserListItems";
 import { Button } from "../Button";
-import SelectUserForNewGroup from "@/components/modal/SelectUserForNewGroup";
+import SelectUserForNewGroup from "@/components/NewGroup/SelectUserForNewGroup";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 
