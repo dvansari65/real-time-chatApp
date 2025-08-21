@@ -13,7 +13,6 @@ export const useSingleUser = (id: number) => {
                 method: "GET",
                 credentials: "include",
             });
-
             const data = await res.json();
 
             if (!res.ok) {

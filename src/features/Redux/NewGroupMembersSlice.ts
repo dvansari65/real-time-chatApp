@@ -10,7 +10,7 @@ const initialState:createGroupInputTypesForFrontend = {
     name:"",
     GroupMembers:[],
     admins:[],
-    profileImage:""
+    profileImage:null
 } 
 
 export const groupSlice = createSlice({

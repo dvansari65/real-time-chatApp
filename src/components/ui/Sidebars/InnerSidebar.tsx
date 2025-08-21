@@ -8,7 +8,7 @@ import {
   LoaderIcon,
 } from "lucide-react";
 import { useFetchUsers } from "@/lib/api/useFetchUser";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { toast } from "sonner";
 import { UserListSkeleton } from "../Skeleton";
@@ -16,15 +16,14 @@ import { useChatCreation } from "@/hooks/useCreateChat";
 import { UserListItem } from "../UserListItems";
 import { Button } from "../Button";
 import SelectUserForNewGroup from "@/components/NewGroup/SelectUserForNewGroup";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+import NewGroupModal from "@/components/NewGroup/GiveNameToTheGroup";
 
 export default function InnerSidebar() {
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
-  const [chatError, setChatError] = useState("");
+  const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
   const user = data?.user;
-  
+
   const {
     data: useFetchData,
     isLoading: fetchUsersLoading,
@@ -45,9 +44,19 @@ export default function InnerSidebar() {
   //
   const { createChat, isCreatingChat } = useChatCreation();
 
-  if (error) return toast.error(error.message || "something went wrong!");
-  if (chatError) return toast.error(chatError);
+  const handleProceedAction = useCallback(() => {
+    console.log("Proceed action called!")
+    setGiveNameToNewGroupModal(true);
+    setSelectUserModal(false);
+  }, []);
+
+  const handleBackToPreviousModal = () => {
+    setSelectUserModal(true);
+    setGiveNameToNewGroupModal(false)
+  };
   
+  if (error) return toast.error(error.message || "something went wrong!");
+
   return (
     <div className="w-[320px] bg-gray-50 border-r border-gray-200 flex flex-col h-screen">
       {/* Header */}
@@ -83,11 +92,18 @@ export default function InnerSidebar() {
       {/* Navigation Links */}
       {selectUserModal && (
         <SelectUserForNewGroup
+          proceedAction={handleProceedAction}
           className={`relative `}
           isOpen={selectUserModal}
           onClose={() => setSelectUserModal(false)}
-          proceedAction={() => {}}
           users={filteredUsers}
+        />
+      )}
+      {giveNameToNewGroupModal && (
+        <NewGroupModal
+          className="relative"
+          isOpen={giveNameToNewGroupModal}
+          backToPreviousModal={handleBackToPreviousModal}
         />
       )}
       {!selectUserModal && (

@@ -2,25 +2,28 @@ import { partialUser, User } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import NewGroupAddedUserCard from "./NewGroupAddedUserCard";
+import { useDispatch } from "react-redux";
+import { setGroupMembers } from "@/features/Redux/NewGroupMembersSlice";
 
 interface newGroupProps {
   isOpen: boolean;
   onClose: () => void;
-  proceedAction: () => void;
   users: partialUser[];
   className?: string;
+  proceedAction : ()=>void
 }
 
 function SelectUserForNewGroup({
   isOpen,
   onClose,
-  proceedAction,
   users,
   className,
+  proceedAction
 }: newGroupProps) {
+  const dispatch = useDispatch();
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [addedUsers, setAddedUser] = useState<partialUser[]>([]);
-  // if (!isOpen) return null;
+  if (!isOpen) return null;
   const handleSelectUsers = (id: number) => {
     setSelectedUsers((prev) =>
       selectedUsers.includes(id)
@@ -29,15 +32,20 @@ function SelectUserForNewGroup({
     );
   };
   useEffect(() => {
-    const addedUser = selectedUsers.flatMap((i) => {
+    const addedUsers = selectedUsers.flatMap((i) => {
       return users.filter((user) => user?.id === i);
     });
-    setAddedUser(addedUser);
+    console.log("addedUsers", addedUsers);
+    setAddedUser(addedUsers);
   }, [selectedUsers]);
 
-  const handleRemoveUser = (userId:number)=>{
+  const handleRemoveUser = (userId: number) => {
     setSelectedUsers((prev) => prev.filter((id) => id !== userId));
-  }
+  };
+  useEffect(()=>{
+    console.log("user got set to global state..");
+    dispatch(setGroupMembers(addedUsers))
+  },[addedUsers,addedUsers.length])
 
   return (
     <div
@@ -65,7 +73,10 @@ function SelectUserForNewGroup({
           </button>
         </div>
         <div className="flex flex-col justify-start gap-3 ">
-          <NewGroupAddedUserCard addedUsers={addedUsers} onRemoveUser={handleRemoveUser}/>
+          <NewGroupAddedUserCard
+            addedUsers={addedUsers}
+            onRemoveUser={handleRemoveUser}
+          />
           <div className="bg-gray-100 p-2">
             {users.map((user) => (
               <div
@@ -73,7 +84,10 @@ function SelectUserForNewGroup({
                 className="flex flex-row justify-between px-2 border-b border-gray-300 mx-2 py-1 mb-2 "
               >
                 <div className="flex justify-start items-center gap-2 px-1">
-                  <img className="size-13 rounded-[50%] mb-3" src={user?.avatar} />
+                  <img
+                    className="size-13 rounded-[50%] mb-3"
+                    src={user?.avatar}
+                  />
                   <span>{user?.username}</span>
                 </div>
                 <div className=" flex justify-center items-center">

@@ -2,7 +2,7 @@ import { verifySession } from "@/lib/auth";
 import { createGroupInput } from "@/types/CreateGroup";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
-
+import { uploadFile } from "@/lib/uploadAvatar";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -21,7 +21,8 @@ export const POST = async (req: NextRequest) => {
         { status: 403 }
       );
     }
-    const { userId, admins, GroupMembers, name, discription,profileImage } = body;
+    const { userId, admins, GroupMembers, name, discription, profileImage } =
+      body;
     if (!userId) {
       return NextResponse.json(
         { error: "please provide user Id!" },
@@ -36,7 +37,9 @@ export const POST = async (req: NextRequest) => {
     }
     if (GroupMembers.length! >= 2) {
       return NextResponse.json(
-        { error: "please provide atleast 2 members for creation of the group!" },
+        {
+          error: "please provide atleast 2 members for creation of the group!",
+        },
         { status: 400 }
       );
     }
@@ -53,30 +56,36 @@ export const POST = async (req: NextRequest) => {
           connect: admins.map((admin) => ({ id: admin.id })),
         },
         discription,
-        profileImage,
+        profileImage:String(profileImage),
         GroupMembers: {
           connect: GroupMembers.map((member) => ({ id: member.id })),
         },
       },
     });
-    if(!NewGroup){
-        return NextResponse.json(
-            {error:"new group not created!"},
-            {status:500}
-        )
+    if (!NewGroup) {
+      return NextResponse.json(
+        { error: "new group not created!" },
+        { status: 500 }
+      );
+    }
+    try {
+      if (profileImage) await uploadFile(profileImage);
+    } catch (error) {
+      console.error("failed to upload profile image!", error);
+      throw error;
     }
     return NextResponse.json(
-        {
-            message:"new Group successfully created!",
-            NewGroup
-        },
-        {status:200}
-    )
-  } catch (error:any) {
-    console.log("failed to create new group!",error)
+      {
+        message: "new Group successfully created!",
+        NewGroup,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.log("failed to create new group!", error);
     return NextResponse.json(
-        {error:error.message || "failed to create new group!"},
-        {status:500}
-    )
+      { error: error.message || "failed to create new group!" },
+      { status: 500 }
+    );
   }
 };

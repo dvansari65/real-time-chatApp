@@ -81,7 +81,6 @@ function Signup() {
         setIsLoading(false);
         setError("");
         toast.success("user registered successfully!");
-
         setFormData({
           username: "",
           phoneNumber: "",

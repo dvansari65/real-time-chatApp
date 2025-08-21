@@ -110,7 +110,7 @@ model BlockedUser {
 
 model Group {
   id           Int     @id @default(autoincrement())
-  profileImage String
+  profileImage String?
   userId       Int
   GroupMembers User[]  @relation("groupMember")
   name         String

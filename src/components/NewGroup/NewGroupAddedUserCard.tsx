@@ -7,7 +7,7 @@ interface NewGroupAddedUserCardProps {
   onRemoveUser?: (userId: number) => void; // Optional callback to remove user
 }
 
-function NewGroupAddedUserCard({ addedUsers, onRemoveUser }: NewGroupAddedUserCardProps) {
+function NewGroupAddedUsersCard({ addedUsers, onRemoveUser }: NewGroupAddedUserCardProps) {
   if (addedUsers.length === 0) return null;
 
   return (
@@ -52,4 +52,4 @@ function NewGroupAddedUserCard({ addedUsers, onRemoveUser }: NewGroupAddedUserCa
   )
 }
 
-export default NewGroupAddedUserCard
+export default NewGroupAddedUsersCard
