@@ -6,7 +6,13 @@ import { uploadFile } from "@/lib/uploadAvatar";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const body: createGroupInput = await req.json();
+    const formData = await req.formData()
+    console.log("formdata",formData)
+    const profileImage = formData.get("profileImage") as File | null
+    const bodyData = formData.get("data") as string
+    const body = JSON.parse(bodyData)as createGroupInput
+    console.log("Received profileImage:", profileImage);
+    console.log("Parsed body data:", body);
     const session = await verifySession();
     if (!session) {
       return NextResponse.json(
@@ -21,21 +27,20 @@ export const POST = async (req: NextRequest) => {
         { status: 403 }
       );
     }
-    const { userId, admins, GroupMembers, name, discription, profileImage } =
-      body;
-    if (!userId) {
+    
+    if (!body?.userId) {
       return NextResponse.json(
         { error: "please provide user Id!" },
         { status: 400 }
       );
     }
-    if (admins.length! >= 1) {
+    if (body?.admins.length === 0) {
       return NextResponse.json(
         { error: "atleast one admin is required!" },
         { status: 400 }
       );
     }
-    if (GroupMembers.length! >= 2) {
+    if (body?.GroupMembers.length < 2) {
       return NextResponse.json(
         {
           error: "please provide atleast 2 members for creation of the group!",
@@ -43,22 +48,32 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    if (!name) {
+    if (!body?.name) {
       return NextResponse.json({
         error: "Please provide the name of the Group!",
       });
     }
+    try {
+      if(profileImage){
+        console.log("profileImage",profileImage);
+        
+        await uploadFile(profileImage);
+      }
+    } catch (error) {
+      console.error("failed to upload profile image!", error);
+      throw error;
+    }
     const NewGroup = await prisma.group.create({
       data: {
         userId: Number(UserId),
-        name,
+        name:body?.name,
         admins: {
-          connect: admins.map((admin) => ({ id: admin.id })),
+          connect: body?.admins.map((admin) => ({ id: admin.id })),
         },
-        discription,
+        discription:body?.discription,
         profileImage:String(profileImage),
         GroupMembers: {
-          connect: GroupMembers.map((member) => ({ id: member.id })),
+          connect: body?.GroupMembers.map((member) => ({ id: member.id })),
         },
       },
     });
@@ -67,12 +82,6 @@ export const POST = async (req: NextRequest) => {
         { error: "new group not created!" },
         { status: 500 }
       );
-    }
-    try {
-      if (profileImage) await uploadFile(profileImage);
-    } catch (error) {
-      console.error("failed to upload profile image!", error);
-      throw error;
     }
     return NextResponse.json(
       {
@@ -89,3 +98,12 @@ export const POST = async (req: NextRequest) => {
     );
   }
 };
+
+
+export const GET = async()=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}

@@ -6,8 +6,6 @@ import bcrypt from "bcryptjs";
 import {prisma} from "../../../../lib/prisma"
 export const POST = async (req: NextRequest) => {
   const formData = await req.formData();
-    console.log("formdata:",formData)
-  
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const phoneNumber = formData.get("phoneNumber") as string;
