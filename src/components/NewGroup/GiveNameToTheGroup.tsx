@@ -5,15 +5,15 @@ interface GiveNameToTheGroupProps {
 }
 
 import React, { useState } from "react";
-import { Camera, X, ChevronRight } from "lucide-react";
+import { X, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
 import { removeUsers } from "@/features/Redux/NewGroupMembersSlice";
-import {
-  createGroupInput,
-  createGroupInputTypesForFrontend,
-} from "@/types/CreateGroup";
+import { createGroupInput } from "@/types/CreateGroup";
 import { useAuth } from "@/contextApi";
+import { useCreateGroup } from "@/lib/api/createGroup";
+import { toast } from "sonner";
+import { partialUser } from "@/types/user";
 
 const NewGroupModal = ({
   className,
@@ -22,39 +22,63 @@ const NewGroupModal = ({
 }: GiveNameToTheGroupProps) => {
   const { data } = useAuth();
   const { GroupMembers } = useSelector((state: RootState) => state.NewGroup);
-  const [error, setError] = useState("");
   if (!isOpen) return;
   const [groupName, setGroupName] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [discription, setDiscription] = useState("");
-  const [disappearingMessages, setDisappearingMessages] = useState("Off");
   const dispatch = useDispatch();
-  const createGroupInputs: createGroupInputTypesForFrontend = {
-    admins: [data?.user!],
-    GroupMembers,
-    userId: data?.user?.id,
-    name: groupName,
-    profileImage: avatar || null,
-    discription,
-  };
+  const groupMembersAfterAddingCurrentUser = [...GroupMembers, data?.user!];
+  // const createGroupInputs: createGroupInput = {
+  //   admins: [data?.user!],
+  //   GroupMembers: groupMembersAfterAddingCurrentUser,
+  //   userId: data.user?.id!,
+  //   name: groupName,
+  //   profileImage: avatar || null,
+  //   discription,
+  // };
+  const { mutate, isPending } = useCreateGroup();
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setAvatar(file);
   };
   const removerSelectedUsers = (id: number) => {
-    if (id) {
-      dispatch(removeUsers(id));
-      return;
-    }
-    setError("please select the id to remove the user!");
+    dispatch(removeUsers(id));
   };
-  const handleCreateGroup = async () => {
+  const handleCreateGroup = () => {
     try {
-    } catch (error) {}
+      const formData = new FormData();
+      if (avatar) {
+        formData.append("profileImage", avatar);
+      }
+      formData.append(
+        "data",
+        JSON.stringify({
+          admins: [data?.user!],
+          GroupMembers: groupMembersAfterAddingCurrentUser,
+          userId: data.user?.id!,
+          name: groupName,
+          profileImage: avatar || null,
+          discription,
+        })
+      );
+      mutate(formData, {
+        onSuccess: (data) => {
+          console.log("Success!", data);
+          toast.success("Group successfully created!");
+        },
+        onError: (error) => {
+          toast.error(error.message || "failed to create group!");
+          console.error("failed to create group!", error);
+        },
+      });
+    } catch (error) {
+      console.error("failed to create group!", error);
+      throw error;
+    }
   };
   return (
     <div
-      className={`fixed inset-0 z-50 bg-white max-w-md mx-auto min-h-screen flex flex-col ${className}`}
+      className={`fixed inset-0 z-50 h-[100%] max-w-[330px] bg-slate-100 overflow-y-auto flex flex-col   ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
@@ -72,9 +96,11 @@ const NewGroupModal = ({
               ? "text-green-600"
               : "text-gray-400"
           }`}
-          disabled={!groupName.trim() && GroupMembers.length === 0}
+          disabled={
+            (!groupName.trim() && GroupMembers.length === 0) || isPending
+          }
         >
-          Create
+          {isPending ? "Creating..." : "Create"}
         </button>
       </div>
 
@@ -83,11 +109,38 @@ const NewGroupModal = ({
         <div className="flex items-center space-x-4">
           {/* Camera Icon */}
           <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            <input type="file" onChange={handleAvatarChange}>
-              <Camera />
-            </input>
+            {/* The label acts as the clickable camera icon area */}
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              {/* The actual file input is hidden */}
+              <input
+                id="avatar-upload"
+                type="file"
+                onChange={handleAvatarChange}
+                className="hidden"
+                accept="image/*" // Optional: ensures only images can be selected
+              />
+              <svg
+                className="w-8 h-8 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.437 4h3.126a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                ></path>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
+            </label>
           </div>
-
           {/* Group Name Input */}
           <div className="flex-1">
             <input
@@ -95,9 +148,8 @@ const NewGroupModal = ({
               placeholder="Group name (optional)"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="w-full text-lg border-none outline-none bg-transparent placeholder-gray-500"
+              className="w-full text-lg border-none outline-none bg-transparent placeholder-gray-500 "
             />
-            <div className="h-px bg-green-600 mt-2"></div>
           </div>
         </div>
       </div>
@@ -105,12 +157,14 @@ const NewGroupModal = ({
       {/* Settings Section */}
       <div className="bg-white">
         {/* Disappearing Messages */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <span className="text-lg text-gray-800">Disappearing messages</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-500">{disappearingMessages}</span>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </div>
+        <div className="flex flex-col items-start justify-start p-4 border-b border-gray-100">
+          <textarea
+            name="discription"
+            placeholder="description...."
+            value={discription}
+            onChange={(e) => setDiscription(e.target.value)}
+            className="w-full h-40 px-2"
+          ></textarea>
         </div>
         {/* Group Permissions */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
