@@ -24,7 +24,7 @@ export default function Home() {
     return null; // Briefly shows nothing while redirecting
   }
   return (
-    <div className="p-4">
+    <div className="p-4 w-full h-screen ">
       <h1 className="text-2xl font-bold">Welcome, {data?.user?.username}!</h1>
       {/* Your main dashboard/content */}
       {
