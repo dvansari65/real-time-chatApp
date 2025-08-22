@@ -3,7 +3,8 @@
 
 :root{
   --text-color :rgb(145, 150, 154);
-  --redirecting: linear-gradient(120deg, rgb(145, 150, 154), rgb(67, 89, 9))
+  --redirecting: linear-gradient(120deg, rgb(145, 150, 154), rgb(67, 89, 9));
+  --width : calc(100% - 380px);
 }
 
 .text-color{
@@ -29,3 +30,8 @@
     background-position: 200px 0; /* Matches background-size width */
   }
 }
+.width{
+  width: var(--width);
+}
+
+

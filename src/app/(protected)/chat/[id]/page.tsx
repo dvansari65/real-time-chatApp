@@ -18,11 +18,11 @@ export default function Conversation() {
   const params = useParams();
   const chatId = params.id;
   const searchParams = useSearchParams();
-  const userId = searchParams.get("with");
+  const UserId = searchParams.get("with");
   // const [messageStatus,setMessageStatus] = useState<>("SENT")
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-
+  const [isOnline,setIsonline] = useState(false)
   const socket = useSocket();
   const { data } = useAuth();
   const user = data?.user;
@@ -31,7 +31,7 @@ export default function Conversation() {
   const {
     data: singleUserData,
     isLoading: singleUserLoading
-  } = useGetSingleUser(Number(userId));
+  } = useGetSingleUser(Number(UserId));
 
   const { 
     data: chatData,
@@ -45,9 +45,17 @@ export default function Conversation() {
   useJoinChat(Number(chatId), Number(user?.id));
 
   useEffect(() => {
-    if (!socket) return;
-
-    socket.on("connect", () => {
+    if (singleUserData?.user?.isOnline !== undefined) {
+      console.log("Setting initial online status:", singleUserData.user.isOnline);
+      setIsonline(singleUserData.user.isOnline);
+    }
+  }, [singleUserData]);
+  
+  // Updated main socket useEffect
+  useEffect(() => {
+    if (!socket || !UserId) return;
+  
+    const handleConnect = () => {
       console.log("socket connected!");
       if (user) {
         socket.emit("user_authentication", {
@@ -55,18 +63,68 @@ export default function Conversation() {
           username: user?.username,
         });
       }
-    });
-
-    socket.on("new-message", (data: any) => {
-      console.log("data", data);
-      setMessages((prev) => [...prev, data.message]);
-    });
-
-    return () => {
-      socket.off("connect");
-      socket.off("new-message");
     };
-  }, [socket, user?.id, user?.username]);
+  
+    const handleUserOnline = (data: any) => {
+      console.log("user online", data);
+      if (Number(UserId) === data.userId) {
+        setIsonline(true);
+      }
+    };
+  
+    const handleUserOffline = (data: any) => {
+      console.log("user offline", data);
+      if (Number(UserId) === data.userId) {
+        setIsonline(false);
+      }
+    };
+  
+    const handleNewMessage = (data: any) => {
+      console.log("new message data", data);
+      setMessages((prev) => [...prev, data.message]);
+    };
+  
+    const handleMessageDelivered = (data: any) => {
+      console.log("received delivery data", data);
+    };
+  
+    const handleUserStatusResponse = (data: any) => {
+      console.log("user status response", data);
+      if (Number(UserId) === data.userId) {
+        setIsonline(data.isOnline);
+      }
+    };
+  
+    // Add event listeners
+    socket.on("connect", handleConnect);
+    socket.on("user-online", handleUserOnline);
+    socket.on("user-offline", handleUserOffline);
+    socket.on("new-message", handleNewMessage);
+    socket.on("message-delivered", handleMessageDelivered);
+    socket.on("user-status-response", handleUserStatusResponse);
+  
+    // If socket is already connected, emit authentication
+    if (socket.connected && user) {
+      socket.emit("user_authentication", {
+        userId: user?.id,
+        username: user?.username,
+      });
+    }
+  
+    // Request current online status for this specific user
+    if (UserId && user) {
+      socket.emit("check-user-status", { userId: Number(UserId) });
+    }
+  
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("user-online", handleUserOnline);
+      socket.off("user-offline", handleUserOffline);
+      socket.off("new-message", handleNewMessage);
+      socket.off("message-delivered", handleMessageDelivered);
+      socket.off("user-status-response", handleUserStatusResponse);
+    };
+  }, [socket, user?.id, user?.username, UserId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -104,28 +162,29 @@ if(authLoading) return (
   </div>
 )
   return (
-    <main className="flex-1 flex flex-col h-screen bg-gray-50">
+    <main className="flex-1 flex flex-col h-[100vh] bg-gray-50 ">
       
       {/* Chat Header */}
       {singleUserLoading ? (
         <div className="w-full h-[60px] bg-gray-200 "></div>
       ) : (
         <ChatHeader
+        userId={Number(UserId)}
           avatar={singleUserData?.user?.avatar as string}
-          isOnline={singleUserData?.user?.isOnline}
+          isOnline={isOnline }
           username={singleUserData?.user?.username as string}
         />
       )}
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15 ">
         {chatLoading && (
           <div className="w-full h-full flex justify-center items-center">
             <LoadingDots />
           </div>
         )}
         {[...(chatData?.chat?.messages || []), ...messages].map((msg) => (
-          <div key={msg?.id}>
+          <div className="" key={msg?.id}>
             <MessageContainer
               id={msg?.id}
               createdAt={msg?.createdAt}
@@ -139,7 +198,7 @@ if(authLoading) return (
       </div>
 
       {/* Message Input */}
-      <div className="bg-white border-t border-gray-200 px-4 py-4">
+      <div className="bg-white border-t border-gray-200 px-4 py-4 fixed bottom-0  width ">
         <div className="flex items-end space-x-3">
           <div className="flex-1">
             <div className="relative">
@@ -164,7 +223,7 @@ if(authLoading) return (
           <button
             onClick={sendMessage}
             disabled={!input.trim()}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${input.trim()
+            className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors ${input.trim()
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
