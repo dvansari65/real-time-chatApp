@@ -147,7 +147,8 @@ io.on("connection", (socket: Socket) => {
       });
       await prisma.messageStatus.update({
         where:{
-          id:message?.id
+          id:message?.id,
+          userId:senderId
         },
         data:{
           status:"DELIVERED"
@@ -159,7 +160,7 @@ io.on("connection", (socket: Socket) => {
       });
       socket.emit("message-delivered",{
         messageId:message?.id,
-        Status:"DELIVERED",
+        status:"DELIVERED",
         chatId
       })
       console.log(`Message sent in chat ${chatId} by user ${senderId}`);
@@ -170,7 +171,7 @@ io.on("connection", (socket: Socket) => {
   });
   socket.on("mark-as-read",async({chatId,userId}:{chatId:number,userId:number})=>{
       socket.to(`chat-${chatId}`).emit(`mark-as-read`,{
-        Status:"READ",
+        status:"READ",
         readerId:userId,
         chatId
       })

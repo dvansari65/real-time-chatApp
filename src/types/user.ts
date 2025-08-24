@@ -44,7 +44,7 @@ export interface loginProps {
 
 export interface meResponseProps{
   success:boolean,
-  user:User | null
+  user:partialUser | null
 }
 
 export interface allUsersResponse {

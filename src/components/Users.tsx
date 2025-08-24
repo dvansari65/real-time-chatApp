@@ -33,7 +33,7 @@ function Users({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-purple-400 truncate">
               {username}
             </p>
             <p className="text-xs text-gray-500">{isOnline}</p>

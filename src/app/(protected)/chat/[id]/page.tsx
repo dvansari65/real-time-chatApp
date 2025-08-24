@@ -22,6 +22,7 @@ export default function Conversation() {
   // const [messageStatus,setMessageStatus] = useState<>("SENT")
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
+  const [status,setStatus] = useState<messageStatus>("SENT")
   const [isOnline,setIsonline] = useState(false)
   const socket = useSocket();
   const { data } = useAuth();
@@ -64,7 +65,7 @@ export default function Conversation() {
         });
       }
     };
-  
+
     const handleUserOnline = (data: any) => {
       console.log("user online", data);
       if (Number(UserId) === data.userId) {
@@ -81,11 +82,12 @@ export default function Conversation() {
   
     const handleNewMessage = (data: any) => {
       console.log("new message data", data);
-      setMessages((prev) => [...prev, data.message]);
+      setMessages((prev) => [...prev, data?.message]);
     };
   
     const handleMessageDelivered = (data: any) => {
       console.log("received delivery data", data);
+      setStatus(data?.Status)
     };
   
     const handleUserStatusResponse = (data: any) => {
@@ -162,14 +164,14 @@ if(authLoading) return (
   </div>
 )
   return (
-    <main className="flex-1 flex flex-col h-[100vh] bg-gray-50 ">
-      
+    <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 " >
+
       {/* Chat Header */}
       {singleUserLoading ? (
         <div className="w-full h-[60px] bg-gray-200 "></div>
       ) : (
         <ChatHeader
-        userId={Number(UserId)}
+          userId={Number(UserId)}
           avatar={singleUserData?.user?.avatar as string}
           isOnline={isOnline }
           username={singleUserData?.user?.username as string}
@@ -184,8 +186,9 @@ if(authLoading) return (
           </div>
         )}
         {[...(chatData?.chat?.messages || []), ...messages].map((msg) => (
-          <div className="" key={msg?.id}>
+          <div  key={msg?.id}>
             <MessageContainer
+              status={status || "DELIVERED"}
               id={msg?.id}
               createdAt={msg?.createdAt}
               senderId={msg?.senderId}
@@ -198,8 +201,8 @@ if(authLoading) return (
       </div>
 
       {/* Message Input */}
-      <div className="bg-white border-t border-gray-200 px-4 py-4 fixed bottom-0  width ">
-        <div className="flex items-end space-x-3">
+      <div className="bg-gray-900 border-t border-gray-500 px-4 py-4 fixed bottom-0  width ">
+        <div className="flex items-center space-x-3">
           <div className="flex-1">
             <div className="relative">
               <textarea
@@ -223,7 +226,7 @@ if(authLoading) return (
           <button
             onClick={sendMessage}
             disabled={!input.trim()}
-            className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors ${input.trim()
+            className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors  ${input.trim()
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}

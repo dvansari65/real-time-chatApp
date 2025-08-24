@@ -1,10 +1,10 @@
-import {  createGroupInputTypesForFrontend } from "@/types/CreateGroup";
+import {  createGroupInput } from "@/types/CreateGroup";
 import { partialUser, User } from "@/types/user";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
 
-const initialState:createGroupInputTypesForFrontend = {
+const initialState:createGroupInput = {
     userId:null,
     discription:"",
     name:"",
