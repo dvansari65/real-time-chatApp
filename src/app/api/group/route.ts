@@ -6,11 +6,11 @@ import { uploadFile } from "@/lib/uploadAvatar";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const formData = await req.formData()
-    console.log("formdata",formData)
-    const profileImage = formData.get("profileImage") as File | null
-    const bodyData = formData.get("data") as string
-    const body = JSON.parse(bodyData)as createGroupInput
+    const formData = await req.formData();
+    console.log("formdata", formData);
+    const profileImage = formData.get("profileImage") as File | null;
+    const bodyData = formData.get("data") as string;
+    const body = JSON.parse(bodyData) as createGroupInput;
     console.log("Received profileImage:", profileImage);
     console.log("Parsed body data:", body);
     const session = await verifySession();
@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
         { status: 403 }
       );
     }
-    
+
     if (!body?.userId) {
       return NextResponse.json(
         { error: "please provide user Id!" },
@@ -54,9 +54,9 @@ export const POST = async (req: NextRequest) => {
       });
     }
     try {
-      if(profileImage){
-        console.log("profileImage",profileImage);
-        
+      if (profileImage) {
+        console.log("profileImage", profileImage);
+
         await uploadFile(profileImage);
       }
     } catch (error) {
@@ -66,12 +66,12 @@ export const POST = async (req: NextRequest) => {
     const NewGroup = await prisma.group.create({
       data: {
         userId: Number(UserId),
-        name:body?.name,
+        name: body?.name,
         admins: {
           connect: body?.admins.map((admin) => ({ id: admin.id })),
         },
-        discription:body?.discription,
-        profileImage:String(profileImage),
+        discription: body?.discription,
+        profileImage: String(profileImage),
         GroupMembers: {
           connect: body?.GroupMembers.map((member) => ({ id: member.id })),
         },
@@ -99,11 +99,43 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-
-export const GET = async()=>{
+export const GET = async (req: NextRequest) => {
   try {
-    
-  } catch (error) {
-    
+    const body = await req.json();
+    const { userId }: { userId: number } = body;
+    const groups = await prisma.group.findMany({
+      where: {
+        GroupMembers: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    });
+    if (groups.length === 0) {
+      return NextResponse.json(
+        {
+          message: "No Groups Found!",
+          success: false,
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+    console.log("groups :", groups);
+    return NextResponse.json(
+      {
+        message: "Groups Fetched Successfully!",
+        groups,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("failed to find groups!", error);
+    return NextResponse.json(
+      { error: error.message || "failed to find groups!" },
+      { status: 500 }
+    );
   }
-}
+};
