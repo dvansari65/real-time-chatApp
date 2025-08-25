@@ -1,7 +1,5 @@
-import { createGroupInput } from "@/types/CreateGroup";
+
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { error } from "console";
-import { NextResponse } from "next/server";
 import { toast } from "sonner";
 
 export const useCreateGroup = () => {
