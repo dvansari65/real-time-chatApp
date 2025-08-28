@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "../../../lib/prisma"
+import { error } from "console";
 
 export const POST = async(req:NextRequest)=>{
     try {
@@ -101,3 +102,50 @@ export const POST = async(req:NextRequest)=>{
     }
 }
 
+export const GET = async ()=>{
+    try {
+        const chats = await prisma.chat.findMany({
+            include:{
+                members:{
+                    include:{
+                        user:{
+                            select:{
+                                username:true,
+                                avatar:true,
+                                bio:true,
+                                phoneNumber:true,
+                                isOnline:true,
+                                lastSeen:true
+                            }
+                        }
+                    }
+                },
+                messages:{
+                    include:{}
+                }
+            }
+            
+        })
+        if(chats.length === 0){
+            return NextResponse.json(
+                {message:"chats not found!"},
+                {status:404}
+            )
+        }
+        console.log("chats from backend",chats);
+        
+        return NextResponse.json(
+            {
+                success:true,
+                chats
+            },
+            {status:200}
+        )
+    } catch (error:any) {
+        console.log("failed to find chats!",error)
+        return  NextResponse.json(
+            {error:error.message || "failed to find chats!"},
+            {status:500}
+        )
+    }
+}

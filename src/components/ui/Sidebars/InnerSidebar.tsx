@@ -20,6 +20,7 @@ import NewGroupModal from "@/components/NewGroup/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import AllChatsItem from "@/components/chat/AllChatItems";
+import Link from "next/link";
 
 export default function InnerSidebar() {
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
@@ -38,7 +39,12 @@ export default function InnerSidebar() {
     setGiveNameToNewGroupModal(false);
   };
   const { data: allChatData, isLoading } = useGetAllChats();
-
+  const members  = allChatData?.chats.flatMap(chat=>{
+    return chat?.members
+  })
+  const handleNavigation = ()=>{
+    
+  }
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -107,11 +113,13 @@ export default function InnerSidebar() {
           </div>
         ) : (
           <div>
-            {allChatData?.chats?.map((chat) => (
-              <div key={chat?.id}>
-                <AllChatsItem members={chat?.members} />
-              </div>
-            ))}
+            {
+              allChatData?.chats?.map(chat=>(
+                <button onClick={handleNavigation} key={chat?.id} className="group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer">
+                   
+                </button>
+              ))
+            }
           </div>
         )
       ) : null}

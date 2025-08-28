@@ -41,7 +41,6 @@ model Chat {
   description String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
-
   // relationships
   messages Message[]
   members  chatMember[]

@@ -41,3 +41,4 @@ export const GET = async(req:NextRequest , {params}:{params:Promise<{id:number}>
         )
     }
 }
+

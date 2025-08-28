@@ -14,16 +14,21 @@ export interface chatMember {
   password?: string | undefined;
 }
 
-interface Chat {
-  id: number;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  description: string;
-  messages: Message[];
-  members: chatMember[];
+export interface Chat {
+  id?: number;
+  name?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  description?: string;
+  messages?: Message[];
+  members?: chatMember[];
 }
 export interface chatType {
   success: boolean;
   chat: Chat;
+}
+
+export interface getAllChatsResponseType{
+  success:boolean,
+  chats:Chat[]
 }

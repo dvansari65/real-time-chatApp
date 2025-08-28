@@ -20,7 +20,7 @@ function Users({
   isOnline,
 }: userProps) {
   return (
-    <div className="flex items-center justify-start space-x-3 px-3  hover:bg-gray-100 rounded-lg cursor-pointer w-full">
+    <div className="flex items-center justify-start space-x-3 px-3   rounded-lg cursor-pointer w-full">
         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
           {avatar ? (
             <img

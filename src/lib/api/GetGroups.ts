@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 
-export const getGroupsInWhichUserIsPresent = ()=>{
+export const getGroupsInWhichUserIsPresent = (id:number)=>{
     return useQuery({
         queryKey:["getGroups"],
-        queryFn: async (id)=>{
+        queryFn: async ()=>{
             try {
                 const response = await fetch("/api/group",{
                     method:"GET",

@@ -1,6 +1,5 @@
 import { chatType } from "@/types/chat";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
 export const useGetChat = (chatId:number) => {
