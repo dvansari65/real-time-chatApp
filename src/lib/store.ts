@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import loadingReducer from "../features/Redux/loadingSlice" 
 import NewGroupReducer from "../features/Redux/NewGroupMembersSlice"
+import allChatDataReducer from "../features/Redux/allChatsSlice"
 export const store = configureStore({
     reducer:{
         Loading:loadingReducer,
-        NewGroup:NewGroupReducer
+        NewGroup:NewGroupReducer,
+        allChatData:allChatDataReducer
     }
     
 })

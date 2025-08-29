@@ -6,11 +6,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 interface initialStateData {
     messages:Message[] | undefined
-    user:partialUser | null
+    user:partialUser | null,
+    loading:boolean
 }
 const initialState:initialStateData = {
     messages:[],
-    user:null
+    user:null,
+    loading:false
 }
 
 export const allChatDataSlice = createSlice({

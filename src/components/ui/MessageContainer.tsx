@@ -8,7 +8,7 @@ interface messageContainerProps {
   senderId: number;
   userId: number;
   content: string;
-  createdAt: Date;
+  createdAt: Date | undefined;
   status: messageStatus;
 }
 

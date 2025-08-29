@@ -1,34 +1,26 @@
 "use client";
-import Users from "../../Users";
 import {
   MessageCircle,
-  Settings,
-  UserPlus,
-  Search,
-  LoaderIcon,
 } from "lucide-react";
-import { useFetchUsers } from "@/lib/api/useFetchUser";
-import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { useCallback, useState } from "react";
 import { useAuth } from "@/contextApi";
-import { toast } from "sonner";
 import { UserListSkeleton } from "../Skeleton";
-import { useChatCreation } from "@/hooks/useCreateChat";
-import { UserListItem } from "../UserListItems";
 import { Button } from "../Button";
 import SelectUserForNewGroup from "@/components/NewGroup/SelectUserForNewGroup";
 import NewGroupModal from "@/components/NewGroup/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
-import AllChatsItem from "@/components/chat/AllChatItems";
-import Link from "next/link";
 import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
+import {  storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
+import RedirectPage from "@/app/(protected)/Redirecting/page";
 
 export default function InnerSidebar() {
   const router = useRouter()
   const dispatch = useDispatch()
+  
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
@@ -60,6 +52,7 @@ export default function InnerSidebar() {
     console.log("filtered user",filteredUser);
     router.push(`/ExistedChat/${chatId}`)
   };
+  
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
       {/* Animated Background Elements */}

@@ -1,4 +1,5 @@
 import { Message } from "./message";
+import { partialUser } from "./user";
 
 
 export interface chatMember {
@@ -21,7 +22,7 @@ export interface Chat {
   updatedAt?: Date;
   description?: string;
   messages?: Message[];
-  members?: chatMember[];
+  members?: userFromChat[];
 }
 export interface chatType {
   success: boolean;
@@ -31,4 +32,14 @@ export interface chatType {
 export interface getAllChatsResponseType{
   success:boolean,
   chats:Chat[]
+}
+
+export interface userFromChat {
+chatId:number
+i: number
+joinedAt: string
+leftAt: string | null
+role: string
+user: partialUser,
+userId: number
 }
