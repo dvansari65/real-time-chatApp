@@ -147,7 +147,7 @@ export const GET = async ()=>{
                 {status:404}
             )
         }
-        console.log("chats from backend",chats);
+        // console.log("chats from backend",chats);
         
         return NextResponse.json(
             {
