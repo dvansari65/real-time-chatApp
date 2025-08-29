@@ -21,13 +21,23 @@ import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import AllChatsItem from "@/components/chat/AllChatItems";
 import Link from "next/link";
+import UserItem from "../UserItem";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
 
 export default function InnerSidebar() {
+  const router = useRouter()
+  const dispatch = useDispatch()
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
   const user = data?.user;
-
+  const {
+    data: allChatsData,
+    isLoading: allChatsDataLoading,
+    isError,
+  } = useGetAllChats();
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
     setGiveNameToNewGroupModal(true);
@@ -38,13 +48,18 @@ export default function InnerSidebar() {
     setSelectUserModal(true);
     setGiveNameToNewGroupModal(false);
   };
-  const { data: allChatData, isLoading } = useGetAllChats();
-  const members  = allChatData?.chats.flatMap(chat=>{
-    return chat?.members
-  })
-  const handleNavigation = ()=>{
-    
-  }
+
+  const handleNavigation = (chatId:number) => {
+    const filteredChats = allChatsData?.chats.find(chat=>Number(chat?.id) === chatId)
+    const userMember = filteredChats?.members?.find(member=>member?.user?.id !== user?.id)
+    const filteredUser = userMember?.user || {}
+    const filteredMessages = filteredChats?.messages || []
+    dispatch(storeMessages(filteredMessages ))
+    dispatch(storeUser(filteredUser))
+    console.log("filtered chats ",filteredChats);
+    console.log("filtered user",filteredUser);
+    router.push(`/ExistedChat/${chatId}`)
+  };
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -107,47 +122,24 @@ export default function InnerSidebar() {
         />
       )}
       {!selectUserModal && !giveNameToNewGroupModal ? (
-        isLoading ? (
+        allChatsDataLoading ? (
           <div className="p-4">
             <UserListSkeleton />
           </div>
         ) : (
-          <div>
-            {
-              allChatData?.chats?.map(chat=>(
-                <button onClick={handleNavigation} key={chat?.id} className="group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer">
-                   
-                </button>
-              ))
-            }
+          <div className="px-2">
+            {allChatsData?.chats?.map((chat) => (
+              <button
+                onClick={()=>handleNavigation(Number(chat?.id))}
+                key={chat?.id}
+                className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+              >
+                <UserItem users={chat?.members} />
+              </button>
+            ))}
           </div>
         )
       ) : null}
-
-      {/* {!selectUserModal && !giveNameToNewGroupModal ? (
-    <div className="relative z-10 flex-1 overflow-y-auto">
-      {fetchUsersLoading ? (
-        <div className="p-4">
-          <UserListSkeleton />
-        </div>
-      ) : (
-        <div className="p-3 space-y-2">
-          {filteredUsers?.map((user) => (
-            <div 
-              key={user?.id}
-              className="group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-            >
-              <UserListItem
-                isCreatingChat={isCreatingChat}
-                onChatCreate={createChat}
-                user={user}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  ) : null} */}
 
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-900/80 to-transparent pointer-events-none"></div>
