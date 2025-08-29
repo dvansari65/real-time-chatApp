@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {prisma} from "../../../lib/prisma"
 import { error } from "console";
+import { verifySession } from "@/lib/auth";
 
 export const POST = async(req:NextRequest)=>{
     try {
@@ -103,8 +104,22 @@ export const POST = async(req:NextRequest)=>{
 }
 
 export const GET = async ()=>{
+    const session = await verifySession()
+    if(!session){
+        return NextResponse.json(
+            {error:"please login first!"},
+            {status:401}
+        )
+    }
     try {
         const chats = await prisma.chat.findMany({
+            where:{
+                members:{
+                    some:{
+                        userId:parseInt(session?.userId)
+                    }
+                }
+            },
             include:{
                 members:{
                     include:{
