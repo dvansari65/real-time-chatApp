@@ -48,8 +48,6 @@ export const verifySession = async ()=>{
         if(new Date(session.expiresAt) < new Date()){
             return null;
         }
-        console.log("session",session);
-        
         return session;
     } catch (error) {
         console.log("failed to verify session",error)

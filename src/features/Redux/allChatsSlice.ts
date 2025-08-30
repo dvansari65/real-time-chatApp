@@ -7,12 +7,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 interface initialStateData {
     messages:Message[] | undefined
     user:partialUser | null,
-    loading:boolean
+    chatId:number | null
 }
 const initialState:initialStateData = {
     messages:[],
     user:null,
-    loading:false
+    chatId:null
 }
 
 export const allChatDataSlice = createSlice({
@@ -24,10 +24,13 @@ export const allChatDataSlice = createSlice({
         },
         storeUser : (state,action:PayloadAction<partialUser>)=>{
             state.user = action.payload
+        },
+        setChatId : (state,action)=>{
+            state.chatId = action.payload
         }
     }
 })
 
-export const {storeMessages,storeUser} = allChatDataSlice.actions
+export const {storeMessages,storeUser,setChatId} = allChatDataSlice.actions
 export default allChatDataSlice.reducer
 

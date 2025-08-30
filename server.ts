@@ -103,7 +103,7 @@ io.on("connection", (socket: Socket) => {
         });
         return;
       }
-    
+      
       const message = await prisma.message.create({
         data: {
           content,
@@ -137,6 +137,10 @@ io.on("connection", (socket: Socket) => {
           },
         },
       });
+      console.log("chatid",chatId)
+      if(!message){
+        return NextResponse.json({message:"message is not created"})
+      }
       await prisma.chat.update({
         where: {
           id: chatId,
@@ -145,16 +149,18 @@ io.on("connection", (socket: Socket) => {
           updatedAt: new Date(),
         },
       });
-      await prisma.messageStatus.update({
-        where:{
-          id:message?.id,
-          userId:senderId
-        },
-        data:{
-          status:"DELIVERED"
+      // console.log("About to CREATE messageStatus - NOT UPDATE");
+      // console.log("Message ID:", message.id, "User ID:", senderId);
+
+      await prisma.messageStatus.create({
+        data: {
+          messageId: message.id,  // Use messageId instead of id
+          userId: senderId,
+          status: "DELIVERED",
+          timestamp:new Date()
         }
       })
-      socket.to(`chat-${chatId}`).emit("new-message", {
+      io.to(`chat-${chatId}`).emit("new-message", {
         message,
         timeStamp: new Date(),
       });

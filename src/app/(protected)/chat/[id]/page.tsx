@@ -4,7 +4,7 @@ import { Send, Smile, Paperclip } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
 import { useAuth } from "@/contextApi";
-import { useSingleUser as useGetSingleUser} from "@/lib/api/getSingleUser";
+import { useSingleUser as useGetSingleUser } from "@/lib/api/getSingleUser";
 import { useGetChat } from "@/lib/api/useGetchat";
 import { LoadingDots } from "@/components/ui/ThreeDotsLoader";
 import ChatHeader from "@/components/chat/chatHeader";
@@ -12,7 +12,6 @@ import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { messageStatus } from "@/types/message";
 import { useChatCreation } from "@/hooks/useCreateChat";
-
 
 export default function Conversation() {
   const params = useParams();
@@ -22,22 +21,17 @@ export default function Conversation() {
   // const [messageStatus,setMessageStatus] = useState<>("SENT")
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
-  const [status,setStatus] = useState<messageStatus>("SENT")
-  const [isOnline,setIsonline] = useState(false)
+  const [status, setStatus] = useState<messageStatus>("SENT");
+  const [isOnline, setIsonline] = useState(false);
   const socket = useSocket();
   const { data } = useAuth();
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const {
-    data: singleUserData,
-    isLoading: singleUserLoading
-  } = useGetSingleUser(Number(UserId));
+  const { data: singleUserData, isLoading: singleUserLoading } =
+    useGetSingleUser(Number(UserId));
 
-  const { 
-    data: chatData,
-    isLoading: chatLoading
-  } = useGetChat(Number(chatId));
+  const { data: chatData, isLoading: chatLoading } = useGetChat(Number(chatId));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,15 +41,18 @@ export default function Conversation() {
 
   useEffect(() => {
     if (singleUserData?.user?.isOnline !== undefined) {
-      console.log("Setting initial online status:", singleUserData.user.isOnline);
+      console.log(
+        "Setting initial online status:",
+        singleUserData.user.isOnline
+      );
       setIsonline(singleUserData.user.isOnline);
     }
   }, [singleUserData]);
-  
+
   // Updated main socket useEffect
   useEffect(() => {
     if (!socket || !UserId) return;
-  
+
     const handleConnect = () => {
       console.log("socket connected!");
       if (user) {
@@ -72,31 +69,31 @@ export default function Conversation() {
         setIsonline(true);
       }
     };
-  
+
     const handleUserOffline = (data: any) => {
       console.log("user offline", data);
       if (Number(UserId) === data.userId) {
         setIsonline(false);
       }
     };
-  
+
     const handleNewMessage = (data: any) => {
-      console.log("new message data", data);
+      // console.log("new message data", data);
       setMessages((prev) => [...prev, data?.message]);
     };
-  
+
     const handleMessageDelivered = (data: any) => {
       console.log("received delivery data", data);
-      setStatus(data?.Status)
+      setStatus(data?.Status);
     };
-  
+
     const handleUserStatusResponse = (data: any) => {
       console.log("user status response", data);
       if (Number(UserId) === data.userId) {
         setIsonline(data.isOnline);
       }
     };
-  
+
     // Add event listeners
     socket.on("connect", handleConnect);
     socket.on("user-online", handleUserOnline);
@@ -104,7 +101,7 @@ export default function Conversation() {
     socket.on("new-message", handleNewMessage);
     socket.on("message-delivered", handleMessageDelivered);
     socket.on("user-status-response", handleUserStatusResponse);
-  
+
     // If socket is already connected, emit authentication
     if (socket.connected && user) {
       socket.emit("user_authentication", {
@@ -112,12 +109,12 @@ export default function Conversation() {
         username: user?.username,
       });
     }
-  
+
     // Request current online status for this specific user
     if (UserId && user) {
       socket.emit("check-user-status", { userId: Number(UserId) });
     }
-  
+
     return () => {
       socket.off("connect", handleConnect);
       socket.off("user-online", handleUserOnline);
@@ -146,7 +143,6 @@ export default function Conversation() {
       replyToId: null,
     };
     setMessages((prev) => [...prev, messagePayload]);
-   
     // socket.emit("send-message");
     if (socket && socket.connected) {
       socket.emit("send-message", messagePayload);
@@ -157,15 +153,15 @@ export default function Conversation() {
     }
     setInput("");
   };
-  const {authLoading} = useChatCreation()
-if(authLoading) return (
-  <div className="w-full h-[100%] flex justify-center items-center">
-    fetching chats....
-  </div>
-)
+  const { authLoading } = useChatCreation();
+  if (authLoading)
+    return (
+      <div className="w-full h-[100%] flex justify-center items-center">
+        fetching chats....
+      </div>
+    );
   return (
-    <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 " >
-
+    <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 ">
       {/* Chat Header */}
       {singleUserLoading ? (
         <div className="w-full h-[60px] bg-gray-200 "></div>
@@ -173,7 +169,7 @@ if(authLoading) return (
         <ChatHeader
           userId={Number(UserId)}
           avatar={singleUserData?.user?.avatar as string}
-          isOnline={isOnline }
+          isOnline={isOnline}
           username={singleUserData?.user?.username as string}
         />
       )}
@@ -186,7 +182,7 @@ if(authLoading) return (
           </div>
         )}
         {[...(chatData?.chat?.messages || []), ...messages].map((msg) => (
-          <div  key={msg?.id}>
+          <div key={msg?.id}>
             <MessageContainer
               status={status || "DELIVERED"}
               id={msg?.id}
@@ -226,10 +222,11 @@ if(authLoading) return (
           <button
             onClick={sendMessage}
             disabled={!input.trim()}
-            className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors  ${input.trim()
+            className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors  ${
+              input.trim()
                 ? "bg-green-600 hover:bg-green-700 text-white"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
-              }`}
+            }`}
           >
             <Send className="w-5 h-5" />
           </button>
