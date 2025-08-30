@@ -14,7 +14,7 @@ import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import {  storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
+import {  setChatId, storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
 import RedirectPage from "@/app/(protected)/Redirecting/page";
 
 export default function InnerSidebar() {
@@ -50,6 +50,7 @@ export default function InnerSidebar() {
     dispatch(storeUser(filteredUser))
     console.log("filtered chats ",filteredChats);
     console.log("filtered user",filteredUser);
+    dispatch(setChatId(chatId))
     router.push(`/ExistedChat/${chatId}`)
   };
   
