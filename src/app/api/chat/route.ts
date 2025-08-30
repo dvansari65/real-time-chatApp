@@ -54,7 +54,7 @@ export const POST = async(req:NextRequest)=>{
                 }
             }
         })
-        console.log("chat",chat)
+        // console.log("chat",chat)
         if(chat){
             return NextResponse.json({success:true , chat})
         }
@@ -119,6 +119,9 @@ export const GET = async ()=>{
                         userId:parseInt(session?.userId)
                     }
                 }
+            },
+            orderBy:{
+                updatedAt:"desc"
             },
             include:{
                 members:{

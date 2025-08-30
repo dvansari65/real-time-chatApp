@@ -5,8 +5,6 @@ import { verifySession } from "@/lib/auth";
 export const GET = async () => {
 
   const session = await verifySession();
-  console.log("session",session);
-  
   if (!session) {
     return NextResponse.json(
         { success: false, error: "No session found" },

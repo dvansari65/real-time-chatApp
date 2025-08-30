@@ -3,36 +3,105 @@ import {prisma} from "../../../../lib/prisma"
 export const GET = async (req:NextRequest)=>{
     try {
         const searchParams = req.nextUrl.searchParams
-        const query = searchParams.get("params")
+        const query = searchParams.get("search")
         if(!query){
-            throw new Error("query not found!")
+            return NextResponse.json(
+                {message:"Please provide query!"},
+                {status:400}
+            )
         }
-        const chat = await prisma.chat.findMany({
+        const searchTerm = String(query).trim()
+        const chat = await prisma.user.findMany({
             where:{
-                name:{
-                    contains:String(query),
-                    mode:"insensitive"
-                }
+                OR:[
+                    {
+                        username:{
+                            contains:searchTerm
+                        }
+                    },
+                    {
+                        phoneNumber:{
+                            contains:searchTerm
+                        }
+                    },
+                    {
+                        email:{
+                            contains:searchTerm
+                        }
+                    }
+                ]
+            },
+            select:{
+                id:true,
+                username:true,
+                email:true,
+                phoneNumber:true,
+                avatar:true,
+                isOnline:true,
+                lastSeen:true,
+                bio:true,
+                createdAt:true
             },
             orderBy:{
                 createdAt:"desc"
             },
-            take:7
+            take:5
         })
-        if(!chat){
-            return NextResponse.json(
-                {error:"chats not found!"},
-                {status:404}
-            )
-        }
-        console.log("chats",chat);
-        
+        const group = await prisma.group.findMany({
+            where:{
+                OR:[
+                    {
+                        name:{
+                            contains:searchTerm
+                        }
+                    },
+                    {
+                        discription:{
+                            contains:searchTerm
+                        }
+                    }
+                ]
+            },
+            include:{
+                createdBy:{
+                    select:{
+                        id:true,
+                        username:true,
+                        avatar:true
+                    }
+                },
+                admins:{
+                    select:{
+                        id:true,
+                        username:true,
+                        avatar:true
+                    }
+                },
+                GroupMembers:{
+                    select:{
+                        id:true,
+                        username:true,
+                        avatar:true
+                    }
+                }
+            }
+        })
+        // console.log("group from bakcend",group)
+        // console.log("chats",chat);
         return NextResponse.json({
             success:true,
-            chat
+            chat,
+            group
         })
     } catch (error:any) {
         console.log("failed to find chats!",error)
-        return new Error(error.message || "failed to find chats!")
+        return NextResponse.json(
+            {
+                success:false,
+                chat:[],
+                group:[]
+            },
+            {status:500}
+        )
     }
 }
