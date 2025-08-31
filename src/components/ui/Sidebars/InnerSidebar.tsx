@@ -48,8 +48,6 @@ export default function InnerSidebar() {
     const filteredMessages = filteredChats?.messages || []
     dispatch(storeMessages(filteredMessages ))
     dispatch(storeUser(filteredUser))
-    console.log("filtered chats ",filteredChats);
-    console.log("filtered user",filteredUser);
     dispatch(setChatId(chatId))
     router.push(`/ExistedChat/${chatId}`)
   };
