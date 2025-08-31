@@ -27,7 +27,6 @@ export const POST = async (req: NextRequest) => {
         { status: 403 }
       );
     }
-
     if (!body?.userId) {
       return NextResponse.json(
         { error: "please provide user Id!" },

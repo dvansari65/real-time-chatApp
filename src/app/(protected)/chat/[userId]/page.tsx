@@ -11,7 +11,7 @@ import ChatHeader from "@/components/chat/chatHeader";
 import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { messageStatus } from "@/types/message";
-import { useChatCreation } from "@/hooks/useCreateChat";
+import { useCreateChat } from "@/hooks/useCreateChat";
 
 export default function Conversation() {
   const params = useParams();

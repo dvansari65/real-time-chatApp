@@ -11,7 +11,7 @@ export const GET = async (req:NextRequest)=>{
             )
         }
         const searchTerm = String(query).trim()
-        const chat = await prisma.user.findMany({
+        const user = await prisma.user.findMany({
             where:{
                 OR:[
                     {
@@ -90,7 +90,7 @@ export const GET = async (req:NextRequest)=>{
         // console.log("chats",chat);
         return NextResponse.json({
             success:true,
-            chat,
+            user,
             group
         })
     } catch (error:any) {
