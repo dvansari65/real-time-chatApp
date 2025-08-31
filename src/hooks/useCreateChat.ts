@@ -1,62 +1,49 @@
 "use client"
-import { useAuth } from "@/contextApi";
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
-import {useDispatch, useSelector} from "react-redux"
-import { setLoading } from "@/features/Redux/loadingSlice";
-export const useChatCreation = () => {
-    const [isCreatingChat, setIsCreatingChat] = useState(false);
-    const router = useRouter();
-    const { data, isLoading: authLoading } = useAuth();
-    const dispatch = useDispatch()
-    const user = data?.user;
-  
-    const createChat = useCallback(async (targetUserId: number) => {
-      dispatch(setLoading(true))
-      router.push("/Redirecting")
-      if (authLoading || !user || isCreatingChat) {
-        return;
-      }
-      if (!targetUserId) {
-        toast.error("Please select a user for chatting!");
-        return;
-      }
-      setIsCreatingChat(true);
-     
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+
+
+
+export const useCreateChat = ()=>{
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const createChatMutation = useMutation({
+    mutationFn:async (userId:number)=>{
       try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId1: Number(user.id),
-            userId2: targetUserId,
-          }),
-        });
-  
-        const data = await response.json();
-  
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to create chat");
+        const response = await fetch(`/api/chat/${userId}`,{
+          method:"POST",
+          credentials:"include"
+        })
+        const data = await response.json()
+        if(!response.ok){
+          throw new Error(data?.message || "failed to create chat!")
         }
-  
-        const chatId = data?.chat?.id;
-        if (chatId) {
-          router.push(`/chat/${chatId}?with=${targetUserId}`);
-        } else {
-          throw new Error("No chat ID received");
-        }
+        return data;
       } catch (error) {
-        console.error("Failed to create chat:", error);
-        toast.error(error instanceof Error ? error.message : "Failed to create chat");
-      } finally {
-        setIsCreatingChat(false);
-        dispatch(setLoading(false))
+        console.log("Server error!",error)
+        throw error;
       }
-    }, [user, authLoading, router, isCreatingChat]);
-  
-    return { createChat, isCreatingChat,authLoading };
-  };
+    },
+    onSuccess:(data)=>{
+      queryClient.invalidateQueries({queryKey:['getAllChats']})
+      if(data?.chat?.id){
+        queryClient.invalidateQueries({queryKey:['chat',data.chat.id]})
+      }
+      if(data?.chat?.id){
+        router.push(`/chat/${data?.chat?.id}`)
+      }
+        
+    },
+    onError:(error)=>{
+      console.error("Failed to create chat:", error);
+      toast.error(error?.message)
+    }
+  })
+  return {
+    createChat:createChatMutation.mutate,
+    isCreating:createChatMutation.isPending,
+    error:createChatMutation.error,
+    isSuccess:createChatMutation.isSuccess
+  }
+}
