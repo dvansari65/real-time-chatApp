@@ -3,6 +3,13 @@ import { Search, X, User, Users } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import { partialUser } from "@/types/user";
+import { useCreateChat } from "@/hooks/useCreateChat";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { setLoading } from "@/features/Redux/loadingSlice";
+import { useRouter } from "next/navigation";
+import { setQueriedUserData } from "@/features/Redux/searchedUserSlice";
+import { storeMessages } from "@/features/Redux/allChatsSlice";
 
 interface GroupResult {
   id: string;
@@ -17,17 +24,17 @@ function SearchBar() {
   const [query, setQuery] = useState("");
   const [resultModal, setSearchModal] = useState(false);
   const [debounceQuery, setDebounceQuery] = useState(query);
-
+  const dispatch = useDispatch()
+  const router = useRouter()
   useEffect(() => {
     const timeOut = setTimeout(() => setDebounceQuery(query), 300);
     return () => clearTimeout(timeOut);
   }, [query]);
 
-  const { data, isLoading, isError, error } = useSearchUsers(debounceQuery);
-
-  useEffect(() => {
-    console.log("data", data);
-  }, [data]);
+  const { data:searchedUserData, isLoading, isError, error } = useSearchUsers(debounceQuery);
+  // useEffect(() => {
+  //   console.log("searchedUserData", searchedUserData);
+  // }, [searchedUserData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -39,12 +46,35 @@ function SearchBar() {
     setSearchModal(false);
     setQuery("");
   };
+  
+  const {mutate,isPending,error:createChatError} = useCreateChat()
+  const handleChatCreate =  (userId:number)=>{
+    const user = searchedUserData.user?.find((i:partialUser)=>i?.id === userId) || null;
+    console.log("queried user",user)
+    dispatch(setQueriedUserData(user))
+    dispatch(setLoading(true))
+    mutate(userId , {
+      onSuccess:(data)=>{
+        toast.success("chat created successfully!")
+        console.log("data",data)
+        setSearchModal(false)
+        dispatch(storeMessages(data?.chat?.messages))
+        dispatch(setLoading(false))
+        if(data?.chat?.id){
+          router.push(`/chat/${data.chat?.id}`)
+        }
+      },
+      onError:(error)=>{
+        toast.error(error?.message)
+        console.log("Error",error.message)
+      }
+    })
+  }
 
   // Check if we have any results
-  const hasResults = data?.success && (data?.chat?.length > 0 || data?.group?.length > 0);
-  const hasChats = data?.chat?.length > 0;
-  const hasGroups = data?.group?.length > 0;
-
+  const hasResults = searchedUserData?.success && (searchedUserData?.chat?.length > 0 || searchedUserData?.group?.length > 0);
+  const hasUsers = searchedUserData?.user?.length > 0 && searchedUserData?.success;
+  const hasGroups = searchedUserData?.group?.length > 0 && searchedUserData?.success;
   return (
     <>
       <div className="z-10 p-4 bg-white/5 backdrop-blur-sm border-b border-white/10">
@@ -61,7 +91,7 @@ function SearchBar() {
       </div>
 
       {resultModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-24">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-24 ">
           <div className="relative w-full max-w-2xl mx-4 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl overflow-hidden">
             {/* Header with close button */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -86,27 +116,34 @@ function SearchBar() {
                   Error: {error?.message || "Something went wrong"}
                 </div>
               )}
+              {createChatError && (
+                <div className="text-red-400 text-center py-8 px-4">
+                  Error: {createChatError?.message || "Something went wrong"}
+                </div>
+              )}
 
-              {!isLoading && !isError && !hasResults && (
+              {(!isLoading && !isError && !hasResults && !hasUsers) && (
                 <div className="text-gray-400 text-center py-8 px-4">
                   No results found for "{query}"
                 </div>
               )}
 
-              {!isLoading && !isError && hasResults && (
+              {!isLoading && !isError && hasUsers && (
                 <div className="p-4 space-y-6">
                   {/* Chat Results Section */}
-                  {hasChats && (
+                  {hasUsers && (
                     <div>
+                      {/* <span>{data?.user?.[0]?.username}</span> */}
                       <div className="flex items-center gap-2 mb-3">
                         <User className="w-4 h-4 text-blue-400" />
                         <h4 className="text-white font-medium text-sm">
-                          Users ({data.chat.length})
+                          Users ({searchedUserData?.user?.length})
                         </h4>
                       </div>
                       <div className="space-y-2">
-                        {data.chat.map((user: partialUser) => (
-                          <div
+                        {searchedUserData?.user?.map((user: partialUser) => (
+                          <Button
+                          onClick={()=>handleChatCreate(Number(user?.id))}
                             key={user?.id}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >
@@ -118,14 +155,14 @@ function SearchBar() {
                                 <div className="text-white font-medium">
                                   {user?.username}
                                 </div>
-                                {user.email && (
+                                {user?.email && (
                                   <div className="text-gray-400 text-sm">
-                                    {user.email}
+                                    {user?.email}
                                   </div>
                                 )}
                               </div>
                             </div>
-                          </div>
+                          </Button>
                         ))}
                       </div>
                     </div>
@@ -136,12 +173,12 @@ function SearchBar() {
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-green-400" />
                         <h4 className="text-white font-medium text-sm">
-                          Groups ({data.group.length})
+                          Groups ({searchedUserData.group.length})
                         </h4>
                       </div>
                       <div className="space-y-2">
-                        {data.group.map((group: GroupResult) => (
-                          <div
+                        {searchedUserData.group.map((group: GroupResult) => (
+                          <Button
                             key={group?.id}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >
@@ -165,7 +202,7 @@ function SearchBar() {
                                 )}
                               </div>
                             </div>
-                          </div>
+                          </Button>
                         ))}
                       </div>
                     </div>
