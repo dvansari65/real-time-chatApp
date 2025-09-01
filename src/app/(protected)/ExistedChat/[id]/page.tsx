@@ -3,7 +3,7 @@ import ChatHeader from "@/components/chat/chatHeader";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { useAuth } from "@/contextApi";
 import { RootState } from "@/lib/store";
-import { Message, messageStatus } from "@/types/message";
+import {  messageStatus } from "@/types/message";
 import { useSocket } from "@/utils/SocketProvider";
 import { Paperclip, Send, Smile } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -27,34 +27,38 @@ function page() {
     chatId: chatIdFromRedux,
   } = useSelector((state: RootState) => state.allChatData);
   useEffect(() => {
-    console.log("socket", socket);
-    console.log("messages from redux", messagesFromRedux);
     if (!socket) return;
+
     const userData = {
       userId: data?.user?.id,
       username: data?.user?.username,
       avatar: data?.user?.avatar,
       phoneNumber: data?.user?.phoneNumber,
     };
+
     const handleConnect = () => {
       if (data?.user) {
         socket.emit("user_authentication", userData);
       }
     };
+
     const handleUserOnline = (data: any) => {
       console.log(`user is online ${data?.username}`);
       if (Number(user?.id) === data?.userId) {
         setIsOnline(true);
       }
     };
+
     const handleNewMessage = (data: any) => {
       console.log("new message", data);
       setMessages((prev) => [...prev, data?.message]);
     };
+
     const handleMessageDelivered = (data: any) => {
       console.log("message-delivered", data);
       setMessageStatus(data?.status);
     };
+
     socket.on("connect", handleConnect);
     socket.on("user-online", handleUserOnline);
     socket.on("new-message", handleNewMessage);
@@ -66,11 +70,12 @@ function page() {
       socket.off("new-message", handleNewMessage);
     };
   }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
   const sendMessage = () => {
-    console.log("chat id from param", chatId);
     if (!chatId && !chatIdFromRedux) {
       toast.error("chat id is not provided!");
       setInput("");
@@ -83,6 +88,7 @@ function page() {
       type: "TEXT",
       chatId: Number(chatId) || chatIdFromRedux,
     };
+
     setMessages((prev) => [...prev, messageData]);
     if (socket && socket.connected) {
       socket.emit("send-message", messageData);
@@ -97,6 +103,7 @@ function page() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();

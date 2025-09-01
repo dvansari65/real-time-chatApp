@@ -38,16 +38,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-      <ReduxProvider>
-      <SocketProvider>
-          <ReactQueryProvider>
-            <AuthProvider>
-              {children}
-              <Toaster richColors position="top-right" />
-            </AuthProvider>
-          </ReactQueryProvider>
-        </SocketProvider>
-      </ReduxProvider>
+        <ReduxProvider>
+          <SocketProvider>
+            <ReactQueryProvider>
+              <AuthProvider>
+                {children}
+                <Toaster richColors position="top-right" />
+              </AuthProvider>
+            </ReactQueryProvider>
+          </SocketProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

@@ -6,7 +6,6 @@ import { verifySession } from "@/lib/auth";
 export const POST = async(req:NextRequest)=>{
     try {
         const body = await req.json()
-        
         const {userId1 , userId2}:{userId1:number,userId2:number} = body
         const chat = await prisma.chat.findFirst({
             where:{

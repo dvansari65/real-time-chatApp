@@ -1,9 +1,9 @@
 import { verifySession } from "@/lib/auth"
 import { getOrCreateChat } from "@/services/chatQueries"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 
-export const POST = async ({params}:{params:Promise<{userId:number}>})=>{
+export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:string}>})=>{
     try {
         const session = await verifySession()
         if(!session || !session?.userId){
@@ -17,13 +17,14 @@ export const POST = async ({params}:{params:Promise<{userId:number}>})=>{
         }
         const currentUserId = session?.userId
         const targetUserId = (await params).userId
-        if (!targetUserId || isNaN(targetUserId)) {
+        console.log("targetUserId",targetUserId)
+        if (!targetUserId || isNaN(Number(targetUserId))) {
             return NextResponse.json(
               { message: "Invalid user ID", success: false },
               { status: 400 }
             );
           }
-        const chat = await getOrCreateChat(Number(currentUserId),targetUserId)
+        const chat = await getOrCreateChat(Number(currentUserId),Number(targetUserId))
         if(!chat){
             return NextResponse.json(
                 {

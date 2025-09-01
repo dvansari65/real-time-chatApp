@@ -18,6 +18,8 @@ import {
   Check,
 } from "lucide-react";
 import { useAuth } from "@/contextApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 const FloatingElement = ({
   children,
@@ -108,13 +110,13 @@ const StatCard = ({
 
 export default function Home() {
   const { data, isLoading } = useAuth();
-  // const { isLoading: chatCreationLoading } = useSelector((state: RootState) => state.Loading);
+  const { isLoading: chatCreationLoading } = useSelector((state: RootState) => state.Loading);
 
   // Mock data for demo - replace with your actual auth data
   // const data = { user: { username: "John" } };
 
   // const isLoading = false;
-  const chatCreationLoading = false;
+
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -139,7 +141,7 @@ export default function Home() {
     setParticles(newParticles);
   }, []);
 
-  if (isLoading) {
+  if (chatCreationLoading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
         <div className="relative">
