@@ -25,38 +25,35 @@ model User {
   createdAt   DateTime @default(now())
   password    String
 
-  createdGroups  Group[]       @relation("createdGroups")
-  memberOf       Group[]       @relation("groupMember")
-  adminOf        Group[]       @relation("admins")
   sentMessages   Message[]     @relation("MessageSender")
   chatMembers    chatMember[]
   blockedUsers   BlockedUser[] @relation("BlockerUser")
   blockedByUsers BlockedUser[] @relation("BlockedUser")
-  
 }
 
 model Chat {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
+  isGroup     Boolean      @default(false)
   description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now())
   // relationships
-  messages Message[]
-  members  chatMember[]
+  messages    Message[]
+  members     chatMember[]
 }
 
 model chatMember {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  chatId    Int
-  joinedAt  DateTime  @default(now())
-  leftAt    DateTime?
-  role      Role      @default(MEMBER)
- 
+  id       Int       @id @default(autoincrement())
+  userId   Int
+  chatId   Int
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+  role     Role      @default(MEMBER)
+
   //relationships
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chatId])
 }
@@ -107,16 +104,6 @@ model BlockedUser {
   @@unique([blockerId, blockedId])
 }
 
-model Group {
-  id           Int     @id @default(autoincrement())
-  profileImage String?
-  userId       Int
-  GroupMembers User[]  @relation("groupMember")
-  name         String
-  discription  String?
-  admins       User[]  @relation("admins")
-  createdBy    User    @relation("createdGroups", fields: [userId], references: [id])
-}
 
 enum DeliveryStatus {
   SENT

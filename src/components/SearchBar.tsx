@@ -62,6 +62,9 @@ function SearchBar() {
         dispatch(setLoading(false))
         if(data?.chat?.id){
           router.push(`/chat/${data.chat?.id}`)
+        }else{
+          router.push("/")
+          toast.error(`chat id not found! ${data?.chat?.id}`)
         }
       },
       onError:(error)=>{

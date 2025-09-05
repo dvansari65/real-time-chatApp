@@ -15,12 +15,11 @@ import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {  setChatId, storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
-import RedirectPage from "@/app/(protected)/Redirecting/page";
+import { toast } from "sonner";
 
 export default function InnerSidebar() {
   const router = useRouter()
   const dispatch = useDispatch()
-  
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
@@ -28,7 +27,6 @@ export default function InnerSidebar() {
   const {
     data: allChatsData,
     isLoading: allChatsDataLoading,
-    isError,
   } = useGetAllChats();
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
@@ -42,6 +40,7 @@ export default function InnerSidebar() {
   };
 
   const handleNavigation = (chatId:number) => {
+    console.log("allchat data",allChatsData)
     const filteredChats = allChatsData?.chats.find(chat=>Number(chat?.id) === chatId)
     const userMember = filteredChats?.members?.find(member=>member?.user?.id !== user?.id)
     const filteredUser = userMember?.user || {}
@@ -113,26 +112,28 @@ export default function InnerSidebar() {
           backToPreviousModal={handleBackToPreviousModal}
         />
       )}
-      {!selectUserModal && !giveNameToNewGroupModal ? (
-        allChatsDataLoading ? (
+      { allChatsDataLoading && (
           <div className="p-4">
             <UserListSkeleton />
           </div>
-        ) : (
-          <div className="px-2">
-            {allChatsData?.chats?.map((chat) => (
-              <button
-                onClick={()=>handleNavigation(Number(chat?.id))}
-                key={chat?.id}
-                className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-              >
-                <UserItem users={chat?.members} />
-              </button>
-            ))}
+        ) }
+      {
+        allChatsData?.chats?.length === 0  && !allChatsDataLoading ? (
+          <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
+            No Chats Yet!
           </div>
-        )
-      ) : null}
-
+        ) : <div className="px-2">
+        {allChatsData?.chats?.map((chat) => (
+          <button
+            onClick={()=>handleNavigation(Number(chat?.id))}
+            key={chat?.id}
+            className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+          >
+            <UserItem users={chat?.members} />
+          </button>
+        ))}
+      </div>
+      }
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-900/80 to-transparent pointer-events-none"></div>
     </div>

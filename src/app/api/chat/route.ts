@@ -62,6 +62,7 @@ export const POST = async(req:NextRequest)=>{
                 name:"",
                 description:"",
                 createdAt:new Date(),
+                isGroup:false,
                 members:{
                     create:[
                         {userId:userId1},
@@ -145,12 +146,14 @@ export const GET = async ()=>{
         })
         if(chats.length === 0){
             return NextResponse.json(
-                {message:"chats not found!"},
+                {
+                    success:true,
+                    chats:[]
+                },
                 {status:404}
             )
         }
         // console.log("chats from backend",chats);
-        
         return NextResponse.json(
             {
                 success:true,
