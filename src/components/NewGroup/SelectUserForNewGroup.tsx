@@ -9,7 +9,7 @@ import { useAuth } from "@/contextApi";
 interface newGroupProps {
   isOpen: boolean;
   onClose: () => void;
-  users: partialUser[];
+  users: partialUser[] ;
   className?: string;
   proceedAction: () => void;
 }
@@ -111,7 +111,7 @@ function SelectUserForNewGroup({
           {/* Users List */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
             <div className="space-y-3">
-              {users.map((user) => (
+              {users?.map((user) => (
                 <div
                   key={user?.id}
                   className="group flex flex-row justify-between items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"

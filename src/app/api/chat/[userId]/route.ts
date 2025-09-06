@@ -17,7 +17,6 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
         }
         const currentUserId = session?.userId
         const targetUserId = (await params).userId
-        console.log("targetUserId",targetUserId)
         if (!targetUserId || isNaN(Number(targetUserId))) {
             return NextResponse.json(
               { message: "Invalid user ID", success: false },
@@ -34,10 +33,9 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
                 {status:500}
             )
         }
-        console.log("chat data from backend!",chat)
         return NextResponse.json(
             {
-                success:false,
+                success:true,
                 chat
             },
             {status:200}

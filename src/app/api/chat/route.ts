@@ -46,7 +46,6 @@ export const POST = async(req:NextRequest)=>{
                                 avatar:true,
                                 phoneNumber:true,
                                 isOnline:true
-
                             }
                         }
                     }
@@ -128,6 +127,7 @@ export const GET = async ()=>{
                     include:{
                         user:{
                             select:{
+                                id:true,
                                 username:true,
                                 avatar:true,
                                 bio:true,
@@ -140,9 +140,9 @@ export const GET = async ()=>{
                 },
                 messages:{
                     include:{}
-                }
-            }
-            
+                },
+        
+            },
         })
         if(chats.length === 0){
             return NextResponse.json(
@@ -153,7 +153,7 @@ export const GET = async ()=>{
                 {status:404}
             )
         }
-        // console.log("chats from backend",chats);
+        console.log("chats from backend",chats);
         return NextResponse.json(
             {
                 success:true,

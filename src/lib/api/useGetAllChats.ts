@@ -12,6 +12,7 @@ export const useGetAllChats = ()=>{
                     method:"GET"
                 })
                 const data = await response.json()
+                console.log("chat data",data)
                 return data
             } catch (error:any) {
                 console.error("server error",error)

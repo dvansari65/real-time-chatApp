@@ -47,51 +47,12 @@ export const GET = async (req:NextRequest)=>{
             },
             take:5
         })
-        const group = await prisma.group.findMany({
-            where:{
-                OR:[
-                    {
-                        name:{
-                            contains:searchTerm
-                        }
-                    },
-                    {
-                        discription:{
-                            contains:searchTerm
-                        }
-                    }
-                ]
-            },
-            include:{
-                createdBy:{
-                    select:{
-                        id:true,
-                        username:true,
-                        avatar:true
-                    }
-                },
-                admins:{
-                    select:{
-                        id:true,
-                        username:true,
-                        avatar:true
-                    }
-                },
-                GroupMembers:{
-                    select:{
-                        id:true,
-                        username:true,
-                        avatar:true
-                    }
-                }
-            }
-        })
+        
         // console.log("group from bakcend",group)
         // console.log("chats",chat);
         return NextResponse.json({
             success:true,
             user,
-            group
         })
     } catch (error:any) {
         console.log("failed to find chats!",error)

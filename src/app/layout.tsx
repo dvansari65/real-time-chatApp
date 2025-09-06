@@ -1,26 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
-
-import { SimpleNavbar as Navbar } from "../components/Navbar";
+import localFont from "next/font/local";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "@/contextApi";
-import OuterSidebar from "@/components/ui/Sidebars/OuterSidebar";
-import InnerSidebar from "@/components/ui/Sidebars/InnerSidebar";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { SocketProvider } from "@/utils/SocketProvider";
-import { Provider } from "react-redux";
-import { store } from "@/lib/store";
 import ReduxProvider from "@/_App";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistSans = Inter({
   subsets: ["latin"],
+  variable: "--font-geist-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const geistMono = Roboto_Mono({
   subsets: ["latin"],
+  variable: "--font-geist-mono",
 });
 
 export const metadata: Metadata = {

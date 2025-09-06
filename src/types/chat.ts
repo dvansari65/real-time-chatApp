@@ -18,6 +18,7 @@ export interface chatMember {
 export interface Chat {
   id?: number;
   name?: string;
+  isGroup?:boolean,
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
@@ -36,7 +37,7 @@ export interface getAllChatsResponseType{
 
 export interface userFromChat {
 chatId:number
-i: number
+id: number
 joinedAt: string
 leftAt: string | null
 role: string

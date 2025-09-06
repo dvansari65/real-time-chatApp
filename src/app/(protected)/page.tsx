@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 // import { RootState } from "@/lib/store";
 // import { useSelector } from "react-redux";
 import Loader from "@/components/ui/Loader";
-import RedirectPage from "./Redirecting/page";
 import {
   MessageSquare,
   Sparkles,

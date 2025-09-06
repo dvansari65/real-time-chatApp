@@ -13,23 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique
-  email       String   @unique
-  phoneNumber String   @unique
-  avatar      String
-  bio         String
-  isOnline    Boolean  @default(false)
-  lastSeen    DateTime @default(now())
-  createdAt   DateTime @default(now())
-  password    String
-
-  sentMessages   Message[]     @relation("MessageSender")
-  chatMembers    chatMember[]
-  blockedUsers   BlockedUser[] @relation("BlockerUser")
-  blockedByUsers BlockedUser[] @relation("BlockedUser")
-}
+model User { 
+  id Int @id @default(autoincrement()) 
+  username String @unique 
+  email String @unique 
+  phoneNumber String @unique 
+  avatar String 
+  bio String 
+  isOnline Boolean @default(false) 
+  lastSeen DateTime @default(now()) 
+  createdAt DateTime @default(now()) 
+  password String 
+  createdGroups Group[] @relation("createdGroups") 
+  memberOf Group[] @relation("groupMember") 
+  adminOf Group[] @relation("admins") 
+  sentMessages Message[] @relation("MessageSender") 
+  chatMembers chatMember[] 
+  blockedUsers BlockedUser[] @relation("BlockerUser") 
+  blockedByUsers BlockedUser[] @relation("BlockedUser") 
+  }
 
 model Chat {
   id          Int          @id @default(autoincrement())
@@ -93,6 +95,17 @@ model MessageStatus {
   @@map("message_status")
 }
 
+model Group {
+  id           Int     @id @default(autoincrement())
+  profileImage String?
+  userId       Int
+  GroupMembers User[]  @relation("groupMember")
+  name         String
+  discription  String?
+  admins       User[]  @relation("admins")
+  createdBy    User    @relation("createdGroups", fields: [userId], references: [id])
+}
+
 model BlockedUser {
   id        Int @id @default(autoincrement())
   blockedId Int
@@ -103,7 +116,6 @@ model BlockedUser {
 
   @@unique([blockerId, blockedId])
 }
-
 
 enum DeliveryStatus {
   SENT

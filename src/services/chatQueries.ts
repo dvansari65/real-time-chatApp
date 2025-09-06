@@ -135,7 +135,6 @@ export const createChat = async (currentUserId:number,targetUserId:number)=>{
                 }
             }
         })
-        console.log("chat from custom api from create",newChat)
         return newChat
     } catch (error:any) {
         console.log("failed to create chat!",error)

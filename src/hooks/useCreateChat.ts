@@ -19,10 +19,10 @@ export const useCreateChat = ()=>{
       if(!response.ok){
         throw new Error(data?.message || "failed to create chat!")
       }
+      console.log("data from api",data)
       return data;
     } catch (error:any) {
-      console.log("Server error!",error)
-      toast.error(error.message)
+      console.log("Server error!",error.message)
       throw error;
     }
   },

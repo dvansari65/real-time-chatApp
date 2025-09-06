@@ -55,7 +55,6 @@ function SearchBar() {
     dispatch(setLoading(true))
     mutate(userId , {
       onSuccess:(data)=>{
-        toast.success("chat created successfully!")
         console.log("data",data)
         setSearchModal(false)
         dispatch(storeMessages(data?.chat?.messages))
@@ -68,7 +67,6 @@ function SearchBar() {
         }
       },
       onError:(error)=>{
-        toast.error(error?.message)
         console.log("Error",error.message)
       }
     })
