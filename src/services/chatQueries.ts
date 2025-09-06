@@ -57,22 +57,10 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
             },
             
         })
-        if(!chat){
-            return NextResponse.json(
-                {
-                    message:"Chat not found!",
-                    success:false
-                },
-                {status:404}
-            )
-        }
         return chat
     } catch (error:any) {
         console.log("failed to find chats!",error)
-        return NextResponse.json(
-            {error:error?.message || "failed to find chats!"},
-            {status:500}
-        )
+        throw error;
     }
 }
 
@@ -87,18 +75,13 @@ export const createChat = async (currentUserId:number,targetUserId:number)=>{
             }
         })
         if(!targetUser){
-            return NextResponse.json(
-                {
-                    message:"target user not found!",
-                    success:false
-                },
-                {status:404}
-            )
+            throw new Error("target user not found!");
         }
         const newChat = await prisma.chat.create({
             data:{
                 name:`Chat with ${targetUser.username}`,
                 description: `Direct message chat`,
+                isGroup:false,
                 members:{
                     create:[
                         {
@@ -152,22 +135,11 @@ export const createChat = async (currentUserId:number,targetUserId:number)=>{
                 }
             }
         })
-        if(!newChat){
-            return NextResponse.json(
-                {
-                    message:"failed to create chat!",
-                    success:false
-                },
-                {status:500}
-            )
-        }
+        console.log("chat from custom api from create",newChat)
         return newChat
     } catch (error:any) {
         console.log("failed to create chat!",error)
-        return NextResponse.json(
-            {error:error?.message || "failed to create chat!"},
-            {status:500}
-        )
+        throw error;
     }
 }
 
