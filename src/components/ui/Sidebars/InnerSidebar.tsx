@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {  setChatId, storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
 import { toast } from "sonner";
+import { partialUser, User } from "@/types/user";
+import { userFromChat } from "@/types/chat";
 
 export default function InnerSidebar() {
   const router = useRouter()
@@ -28,6 +30,7 @@ export default function InnerSidebar() {
     data: allChatsData,
     isLoading: allChatsDataLoading,
   } = useGetAllChats();
+  // console.log(allChatsData?.chats)
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
     setGiveNameToNewGroupModal(true);
@@ -40,7 +43,6 @@ export default function InnerSidebar() {
   };
 
   const handleNavigation = (chatId:number) => {
-    console.log("allchat data",allChatsData)
     const filteredChats = allChatsData?.chats.find(chat=>Number(chat?.id) === chatId)
     const userMember = filteredChats?.members?.find(member=>member?.user?.id !== user?.id)
     const filteredUser = userMember?.user || {}
@@ -50,6 +52,11 @@ export default function InnerSidebar() {
     dispatch(setChatId(chatId))
     router.push(`/ExistedChat/${chatId}`)
   };
+  const filteredUser: Partial<User>[] =
+  allChatsData?.chats?.flatMap(chat =>
+    chat.members?.map(member => member?.user).filter((u): u is Partial<User> => !!u) || []
+  ) || [];
+  
   
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
@@ -101,7 +108,7 @@ export default function InnerSidebar() {
           className={`relative`}
           isOpen={selectUserModal}
           onClose={() => setSelectUserModal(false)}
-          // users={filteredUsers}
+          users={filteredUser }
         />
       )}
 
@@ -129,7 +136,7 @@ export default function InnerSidebar() {
             key={chat?.id}
             className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
           >
-            <UserItem users={chat?.members} />
+            <UserItem currentUserId={Number(user?.id)} chatResponse={chat} />
           </button>
         ))}
       </div>
