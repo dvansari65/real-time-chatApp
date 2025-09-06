@@ -3,7 +3,7 @@ import ChatHeader from "@/components/chat/chatHeader";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { useAuth } from "@/contextApi";
 import { RootState } from "@/lib/store";
-import {  messageStatus } from "@/types/message";
+import { messageStatus } from "@/types/message";
 import { useSocket } from "@/utils/SocketProvider";
 import { Paperclip, Send, Smile } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -26,9 +26,10 @@ function page() {
     messages: messagesFromRedux,
     chatId: chatIdFromRedux,
   } = useSelector((state: RootState) => state.allChatData);
+  // console.log("messages from api",messagesFromRedux)
   useEffect(() => {
     if (!socket) return;
-
+    // console.log("socket ",socket)
     const userData = {
       userId: data?.user?.id,
       username: data?.user?.username,
@@ -39,13 +40,19 @@ function page() {
     const handleConnect = () => {
       if (data?.user) {
         socket.emit("user_authentication", userData);
+        toast.success(`${data?.user} authenticated`)
+        const dataPayload = {
+          chatId: chatId || chatIdFromRedux,
+          userId: Number(data?.user?.id),
+        };
+        socket.emit("join-chat", dataPayload);
       }
     };
-
     const handleUserOnline = (data: any) => {
+      console.log("is online status", data.isOnline);
       console.log(`user is online ${data?.username}`);
-      if (Number(user?.id) === data?.userId) {
-        setIsOnline(true);
+      if (Number(user?.id) === Number(data?.userId)) {
+        setIsOnline(data?.isOnline || true);
       }
     };
 
@@ -68,8 +75,9 @@ function page() {
       socket.off("user-online", handleUserOnline);
       socket.off("connect", handleConnect);
       socket.off("new-message", handleNewMessage);
+      socket.off("message-delivered", handleMessageDelivered);
     };
-  }, []);
+  }, [socket, data?.user, user?.id, chatId, chatIdFromRedux,messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,7 +96,7 @@ function page() {
       type: "TEXT",
       chatId: Number(chatId) || chatIdFromRedux,
     };
-
+    console.log();
     setMessages((prev) => [...prev, messageData]);
     if (socket && socket.connected) {
       socket.emit("send-message", messageData);
@@ -107,7 +115,7 @@ function page() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage(); 
+      sendMessage();
     }
   };
 
@@ -121,21 +129,23 @@ function page() {
       />
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15 ">
-        {[...messagesFromRedux!, ...messages]?.map((msg) => (
-          <div key={msg?.id}>
-            <MessageContainer
-              status={messageStatus}
-              id={msg?.id}
-              createdAt={msg?.createdAt}
-              senderId={msg?.senderId}
-              userId={Number(data?.user?.id)}
-              content={msg?.content}
-            />
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+      {data?.user?.id && (
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15 ">
+          {[...messagesFromRedux!, ...messages]?.map((msg) => (
+            <div key={msg?.id}>
+              <MessageContainer
+                status={messageStatus}
+                id={msg?.id}
+                createdAt={msg?.createdAt}
+                senderId={msg?.senderId}
+                userId={Number(data?.user?.id)}
+                content={msg?.content}
+              />
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
       {/* Message Input */}
       <div className="bg-gray-900 border-t border-gray-500 px-4 py-4 fixed bottom-0  width ">
@@ -162,7 +172,6 @@ function page() {
           </div>
           <button
             onClick={sendMessage}
-            
             disabled={!input.trim()}
             className={` w-12 h-12 rounded-full flex items-center justify-center transition-colors  ${
               input.trim()

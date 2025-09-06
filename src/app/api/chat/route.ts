@@ -85,7 +85,6 @@ export const POST = async(req:NextRequest)=>{
                 }
             }
         })
-        console.log("new chat",newChat);
         
         return NextResponse.json(
             {
@@ -153,7 +152,6 @@ export const GET = async ()=>{
                 {status:404}
             )
         }
-        console.log("chats from backend",chats);
         return NextResponse.json(
             {
                 success:true,

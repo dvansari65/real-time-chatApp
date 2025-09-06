@@ -15,9 +15,8 @@ import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import {  setChatId, storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
-import { toast } from "sonner";
-import { partialUser, User } from "@/types/user";
-import { userFromChat } from "@/types/chat";
+import {  User } from "@/types/user";
+
 
 export default function InnerSidebar() {
   const router = useRouter()
@@ -47,6 +46,7 @@ export default function InnerSidebar() {
     const userMember = filteredChats?.members?.find(member=>member?.user?.id !== user?.id)
     const filteredUser = userMember?.user || {}
     const filteredMessages = filteredChats?.messages || []
+    console.log("filtered messages",filteredMessages)
     dispatch(storeMessages(filteredMessages ))
     dispatch(storeUser(filteredUser))
     dispatch(setChatId(chatId))

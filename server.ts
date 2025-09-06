@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import { Socket } from "socket.io";
 import { prisma } from "./src/lib/prisma";
 import { NextResponse } from "next/server";
+import { updateUserStatus } from "@/services/userQueries";
 
 
 const server = createServer();
@@ -41,27 +42,21 @@ io.on("connection", (socket: Socket) => {
   socket.on("user_authentication", async (data: UserAuthData) => {
     try {
       const { userId, username } = data;
+      console.log("UserAuthData",data)
       activeUsers.set(userId, socket.id);
       socketServer.set(socket.id, userId);
-      await prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          isOnline: true,
-          lastSeen: new Date(),
-        },
-      });
+      const isOnline = await updateUserStatus(userId)
       console.log(`User ${username} ( ${userId} is authenticated)`);
-      socket.broadcast.emit("user-online", { userId, username });
+      socket.broadcast.emit("user-online", { userId, username , isOnline:isOnline || true });
     } catch (error) {
       console.error("Authentication error:", error);
       socket.emit("error", { message: "Authentication failed" });
     }
-  });
+  })
 
   socket.on("join-chat", async (data: JoinChatData) => {
     try {
+      console.log("join room data",data)
       const { chatId, userId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {
@@ -103,7 +98,6 @@ io.on("connection", (socket: Socket) => {
         });
         return;
       }
-      
       const message = await prisma.message.create({
         data: {
           content,
