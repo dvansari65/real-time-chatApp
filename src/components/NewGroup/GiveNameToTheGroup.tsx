@@ -106,49 +106,44 @@ const NewGroupModal = ({
 
       {/* Group Info Section */}
       <div className="p-4 bg-white border-b border-gray-100">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-start gap-3 flex-col space-x-4">
           {/* Camera Icon */}
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            {/* The label acts as the clickable camera icon area */}
-            <label htmlFor="avatar-upload" className="cursor-pointer">
-              {/* The actual file input is hidden */}
-              <input
-                id="avatar-upload"
-                type="file"
-                onChange={handleAvatarChange}
-                className="hidden"
-                accept="image/*" // Optional: ensures only images can be selected
-              />
+          <div className="relative">
+            <input
+              id="avatar-upload"
+              type="file"
+              onChange={handleAvatarChange}
+              className="hidden"
+              accept="image/*"
+            />
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 font-medium"
+            >
               <svg
-                className="w-8 h-8 text-gray-600"
+                className="w-5 h-5 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.437 4h3.126a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                ></path>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                ></path>
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
               </svg>
+              Upload Avatar
             </label>
           </div>
           {/* Group Name Input */}
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Group name (optional)"
+              placeholder="Group name"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="w-full text-lg border-none outline-none bg-transparent placeholder-gray-500 "
+              className="w-full focus:border-blue-500 border border-gray-500 text-lg bg-transparent placeholder-gray-500 text-black focus:outline-none"
             />
           </div>
         </div>
