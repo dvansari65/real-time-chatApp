@@ -1,7 +1,5 @@
 "use client";
-import {
-  MessageCircle,
-} from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 import { useCallback, useState } from "react";
 import { useAuth } from "@/contextApi";
@@ -14,21 +12,22 @@ import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import {  setChatId, storeMessages, storeUser } from "@/features/Redux/allChatsSlice";
-import {  User } from "@/types/user";
-
+import {
+  setChatId,
+  storeMessages,
+  storeUser,
+} from "@/features/Redux/allChatsSlice";
+import { User } from "@/types/user";
 
 export default function InnerSidebar() {
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const router = useRouter();
+  const dispatch = useDispatch();
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);
   const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
   const user = data?.user;
-  const {
-    data: allChatsData,
-    isLoading: allChatsDataLoading,
-  } = useGetAllChats();
+  const { data: allChatsData, isLoading: allChatsDataLoading } =
+    useGetAllChats();
   // console.log(allChatsData?.chats)
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
@@ -41,23 +40,31 @@ export default function InnerSidebar() {
     setGiveNameToNewGroupModal(false);
   };
 
-  const handleNavigation = (chatId:number) => {
-    const filteredChats = allChatsData?.chats.find(chat=>Number(chat?.id) === chatId)
-    const userMember = filteredChats?.members?.find(member=>member?.user?.id !== user?.id)
-    const filteredUser = userMember?.user || {}
-    const filteredMessages = filteredChats?.messages || []
-    console.log("filtered messages",filteredMessages)
-    dispatch(storeMessages(filteredMessages ))
-    dispatch(storeUser(filteredUser))
-    dispatch(setChatId(chatId))
-    router.push(`/ExistedChat/${chatId}`)
+  const handleNavigation = (chatId: number) => {
+    const filteredChats = allChatsData?.chats.find(
+      (chat) => Number(chat?.id) === chatId
+    );
+    const userMember = filteredChats?.members?.find(
+      (member) => member?.user?.id !== user?.id
+    );
+    console.log("user member ", userMember);
+    const filteredUser = userMember?.user || {};
+    const filteredMessages = filteredChats?.messages || [];
+    // console.log("filtered messages",filteredMessages)
+    dispatch(storeMessages(filteredMessages));
+    dispatch(storeUser(filteredUser));
+    dispatch(setChatId(chatId));
+    router.push(`/ExistedChat/${chatId}`);
   };
   const filteredUser: Partial<User>[] =
-  allChatsData?.chats?.flatMap(chat =>
-    chat.members?.map(member => member?.user).filter((u): u is Partial<User> => !!u) || []
-  ) || [];
-  
-  
+    allChatsData?.chats?.flatMap(
+      (chat) =>
+        chat.members
+          ?.map((member) => member?.user)
+          .filter((u): u is Partial<User> => !!u) || []
+    ) || [];
+  console.log("filtered user", filteredUser);
+
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -108,7 +115,7 @@ export default function InnerSidebar() {
           className={`relative`}
           isOpen={selectUserModal}
           onClose={() => setSelectUserModal(false)}
-          users={filteredUser }
+          users={filteredUser}
         />
       )}
 
@@ -119,28 +126,31 @@ export default function InnerSidebar() {
           backToPreviousModal={handleBackToPreviousModal}
         />
       )}
-      { allChatsDataLoading && (
-          <div className="p-4">
-            <UserListSkeleton />
-          </div>
-        ) }
-      {
-        allChatsData?.chats?.length === 0  && !allChatsDataLoading ? (
-          <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
-            No Chats Yet!
-          </div>
-        ) : <div className="px-2">
-        {allChatsData?.chats?.map((chat) => (
-          <button
-            onClick={()=>handleNavigation(Number(chat?.id))}
-            key={chat?.id}
-            className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-          >
-            <UserItem currentUserId={Number(user?.id)} chatResponse={chat} />
-          </button>
-        ))}
-      </div>
-      }
+      {allChatsDataLoading && (
+        <div className="p-4">
+          <UserListSkeleton />
+        </div>
+      )}
+      {!giveNameToNewGroupModal &&
+      !selectUserModal &&
+      allChatsData?.chats?.length === 0 &&
+      !allChatsDataLoading ? (
+        <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
+          No Chats Yet!
+        </div>
+      ) : !giveNameToNewGroupModal && !selectUserModal ? (
+        <div className="px-2">
+          {allChatsData?.chats?.map((chat) => (
+            <button
+              onClick={() => handleNavigation(Number(chat?.id))}
+              key={chat?.id}
+              className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            >
+              <UserItem currentUserId={Number(user?.id)} chatResponse={chat} />
+            </button>
+          ))}
+        </div>
+      ) : null}
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-900/80 to-transparent pointer-events-none"></div>
     </div>
