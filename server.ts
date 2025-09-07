@@ -42,18 +42,20 @@ io.on("connection", (socket: Socket) => {
   socket.on("user_authentication", async (data: UserAuthData) => {
     try {
       const { userId, username } = data;
-      console.log("UserAuthData",data)
       activeUsers.set(userId, socket.id);
       socketServer.set(socket.id, userId);
-      const isOnline = await updateUserStatus(userId)
-      console.log(`User ${username} ( ${userId} is authenticated)`);
-      socket.broadcast.emit("user-online", { userId, username , isOnline:isOnline || true });
+      const isOnline = await updateUserStatus(Number(userId))
+      socket.broadcast.emit("user-online", { userId, username , isOnline:isOnline });
+      socket.emit("authentication-success", {
+        userId,
+        username,
+        message: "Successfully authenticated"
+      });
     } catch (error) {
       console.error("Authentication error:", error);
       socket.emit("error", { message: "Authentication failed" });
     }
   })
-
   socket.on("join-chat", async (data: JoinChatData) => {
     try {
       console.log("join room data",data)
@@ -179,12 +181,15 @@ io.on("connection", (socket: Socket) => {
   socket.on("leave-chat",async(data:JoinChatData)=>{
     const {userId,chatId} = data
     try {
+      console.log("leave chat data",userId,chatId)
+      console.log("db call initiated!")
       const chat = await prisma.chatMember.findFirst({
         where:{
-          id:chatId,
+          chatId,
           userId:userId
         }
       })
+      console.log("chat from leave chat",chat)
       if(!chat){
         return NextResponse.json(
           {
@@ -206,7 +211,6 @@ io.on("connection", (socket: Socket) => {
       console.error("failed to leave chat!",error)
       socket.emit("error",{message:"failed to leave chat!"})
     }
-
   })
   socket.on("disconnect", async () => {
     try {
