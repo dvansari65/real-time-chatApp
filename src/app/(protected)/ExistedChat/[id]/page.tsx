@@ -7,13 +7,15 @@ import { messageStatus } from "@/types/message";
 import { useSocket } from "@/utils/SocketProvider";
 import { Paperclip, Send, Smile } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 
 function page() {
+  const router = useRouter()
   const params = useParams();
-  const chatId = params.chatId;
+  const chatId = params.id;
   const [isOnline, setIsOnline] = useState(false);
   const [messageStatus, setMessageStatus] = useState<messageStatus>("SENT");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -29,55 +31,64 @@ function page() {
   // console.log("messages from api",messagesFromRedux)
   useEffect(() => {
     if (!socket) return;
-    // console.log("socket ",socket)
     const userData = {
       userId: data?.user?.id,
       username: data?.user?.username,
       avatar: data?.user?.avatar,
       phoneNumber: data?.user?.phoneNumber,
     };
-
+    // console.log("userData",userData)
     const handleConnect = () => {
-      if (data?.user) {
-        socket.emit("user_authentication", userData);
-        toast.success(`${data?.user} authenticated`)
-        const dataPayload = {
-          chatId: chatId || chatIdFromRedux,
-          userId: Number(data?.user?.id),
-        };
-        socket.emit("join-chat", dataPayload);
-      }
+      toast.success("socket connected!!");
     };
+    if (data?.user) {
+      toast.success(`${data?.user?.id} authenticated!`)
+      socket.emit("user_authentication", userData);
+      toast.success(`${userData.username} authenticated`);
+      // toast.success(`${data?.user} authenticated`)
+    }
+    const dataPayload = {
+      chatId: Number(chatId) || Number(chatIdFromRedux),
+      userId: Number(data?.user?.id),
+    };
+    if (chatId || chatIdFromRedux) {
+      toast.success(`${dataPayload.userId} is joined chat!`)
+      socket.emit("join-chat", dataPayload);
+    }
     const handleUserOnline = (data: any) => {
-      console.log("is online status", data.isOnline);
-      console.log(`user is online ${data?.username}`);
-      if (Number(user?.id) === Number(data?.userId)) {
-        setIsOnline(data?.isOnline || true);
-      }
+      console.log("is online status data",data)
+      setIsOnline(data?.isOnline );
+      toast.success(`You are now ${data?.isOnline ? "online" : "offline"}`);
     };
-
+    console.log("is online",isOnline)
     const handleNewMessage = (data: any) => {
-      console.log("new message", data);
       setMessages((prev) => [...prev, data?.message]);
     };
-
+    const handleUserJoinChat = (data: any) => {
+      toast.success(`${data?.userId} is connected to ${data?.chatId} room`);
+    };
     const handleMessageDelivered = (data: any) => {
-      console.log("message-delivered", data);
+      toast.success(`is message delivered!${data?.status}`)
       setMessageStatus(data?.status);
     };
-
+    const handleSuccessfulLeaveChat = (data:any)=>{
+      toast.success(`${data?.userId} leave from ${data?.chatId}`)
+    }
     socket.on("connect", handleConnect);
     socket.on("user-online", handleUserOnline);
     socket.on("new-message", handleNewMessage);
     socket.on("message-delivered", handleMessageDelivered);
-
+    socket.on("user-join-chat", handleUserJoinChat);
+    socket.on("user-left-chat", handleSuccessfulLeaveChat);
     return () => {
       socket.off("user-online", handleUserOnline);
       socket.off("connect", handleConnect);
       socket.off("new-message", handleNewMessage);
       socket.off("message-delivered", handleMessageDelivered);
+      socket.off("user-join-chat", handleUserJoinChat);
+      socket.off("user-left-chat", handleSuccessfulLeaveChat);
     };
-  }, [socket, data?.user, user?.id, chatId, chatIdFromRedux,messages]);
+  }, [socket, data?.user, user?.id, chatId, chatIdFromRedux]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -107,7 +118,10 @@ function page() {
     }
     setInput("");
   };
-
+  const leavechat = ()=>{
+    socket.emit("leave-chat",{chatId:Number(chatId) || Number(chatIdFromRedux),userId:Number(data?.user?.id)})
+    router.push("/")
+  }
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -121,15 +135,18 @@ function page() {
 
   return user ? (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 ">
-      <ChatHeader
-        userId={Number(user?.id)}
-        avatar={user?.avatar as string}
-        isOnline={isOnline}
-        username={user?.username as string}
-      />
-
+      {
+        (user?.id !== data?.user?.id) && <ChatHeader
+        handleLeaveChat={leavechat}
+          userId={Number(user?.id)}
+          avatar={user?.avatar as string}
+          isOnline={user?.isOnline }
+          username={user?.username as string}
+        />
+  
+      }
       {/* Messages Container */}
-      {data?.user?.id && (
+      {data?.user?.id && (data?.user?.id !== user?.id) && (
         <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15 ">
           {[...messagesFromRedux!, ...messages]?.map((msg) => (
             <div key={msg?.id}>
