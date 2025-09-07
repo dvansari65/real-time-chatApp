@@ -129,7 +129,7 @@ function SearchBar() {
                 </div>
               )}
 
-              {!isLoading && !isError && hasUsers && (
+              {!isLoading && !isError  && (
                 <div className="p-4 space-y-6">
                   {/* Chat Results Section */}
                   {hasUsers && (
