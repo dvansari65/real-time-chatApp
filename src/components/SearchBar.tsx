@@ -10,31 +10,36 @@ import { setLoading } from "@/features/Redux/loadingSlice";
 import { useRouter } from "next/navigation";
 import { setQueriedUserData } from "@/features/Redux/searchedUserSlice";
 import { storeMessages } from "@/features/Redux/allChatsSlice";
+import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
+import { groupChatInput } from "@/types/CreateGroup";
 
 interface GroupResult {
+  isGroup?:boolean,
   id: string;
   name: string;
   description?: string;
-  groupMembers?: partialUser[];
-  admins:partialUser[]
-  avatar:string
+  GroupMembers?: partialUser[];
+  admins: partialUser[];
+  avatar: string;
 }
 
 function SearchBar() {
   const [query, setQuery] = useState("");
   const [resultModal, setSearchModal] = useState(false);
   const [debounceQuery, setDebounceQuery] = useState(query);
-  const dispatch = useDispatch()
-  const router = useRouter()
+  const dispatch = useDispatch();
+  const router = useRouter();
   useEffect(() => {
     const timeOut = setTimeout(() => setDebounceQuery(query), 300);
     return () => clearTimeout(timeOut);
   }, [query]);
 
-  const { data:searchedUserData, isLoading, isError, error } = useSearchUsers(debounceQuery);
-  // useEffect(() => {
-  //   console.log("searchedUserData", searchedUserData);
-  // }, [searchedUserData]);
+  const {
+    data: searchedUserData,
+    isLoading,
+    isError,
+    error,
+  } = useSearchUsers(debounceQuery);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -46,36 +51,87 @@ function SearchBar() {
     setSearchModal(false);
     setQuery("");
   };
-  
-  const {mutate,isPending,error:createChatError} = useCreateChat()
-  const handleChatCreate =  (userId:number)=>{
-    const user = searchedUserData.user?.find((i:partialUser)=>i?.id === userId) || null;
-    console.log("queried user",user)
-    dispatch(setQueriedUserData(user))
+
+  const { mutate, isPending, error: createChatError } = useCreateChat();
+  const {
+    mutate: mutateCreateGroupChat,
+    isPending: isPendingGroupChat,
+    error: createGroupChatError,
+  } = useCreateChatForGroup();
+  const handleChatCreate = (userId: number) => {
+    const user =
+      searchedUserData.user?.find((i: partialUser) => i?.id === userId) || null;
+    console.log("queried user", user);
+    dispatch(setQueriedUserData(user));
+    dispatch(setLoading(true));
+    mutate(userId, {
+      onSuccess: (data) => {
+        console.log("data", data);
+        setSearchModal(false);
+        dispatch(storeMessages(data?.chat?.messages));
+        dispatch(setLoading(false));
+        if (data?.chat?.id) {
+          router.push(`/chat/${data.chat?.id}`);
+        } else {
+          router.push("/");
+          toast.error(`chat id not found! ${data?.chat?.id}`);
+        }
+      },
+      onError: (error) => {
+        console.log("Error", error.message);
+      },
+    });
+  };
+  const handlechatCreateForGroup = async ({
+    isGroup,
+    name,
+    members,
+    description,
+  }: groupChatInput) => {
     dispatch(setLoading(true))
-    mutate(userId , {
+    console.log("payload", isGroup,
+      name,
+      members,
+      description,)
+    if(!isGroup || !name || members.length==0 ){
+      toast.error("Please , provide all the fields!");
+      return;
+    }
+    const payload = {
+      isGroup,
+      name,
+      members,
+      description,
+    };
+   
+    mutateCreateGroupChat(payload,{
       onSuccess:(data)=>{
-        console.log("data",data)
-        setSearchModal(false)
-        dispatch(storeMessages(data?.chat?.messages))
         dispatch(setLoading(false))
+        setSearchModal(false)
+        console.log("data of group chat",data?.id)
         if(data?.chat?.id){
-          router.push(`/chat/${data.chat?.id}`)
+          router.push(`/groupChat/${data?.chat?.id}`)
         }else{
-          router.push("/")
-          toast.error(`chat id not found! ${data?.chat?.id}`)
+          router.push("/");
+          toast.error(`chat id not found! ${data?.chat?.id}`);
         }
       },
       onError:(error)=>{
-        console.log("Error",error.message)
+        dispatch(setLoading(false))
+        toast.error(error.message)
+        console.log(error.message)
       }
-    })
-  }
+    });
+  };
 
   // Check if we have any results
-  const hasResults = searchedUserData?.success && (searchedUserData?.chat?.length > 0 || searchedUserData?.group?.length > 0);
-  const hasUsers = searchedUserData?.user?.length > 0 && searchedUserData?.success;
-  const hasGroups = searchedUserData?.group?.length > 0 && searchedUserData?.success;
+  const hasResults =
+    searchedUserData?.success &&
+    (searchedUserData?.chat?.length > 0 || searchedUserData?.group?.length > 0);
+  const hasUsers =
+    searchedUserData?.user?.length > 0 && searchedUserData?.success;
+  const hasGroups =
+    searchedUserData?.group?.length > 0 && searchedUserData?.success;
   return (
     <>
       <div className="z-10 p-4 bg-white/5 backdrop-blur-sm border-b border-white/10">
@@ -105,7 +161,10 @@ function SearchBar() {
                 <X className="w-4 h-4 text-gray-400" />
               </Button>
             </div>
-            <div className="overflow-y-auto" style={{ maxHeight: 'calc(70vh - 80px)' }}>
+            <div
+              className="overflow-y-auto"
+              style={{ maxHeight: "calc(70vh - 80px)" }}
+            >
               {isLoading && (
                 <div className="text-gray-400 text-center py-8 px-4">
                   Searching...
@@ -123,13 +182,13 @@ function SearchBar() {
                 </div>
               )}
 
-              {(!isLoading && !isError && !hasResults && !hasUsers) && (
+              {!isLoading && !isError && !hasResults && !hasUsers && (
                 <div className="text-gray-400 text-center py-8 px-4">
                   No results found for "{query}"
                 </div>
               )}
 
-              {!isLoading && !isError  && (
+              {!isLoading && !isError && (
                 <div className="p-4 space-y-6">
                   {/* Chat Results Section */}
                   {hasUsers && (
@@ -144,7 +203,7 @@ function SearchBar() {
                       <div className="space-y-2">
                         {searchedUserData?.user?.map((user: partialUser) => (
                           <Button
-                          onClick={()=>handleChatCreate(Number(user?.id))}
+                            onClick={() => handleChatCreate(Number(user?.id))}
                             key={user?.id}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >
@@ -178,8 +237,16 @@ function SearchBar() {
                         </h4>
                       </div>
                       <div className="space-y-2">
-                        {searchedUserData.group.map((group: GroupResult) => (
+                        {searchedUserData?.group?.map((group: GroupResult) => (
                           <Button
+                            onClick={()=>handlechatCreateForGroup(
+                              {
+                                isGroup:group?.isGroup || true ,
+                                name:group?.name, 
+                                members:group?.GroupMembers || [],
+                                description:group?.description
+                               }
+                            )}
                             key={group?.id}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >
@@ -193,12 +260,12 @@ function SearchBar() {
                                 </div>
                                 {group.description && (
                                   <div className="text-gray-400 text-sm">
-                                    {group.description}
+                                    {group?.description}
                                   </div>
                                 )}
-                                {group.groupMembers && (
+                                {group.GroupMembers && (
                                   <div className="text-gray-500 text-xs">
-                                    {group.groupMembers.length} members
+                                    {group?.GroupMembers?.length} members
                                   </div>
                                 )}
                               </div>
