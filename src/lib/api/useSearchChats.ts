@@ -17,6 +17,7 @@ export const useSearchUsers = (query:string)=>{
                 toast.error(data?.message || "Response  not obtained!")
                 throw new Error(data?.message || "Response not obtained!")
             }
+            console.log("data from search",data)
             return data;
         },
         enabled:!!query && query.trim().length > 0

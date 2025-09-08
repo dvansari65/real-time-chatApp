@@ -59,7 +59,12 @@ export const GET = async (req:NextRequest)=>{
                         }
                     }
                 ]
-            }
+            },
+            include:{
+                GroupMembers:{},
+                admins:{}
+            },
+            
         })
         // console.log("group from bakcend",group)
         // console.log("chats",chat);

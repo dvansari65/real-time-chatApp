@@ -14,30 +14,30 @@ datasource db {
 }
 
 model User { 
-  id Int @id @default(autoincrement()) 
-  username String @unique 
-  email String @unique 
-  phoneNumber String @unique 
-  avatar String 
-  bio String 
-  isOnline Boolean @default(false) 
-  lastSeen DateTime @default(now()) 
-  createdAt DateTime @default(now()) 
-  password String 
+  id            Int @id @default(autoincrement()) 
+  username      String @unique 
+  email         String @unique 
+  phoneNumber   String @unique 
+  avatar        String 
+  bio           String 
+  isOnline      Boolean @default(false) 
+  lastSeen      DateTime @default(now()) 
+  createdAt     DateTime @default(now()) 
+  password      String 
   createdGroups Group[] @relation("createdGroups") 
-  memberOf Group[] @relation("groupMember") 
-  adminOf Group[] @relation("admins") 
-  sentMessages Message[] @relation("MessageSender") 
-  chatMembers chatMember[] 
-  blockedUsers BlockedUser[] @relation("BlockerUser") 
+  memberOf      Group[] @relation("groupMember") 
+  adminOf       Group[] @relation("admins") 
+  sentMessages  Message[] @relation("MessageSender") 
+  chatMembers   chatMember[] 
+  blockedUsers  BlockedUser[] @relation("BlockerUser") 
   blockedByUsers BlockedUser[] @relation("BlockedUser") 
   }
 
 model Chat {
   id          Int          @id @default(autoincrement())
-  name        String
+  name        String?
   isGroup     Boolean      @default(false)
-  description String
+  description String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now())
   // relationships

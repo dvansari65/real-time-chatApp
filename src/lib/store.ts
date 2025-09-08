@@ -6,11 +6,13 @@ import queriedUserDataReducer from "../features/Redux/searchedUserSlice";
 import { FLUSH, PAUSE, PERSIST, persistReducer, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { persistStore } from "redux-persist";
+import groupDataReducer from "@/features/Redux/groupDataSlice";
 export const rootReducer = combineReducers({
   Loading: loadingReducer,
   NewGroup: NewGroupReducer,
   allChatData: allChatDataReducer,
   queriedData: queriedUserDataReducer,
+  groupData:groupDataReducer
 });
 
 const persistConfig = {

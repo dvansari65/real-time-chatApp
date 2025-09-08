@@ -14,6 +14,8 @@ export const GET = async (req:NextRequest,{params}:{params:Promise<{id:string}>}
                         username:true,
                         id:true,
                         avatar:true,
+                        isOnline:true,
+                        lastSeen:true,
                     }
                 },
                 admins:{

@@ -1,8 +1,9 @@
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const useCreateGroup = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ["newGroup"],
     mutationFn: async (formData:FormData) => {
@@ -36,5 +37,8 @@ export const useCreateGroup = () => {
       console.log("data", data);
       return data;
     },
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:["getAllChats"]})
+    }
   });
 };

@@ -239,14 +239,17 @@ function SearchBar() {
                       <div className="space-y-2">
                         {searchedUserData?.group?.map((group: GroupResult) => (
                           <Button
-                            onClick={()=>handlechatCreateForGroup(
-                              {
-                                isGroup:group?.isGroup || true ,
-                                name:group?.name, 
-                                members:group?.GroupMembers || [],
-                                description:group?.description
-                               }
-                            )}
+                            onClick={()=>{
+                              handlechatCreateForGroup(
+                                {
+                                  isGroup:group?.isGroup || true ,
+                                  name:group?.name, 
+                                  members:group?.GroupMembers || [],
+                                  description:group?.description
+                                 }
+                              );
+                              dispatch()
+                            }}
                             key={group?.id}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >

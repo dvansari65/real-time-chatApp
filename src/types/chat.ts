@@ -44,3 +44,10 @@ role: string
 user: partialUser,
 userId: number
 }
+
+export interface chatInputTypeForGroupChat {
+  name:string;
+  members:partialUser[];
+  description?:string;
+  isGroup:boolean;
+}

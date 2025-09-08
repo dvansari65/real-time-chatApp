@@ -151,9 +151,9 @@ export default function Home() {
     );
   }
 
-  if (!data?.user) {
-    return null;
-  }
+  // if (!data?.user) {
+  //   return null;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">

@@ -3,7 +3,7 @@ import {prisma} from "../../../../../lib/prisma"
 
 export const POST = async (req:NextRequest,{params}:{params:{id:string}})=>{
     const chatId = parseInt(params.id)
-    const {senderId , content , type="TEXT" , replyToId } = await req.json()
+    const {senderId , content , type , replyToId } = await req.json()
     try {
         const chatMember = await prisma?.chatMember.findFirst({
             where:{

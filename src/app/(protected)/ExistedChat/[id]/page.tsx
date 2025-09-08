@@ -2,6 +2,7 @@
 import ChatHeader from "@/components/chat/chatHeader";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { useAuth } from "@/contextApi";
+import { useJoinChat } from "@/hooks/useJoinRoom";
 import { RootState } from "@/lib/store";
 import { messageStatus } from "@/types/message";
 import { useSocket } from "@/utils/SocketProvider";
@@ -29,6 +30,8 @@ function page() {
     chatId: chatIdFromRedux,
   } = useSelector((state: RootState) => state.allChatData);
   // console.log("messages from api",messagesFromRedux)
+  useJoinChat(Number(chatId), Number(data?.user?.id));
+  
   useEffect(() => {
     if (!socket) return;
     const userData = {
@@ -47,14 +50,7 @@ function page() {
       toast.success(`${userData.username} authenticated`);
       // toast.success(`${data?.user} authenticated`)
     }
-    const dataPayload = {
-      chatId: Number(chatId) || Number(chatIdFromRedux),
-      userId: Number(data?.user?.id),
-    };
-    if (chatId || chatIdFromRedux) {
-      toast.success(`${dataPayload.userId} is joined chat!`)
-      socket.emit("join-chat", dataPayload);
-    }
+    
     const handleUserOnline = (data: any) => {
       console.log("is online status data",data)
       setIsOnline(data?.isOnline );
