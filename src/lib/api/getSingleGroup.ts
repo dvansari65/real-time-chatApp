@@ -1,7 +1,8 @@
+import { getSingleGroupResponse } from "@/types/group";
 import { useQuery } from "@tanstack/react-query"
 
 export const useGetSingleGroup = (id:number)=>{
-    return useQuery({
+    return useQuery<getSingleGroupResponse>({
         queryKey:["singleGroup",id],
         queryFn:async ()=>{
             try {
@@ -17,6 +18,6 @@ export const useGetSingleGroup = (id:number)=>{
             } catch (error) {
                 throw error;
             }
-        }
+        },
     })
 }
