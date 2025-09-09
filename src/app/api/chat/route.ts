@@ -40,7 +40,13 @@ export const GET = async ()=>{
                     }
                 },
                 messages:{
-                    include:{}
+                    include:{
+                        sender:{
+                            select:{
+                                username:true
+                            }
+                        }
+                    }
                 },
         
             },
