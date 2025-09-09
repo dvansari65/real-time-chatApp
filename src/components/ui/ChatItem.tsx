@@ -6,16 +6,10 @@ import { UserIcon, Users } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 import GroupChatItem from "../chat/GroupChat/GroupChatItem";
+import { Button } from "./Button";
 
-// type userProps = userFromChat[] | undefined;
-// chatId:number
-// i: number
-// joinedAt: string
-// leftAt: string | null
-// role: string
-// user: partialUser,
-// userId: number
-export interface Chat {
+
+export interface ChatItemProps {
   id?: number;
   name?: string;
   isGroup?: boolean;
@@ -24,25 +18,36 @@ export interface Chat {
   description?: string;
   messages?: Message[];
   members?: userFromChat[];
+  currentUserId?:number;
+  createChatForGroup:()=>void;
+  createChatforOneToOneUser:()=>void
 }
 
 function ChatItem({
-  chatResponse,
+  name,
+  members,
+  messages,
+  description,
   currentUserId,
-}: {
-  chatResponse: Chat;
-  currentUserId: number;
-}) {
-  const filteredUser = chatResponse?.members?.find(
+  isGroup,
+  createChatForGroup,
+  updatedAt,
+  createChatforOneToOneUser
+}:ChatItemProps ) {
+
+  const filteredUser = members?.find(
     (member) => member.user?.id !== currentUserId
   );
+
   const user = filteredUser?.user;
-  if (chatResponse?.isGroup) {
+  if (isGroup) {
     return (
       <GroupChatItem
-        groupName={String(chatResponse?.name)}
-        chatResponse={chatResponse}
-        updatedAt={chatResponse?.updatedAt || new Date()}
+        createChatForGroup={createChatForGroup!}
+        groupName={String(name)}
+        messages={messages}
+        updatedAt={String(updatedAt) || String(new Date())}
+        members={members}
       />
     );
   }
@@ -61,7 +66,7 @@ function ChatItem({
               <UserIcon size={18} />
             )}
           </div>
-          <div className="flex-1 min-w-0">
+          <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0">
             <div className="w-full  flex justify-between items-center">
               <p className="text-sm font-medium text-purple-400 truncate">
                 {user?.username}
@@ -73,7 +78,7 @@ function ChatItem({
             <p className="text-sm text-gray-500 truncate">
               Last message preview...
             </p>
-          </div>
+          </Button>
         </div>
       ) : null}
     </div>
