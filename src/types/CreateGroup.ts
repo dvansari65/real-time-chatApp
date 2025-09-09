@@ -1,31 +1,35 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { partialUser, User } from "./user";
+import { Chat } from "@prisma/client";
 
 export interface createGroupInput {
-    userId:number | null  ,
-    admins : partialUser[],
-    GroupMembers : partialUser[] ,
-    discription?:string,
-    name:string,
-    profileImage:File | null
+  userId: number | null;
+  admins: partialUser[];
+  GroupMembers: partialUser[];
+  discription?: string;
+  name: string;
+  profileImage: File | null;
 }
 export interface groupType {
-    userId?:number | null  ,
-    admins ?: partialUser[],
-    GroupMembers? : partialUser[] ,
-    discription?:string,
-    name:string,
-    profileImage:File | null
+  id?: number;
+  profileImage?: string;
+  userId?: number;
+  GroupMembers?: partialUser[];
+  name?: string;
+  discription?: string;
+  admins?: partialUser[];
+  createdBy?: string;
+  chat?: Chat;
 }
 export interface getSingleGroupResponse {
-    success:boolean,
-    message:string,
-    group:groupType
+  success: boolean;
+  message: string;
+  group: groupType;
 }
 
 export interface groupChatInput {
-    isGroup:boolean,
-    name:string,
-    members:partialUser[],
-    description?:string
+  isGroup: boolean;
+  name: string;
+  members: partialUser[];
+  description?: string;
 }
