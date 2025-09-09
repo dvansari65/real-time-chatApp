@@ -37,10 +37,12 @@ model Chat {
   id          Int          @id @default(autoincrement())
   name        String?
   isGroup     Boolean      @default(false)
+  groupId     Int?          @unique
   description String?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now())
   // relationships
+  group       Group?   @relation(fields: [groupId],references: [id],onDelete: Cascade)
   messages    Message[]
   members     chatMember[]
 }
@@ -104,6 +106,7 @@ model Group {
   discription  String?
   admins       User[]  @relation("admins")
   createdBy    User    @relation("createdGroups", fields: [userId], references: [id])
+  chat         Chat?  
 }
 
 model BlockedUser {
