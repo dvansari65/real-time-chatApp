@@ -1,6 +1,6 @@
 import { useSearchUsers } from "@/lib/api/useSearchChats";
 import { Search, X, User, Users } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/Button";
 import { partialUser } from "@/types/user";
 import { useCreateChat } from "@/hooks/useCreateChat";
@@ -14,13 +14,14 @@ import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
 import { groupChatInput } from "@/types/CreateGroup";
 import { useQueryClient } from "@tanstack/react-query";
 import { setGroupId } from "@/features/Redux/groupDataSlice";
+import { userFromChat } from "@/types/chat";
 
 interface GroupResult {
   isGroup?:boolean,
   id: string;
   name: string;
   description?: string;
-  GroupMembers?: partialUser[];
+  GroupMembers?: userFromChat[];
   admins: partialUser[];
   avatar: string;
 }
@@ -60,6 +61,7 @@ function SearchBar() {
     mutate: mutateCreateGroupChat,
     error: createGroupChatError,
   } = useCreateChatForGroup();
+
   const handleChatCreate = (userId: number) => {
     const user = searchedUserData.user?.find((i: partialUser) => i?.id === userId) || null;
     dispatch(setQueriedUserData(user));
@@ -83,7 +85,7 @@ function SearchBar() {
       },
     });
   };
-  const handlechatCreateForGroup = async ({
+  const handlechatCreateForGroup = useCallback(async({
     isGroup,
     name,
     members,
@@ -94,7 +96,7 @@ function SearchBar() {
       name,
       members,
       description,)
-    if(!isGroup || !name || members.length==0 ){
+    if(!isGroup || !name || members?.length==0 ){
       toast.error("Please , provide all the fields!");
       return;
     }
@@ -104,10 +106,10 @@ function SearchBar() {
       members,
       description,
     };
-   
     mutateCreateGroupChat(payload,{
       onSuccess:(data)=>{
         dispatch(setLoading(false))
+        queryClient.invalidateQueries({queryKey:["getAllChats"]})
         setSearchModal(false)
         console.log("data of group chat",data?.id)
         if(data?.chat?.id){
@@ -123,7 +125,7 @@ function SearchBar() {
         console.log(error.message)
       }
     });
-  };
+  },[query,queryClient,debounceQuery])
   if(createGroupChatError)return toast.error(createChatError?.message || "some thing went wrong!")
   // Check if we have any results
   const hasResults =
