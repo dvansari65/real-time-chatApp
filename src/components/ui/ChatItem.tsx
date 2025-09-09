@@ -11,7 +11,7 @@ import { Button } from "./Button";
 
 export interface ChatItemProps {
   id?: number;
-  name?: string;
+  name?: string | undefined;
   isGroup?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -19,7 +19,7 @@ export interface ChatItemProps {
   messages?: Message[];
   members?: userFromChat[];
   currentUserId?:number;
-  createChatForGroup:()=>void;
+  createChatForGroup:(isGroup: boolean, name: string, members: partialUser[], description?: string)=>void
   createChatforOneToOneUser:()=>void
 }
 
@@ -43,7 +43,7 @@ function ChatItem({
   if (isGroup) {
     return (
       <GroupChatItem
-        createChatForGroup={createChatForGroup!}
+        createChatForGroup={()=>createChatForGroup(isGroup,name="",members=[],description="")}
         groupName={String(name)}
         messages={messages}
         updatedAt={String(updatedAt) || String(new Date())}
@@ -66,7 +66,7 @@ function ChatItem({
          <UserIcon size={18} />
        )}
      </div>
-     <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0 text-left p-3">
+     <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0 text-left ">
        <div className="w-full">
          <div className="flex justify-between items-center mb-1">
            <p className="text-sm font-medium text-purple-400 truncate">
