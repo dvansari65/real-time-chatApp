@@ -37,8 +37,16 @@ export const GET = async () => {
         },
         {status:200}
     );
-  } catch (error) {
+  } catch (error:any) {
     console.error("failed to find user!", error);
+    if(error.code === "P1001"){
+      return NextResponse.json(
+        {
+          error:error?.message || "Please make sure you are connected to database!"
+        },
+        {status:500}
+      )
+    }
     return null;
   }
 };
