@@ -1,6 +1,5 @@
 "use client";
 import { MessageCircle } from "lucide-react";
-
 import { useCallback, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { UserListSkeleton } from "../Skeleton";
@@ -9,15 +8,14 @@ import SelectUserForNewGroup from "@/components/NewGroupCreation/SelectUserForNe
 import NewGroupModal from "@/components/NewGroupCreation/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
-import UserItem from "../UserItem";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import {
-  setChatId,
-  storeMessages,
-  storeUser,
-} from "@/features/Redux/allChatsSlice";
-import { User } from "@/types/user";
+import { partialUser, User } from "@/types/user";
+import ChatItem from "../ChatItem";
+import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
+import { toast } from "sonner";
+import { setLoading } from "@/features/Redux/loadingSlice";
+import { setGroupId } from "@/features/Redux/groupDataSlice";
 
 export default function InnerSidebar() {
   const router = useRouter();
@@ -39,23 +37,34 @@ export default function InnerSidebar() {
     setSelectUserModal(true);
     setGiveNameToNewGroupModal(false);
   };
-
-  const handleNavigation = (chatId: number) => {
-    const filteredChats = allChatsData?.chats.find(
-      (chat) => Number(chat?.id) === chatId
-    );
-    const userMember = filteredChats?.members?.find(
-      (member) => member?.user?.id !== user?.id
-    );
-    console.log("user member ", userMember);
-    const filteredUser = userMember?.user || {};
-    const filteredMessages = filteredChats?.messages || [];
-    // console.log("filtered messages",filteredMessages)
-    dispatch(storeMessages(filteredMessages));
-    dispatch(storeUser(filteredUser));
-    dispatch(setChatId(chatId));
-    router.push(`/ExistedChat/${chatId}`);
-  };
+  const {mutate,isPending,isError} = useCreateChatForGroup()
+  const createChatForGroup = (
+    isGroup:boolean,
+    name:string,
+    members:partialUser[],
+    description?:string)=>{
+      dispatch(setLoading(true))
+      const payload = {
+        isGroup,
+        name,
+        members,
+        description
+      }
+      if(!isGroup || !name || members.length==0 ){
+        toast.error("Please , provide all the fields!");
+        return;
+      }
+      mutate(payload,{
+        onSuccess:(data)=>{
+          toast.success("chat created successfully!")
+          dispatch(setLoading(false))
+          if(data?.chat?.id){
+            dispatch(setGroupId(2))
+            router.push(`/groupChat/${data?.chat?.id}`)
+          }
+        }
+      })
+    }
   const filteredUser: Partial<User>[] =
     allChatsData?.chats?.flatMap(
       (chat) =>
@@ -83,11 +92,9 @@ export default function InnerSidebar() {
           ></div>
         ))}
       </div>
-
       {/* Header */}
       {/* Search */}
       <SearchBar />
-
       {/* Quick Actions */}
       <div className="relative z-10 p-4 bg-white/5 backdrop-blur-sm border-b border-white/10">
         <div className="flex space-x-3">
@@ -131,23 +138,30 @@ export default function InnerSidebar() {
           <UserListSkeleton />
         </div>
       )}
-      {!giveNameToNewGroupModal &&
-      !selectUserModal &&
-      allChatsData?.chats?.length === 0 &&
-      !allChatsDataLoading ? (
+      {!giveNameToNewGroupModal && !selectUserModal && allChatsData?.chats?.length === 0 && !allChatsDataLoading ? 
+      (
         <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
           No Chats Yet!
         </div>
       ) : !giveNameToNewGroupModal && !selectUserModal ? (
         <div className="px-2">
           {allChatsData?.chats?.map((chat) => (
-            <button
-              onClick={() => handleNavigation(Number(chat?.id))}
+            <div
               key={chat?.id}
               className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
             >
-              <UserItem currentUserId={Number(user?.id)} chatResponse={chat} />
-            </button>
+              <ChatItem 
+                currentUserId={Number(user?.id)}
+                name={chat?.name}
+                members={chat?.members}
+                messages={chat?.messages || []}
+                description={chat?.description}
+                isGroup={chat?.isGroup}
+                createChatForGroup={()=>{}}
+                updatedAt={chat?.updatedAt}
+                createChatforOneToOneUser={()=>{}} 
+               />
+            </div>
           ))}
         </div>
       ) : null}

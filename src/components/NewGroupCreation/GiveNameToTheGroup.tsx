@@ -14,6 +14,7 @@ import { useAuth } from "@/contextApi";
 import { useCreateGroup } from "@/lib/api/createGroup";
 import { toast } from "sonner";
 import { partialUser } from "@/types/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 const NewGroupModal = ({
   className,
@@ -28,6 +29,7 @@ const NewGroupModal = ({
   const [discription, setDiscription] = useState("");
   const dispatch = useDispatch();
   const groupMembersAfterAddingCurrentUser = [...GroupMembers, data?.user!];
+  const queryClient = useQueryClient()
   // const createGroupInputs: createGroupInput = {
   //   admins: [data?.user!],
   //   GroupMembers: groupMembersAfterAddingCurrentUser,
@@ -63,6 +65,7 @@ const NewGroupModal = ({
       );
       mutate(formData, {
         onSuccess: (data) => {
+          queryClient.invalidateQueries({queryKey:["getAllChats"]})
           console.log("Success!", data);
           toast.success("Group successfully created!");
         },

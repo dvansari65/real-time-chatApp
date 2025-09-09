@@ -76,7 +76,6 @@ function Signup() {
         body: data,
       });
       const result = await response.json();
-      console.log("result ", result);
       if (response.ok) {
         setIsLoading(false);
         setError("");
@@ -91,7 +90,7 @@ function Signup() {
         setAvatar(null);
         const fileInput = document.getElementById("avatar") as HTMLInputElement;
         if (fileInput) fileInput.value = "";
-        router.push("/")
+        router.push("/login")
       } else {
         setError(result.error || "failed to register!");
       }

@@ -12,6 +12,8 @@ import { setQueriedUserData } from "@/features/Redux/searchedUserSlice";
 import { storeMessages } from "@/features/Redux/allChatsSlice";
 import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
 import { groupChatInput } from "@/types/CreateGroup";
+import { useQueryClient } from "@tanstack/react-query";
+import { setGroupId } from "@/features/Redux/groupDataSlice";
 
 interface GroupResult {
   isGroup?:boolean,
@@ -27,6 +29,7 @@ function SearchBar() {
   const [query, setQuery] = useState("");
   const [resultModal, setSearchModal] = useState(false);
   const [debounceQuery, setDebounceQuery] = useState(query);
+  const queryClient = useQueryClient()
   const dispatch = useDispatch();
   const router = useRouter();
   useEffect(() => {
@@ -55,18 +58,16 @@ function SearchBar() {
   const { mutate, isPending, error: createChatError } = useCreateChat();
   const {
     mutate: mutateCreateGroupChat,
-    isPending: isPendingGroupChat,
     error: createGroupChatError,
   } = useCreateChatForGroup();
   const handleChatCreate = (userId: number) => {
-    const user =
-      searchedUserData.user?.find((i: partialUser) => i?.id === userId) || null;
-    console.log("queried user", user);
+    const user = searchedUserData.user?.find((i: partialUser) => i?.id === userId) || null;
     dispatch(setQueriedUserData(user));
     dispatch(setLoading(true));
     mutate(userId, {
       onSuccess: (data) => {
-        console.log("data", data);
+        queryClient.invalidateQueries({queryKey:["getAllChats"]})
+        queryClient.invalidateQueries({queryKey:["getGroups"]})
         setSearchModal(false);
         dispatch(storeMessages(data?.chat?.messages));
         dispatch(setLoading(false));
@@ -123,7 +124,7 @@ function SearchBar() {
       }
     });
   };
-
+  if(createGroupChatError)return toast.error(createChatError?.message || "some thing went wrong!")
   // Check if we have any results
   const hasResults =
     searchedUserData?.success &&
@@ -227,19 +228,20 @@ function SearchBar() {
                       </div>
                     </div>
                   )}
-
                   {hasGroups && (
-                    <div>
+                    <div className="w-full">
                       <div className="flex items-center gap-2 mb-3">
                         <Users className="w-4 h-4 text-green-400" />
                         <h4 className="text-white font-medium text-sm">
                           Groups ({searchedUserData.group.length})
                         </h4>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 w-full">
                         {searchedUserData?.group?.map((group: GroupResult) => (
                           <Button
                             onClick={()=>{
+                              if(!group?.id) return toast.error("group id is missing!")
+                              dispatch(setGroupId(Number(group?.id)))
                               handlechatCreateForGroup(
                                 {
                                   isGroup:group?.isGroup || true ,
@@ -248,10 +250,10 @@ function SearchBar() {
                                   description:group?.description
                                  }
                               );
-                              dispatch()
+                             
                             }}
                             key={group?.id}
-                            className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
+                            className="p-3 w-full flex justify-start bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center">

@@ -52,36 +52,38 @@ function ChatItem({
     );
   }
   return (
-    <div className="flex items-center justify-between w-full ">
-      {filteredUser?.user?.id !== currentUserId ? (
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-            {user?.avatar ? (
-              <img
-                src={user?.avatar}
-                className="w-full h-full rounded-full object-cover"
-                alt={`${user?.username}'s avatar`}
-              />
-            ) : (
-              <UserIcon size={18} />
-            )}
-          </div>
-          <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0">
-            <div className="w-full  flex justify-between items-center">
-              <p className="text-sm font-medium text-purple-400 truncate">
-                {user?.username}
-              </p>
-              <p className="text-[11px] text-gray-400">
-                {user?.isOnline ? "Online" : "Offline"}
-              </p>
-            </div>
-            <p className="text-sm text-gray-500 truncate">
-              Last message preview...
-            </p>
-          </Button>
-        </div>
-      ) : null}
-    </div>
+    <div className="flex items-center w-full">
+ {filteredUser?.user?.id !== currentUserId ? (
+   <div className="flex items-center space-x-3 w-full">
+     <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+       {user?.avatar ? (
+         <img
+           src={user?.avatar}
+           className="w-full h-full rounded-full object-cover"
+           alt={`${user?.username}'s avatar`}
+         />
+       ) : (
+         <UserIcon size={18} />
+       )}
+     </div>
+     <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0 text-left p-3">
+       <div className="w-full">
+         <div className="flex justify-between items-center mb-1">
+           <p className="text-sm font-medium text-purple-400 truncate">
+             {user?.username}
+           </p>
+           <p className="text-[11px] text-gray-400 flex-shrink-0">
+             {user?.isOnline ? "Online" : "Offline"}
+           </p>
+         </div>
+         <p className="text-sm text-gray-500 truncate">
+           Last message preview...
+         </p>
+       </div>
+     </Button>
+   </div>
+ ) : null}
+</div>
   );
 }
 

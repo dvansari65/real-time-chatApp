@@ -14,7 +14,8 @@ export interface Message {
   replyToId: number;
   createdAt?: Date;
   type?: string;
-  status?:messageStatus
+  status?:messageStatus,
+  sender?:string
 }
 
 export type messageStatus = "SENT" | "DELIVERED" | "READ";

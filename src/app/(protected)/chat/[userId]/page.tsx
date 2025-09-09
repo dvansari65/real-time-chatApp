@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { Send, Smile, Paperclip } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
 import { useAuth } from "@/contextApi";
 import ChatHeader from "@/components/chat/chatHeader";
@@ -15,7 +15,7 @@ import RedirectPage from "../../Redirecting/page";
 export default function Conversation() {
   const params = useParams();
   const chatId = params.id;
-
+  const router = useRouter()
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<messageStatus>("SENT");
@@ -136,12 +136,15 @@ export default function Conversation() {
     }
     setInput("");
   };
-
+  const navigateToPreviousPage = ()=>{
+      router.push("/")
+  }
   if (isLoading) return <RedirectPage />;
 
   return (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900">
       <ChatHeader
+        handleLeaveChat={navigateToPreviousPage}
         userId={Number(queriedUser?.id)}
         avatar={queriedUser?.avatar as string}
         isOnline={isOnline}

@@ -25,10 +25,6 @@ export const useCreateChat = ()=>{
       console.log("Server error!",error.message)
       throw error;
     }
-  },
-  onSuccess:()=>{
-    queryClient.invalidateQueries({queryKey:["getAllChats"]})
-    queryClient.invalidateQueries({queryKey:["getGroups"]})
   }
  })
 }

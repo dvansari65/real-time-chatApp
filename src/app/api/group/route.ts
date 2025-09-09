@@ -7,11 +7,9 @@ import { uploadFile } from "@/lib/uploadAvatar";
 export const POST = async (req: NextRequest) => {
   try {
     const formData = await req.formData();
-    console.log("formdata", formData);
     const profileImage = formData.get("profileImage") as File | null;
     const bodyData = formData.get("data") as string;
     const body = JSON.parse(bodyData) as createGroupInput;
-    console.log("Received profileImage:", profileImage);
     console.log("Parsed body data:", body);
     const session = await verifySession();
     if (!session) {
@@ -82,6 +80,7 @@ export const POST = async (req: NextRequest) => {
         { status: 500 }
       );
     }
+    console.log("new group",NewGroup)
     return NextResponse.json(
       {
         message: "new Group successfully created!",

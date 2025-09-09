@@ -2,7 +2,7 @@ import { Message } from "@/types/message";
 import { partialUser } from "@/types/user";
 
 interface GroupMessageContainerProps {
-    message:Message,
+    message:Message | null,
     currentUserId:number,
     groupMembers:partialUser[],
     status:"SENT" | "DELIVERED" | "READ"
@@ -14,7 +14,7 @@ const GroupMessageContainer = ({
     status 
   }:GroupMessageContainerProps) => {
     const isOwnMessage = message?.senderId === currentUserId;
-    const sender = groupMembers?.find(member => member.id === message.senderId);
+    const sender = groupMembers?.find(member => member.id === message?.senderId);
     
     return (
       <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>

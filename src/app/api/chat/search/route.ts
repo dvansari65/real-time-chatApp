@@ -53,7 +53,9 @@ export const GET = async (req:NextRequest)=>{
                     {
                         name:{
                             contains:searchTerm
-                        },
+                        }
+                    },
+                    {
                         discription:{
                             contains:searchTerm
                         }
@@ -66,7 +68,7 @@ export const GET = async (req:NextRequest)=>{
             },
             
         })
-        // console.log("group from bakcend",group)
+        console.log("group from bakcend",group)
         // console.log("chats",chat);
         return NextResponse.json({
             success:true,
