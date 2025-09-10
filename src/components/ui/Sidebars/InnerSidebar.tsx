@@ -1,6 +1,6 @@
 "use client";
 import { MessageCircle } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { UserListSkeleton } from "../Skeleton";
 import { Button } from "../Button";
@@ -52,14 +52,19 @@ export default function InnerSidebar() {
   const { mutate, isPending, error: groupChatError } = useCreateChatForGroup();
 
   const createChatforOneToOneUser = useCallback((userId: number) => {
+    console.log("user id",userId)
     dispatch(setLoading(true));
     createChatBetweenOneToOneMutation(userId, {
       onSuccess: (data: createdChatReponse) => {
         console.log("data from api", data);
         toast.success("chat created successfully!");
+        queryClient.invalidateQueries({queryKey:["user"]})
+
         if (data?.chat?.id) {
-          router.push(`/chat/${data?.chat?.id}&userId=${userId}`);
+          dispatch(setLoading(true));
+          router.push(`/chat/${data?.chat?.id}?userId=${userId}`);
         } else {
+          dispatch(setLoading(true));
           toast.error("please provide chat id!");
           return;
         }
@@ -69,7 +74,7 @@ export default function InnerSidebar() {
         return;
       },
     });
-  }, []);
+  }, [queryClient,user]);
 
   const createChatForGroup = (
     isGroup: boolean,
@@ -90,12 +95,15 @@ export default function InnerSidebar() {
     }
     mutate(payload, {
       onSuccess: (data) => {
+        if(!data?.chat?.isGroup){
+          return toast.error("select group to create chat!")
+        }
         console.log("data",data)
         console.log("chat created!",data)
         queryClient.invalidateQueries({ queryKey: ["getAllChats"] });
-        toast.success("chat created successfully!");
         dispatch(setLoading(false));
         if (data?.chat?.id) {
+          toast.success("chat created successfully!");
           dispatch(setGroupId(2));
           router.push(`/groupChat/${data?.chat?.id}`);
         }
@@ -107,13 +115,15 @@ export default function InnerSidebar() {
   
   );
   };
-  const filteredUser: Partial<User>[] =
-    allChatsData?.chats?.flatMap(
+  const filteredUser: Partial<User>[] =useMemo(()=>{
+    return  allChatsData?.chats?.flatMap(
       (chat) =>
         chat.members
           ?.map((member) => member?.user)
           .filter((u): u is Partial<User> => !!u) || []
     ) || [];
+  },[allChatsData])
+  
   // console.log("filtered user", filteredUser);
 
   return (
@@ -212,8 +222,7 @@ export default function InnerSidebar() {
                     chat?.name,
                     chat?.members,
                     chat?.description
-                  )
-                }
+                  )}
                 updatedAt={chat?.updatedAt}
                 createChatforOneToOneUser={createChatforOneToOneUser}
               />
