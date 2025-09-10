@@ -1,7 +1,7 @@
-interface MessageData {
+export interface MessageData {
   content: string;
-  senderId: number;
-  chatId: number;
+  senderId: number | undefined;
+  chatId: number | undefined;
   type: "TEXT" | "IMAGE" | "AUDIO" | "VIDEO";
   replyToId?: number | null;
 }

@@ -1,6 +1,7 @@
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { partialUser, User } from "./user";
 import { Chat } from "@prisma/client";
+import { userFromChat } from "./chat";
 
 export interface createGroupInput {
   userId: number | null;
@@ -29,7 +30,7 @@ export interface getSingleGroupResponse {
 
 export interface groupChatInput {
   isGroup: boolean;
-  name: string;
-  members: partialUser[];
+  name: string | undefined;
+  members: userFromChat[] | undefined;
   description?: string;
 }

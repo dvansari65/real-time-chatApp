@@ -19,6 +19,7 @@ export interface Chat {
   id?: number;
   name?: string;
   isGroup?:boolean,
+  groupId?:boolean | undefined,
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
@@ -50,4 +51,9 @@ export interface chatInputTypeForGroupChat {
   members:partialUser[];
   description?:string;
   isGroup:boolean;
+}
+
+export interface createdChatReponse {
+  success:boolean,
+  chat:Chat
 }
