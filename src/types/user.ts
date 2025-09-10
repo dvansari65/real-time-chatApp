@@ -54,5 +54,6 @@ export interface allUsersResponse {
 
 export interface singleUserDataResponse {
   success:boolean,
-  user:partialUser | null
+  user:partialUser | null,
+  message:string
 }
