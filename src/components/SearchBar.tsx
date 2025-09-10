@@ -108,21 +108,21 @@ function SearchBar() {
     };
     mutateCreateGroupChat(payload,{
       onSuccess:(data)=>{
-        dispatch(setLoading(false))
         queryClient.invalidateQueries({queryKey:["getAllChats"]})
         setSearchModal(false)
         console.log("data of group chat",data?.id)
         if(data?.chat?.id){
-          router.push(`/groupChat/${data?.chat?.id}`)
+          router.push(`/GroupChat/${data?.chat?.id}`)
+          dispatch(setLoading(false))
         }else{
           router.push("/");
           toast.error(`chat id not found! ${data?.chat?.id}`);
+          dispatch(setLoading(false))
         }
       },
       onError:(error)=>{
         dispatch(setLoading(false))
         toast.error(error.message)
-        console.log(error.message)
       }
     });
   },[query,queryClient,debounceQuery])
