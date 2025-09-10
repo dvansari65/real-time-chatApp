@@ -15,12 +15,14 @@ export const rootReducer = combineReducers({
   groupData:groupDataReducer
 });
 
+export type AppRootState = ReturnType<typeof rootReducer>
+
 const persistConfig = {
   key: "root",
   storage,
   whitelist: ["queriedData", "allChatData"],
 };
-const persistedReducer = persistReducer(persistConfig,rootReducer);
+const persistedReducer = persistReducer<AppRootState>(persistConfig,rootReducer);
 export const store = configureStore({
     reducer:persistedReducer,
     middleware:(getDefaultMiddleware)=>
