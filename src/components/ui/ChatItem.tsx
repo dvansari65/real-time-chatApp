@@ -3,7 +3,7 @@ import { chatMember, userFromChat } from "@/types/chat";
 import { Message, messageStatus } from "@/types/message";
 import { partialUser } from "@/types/user";
 import { UserIcon, Users } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import { toast } from "sonner";
 import GroupChatItem from "../chat/GroupChat/GroupChatItem";
 import { Button } from "./Button";
@@ -19,8 +19,8 @@ export interface ChatItemProps {
   messages?: Message[];
   members?: userFromChat[];
   currentUserId?:number;
-  createChatForGroup:(isGroup: boolean, name: string, members: partialUser[], description?: string)=>void
-  createChatforOneToOneUser:(userId:number)=>void
+  createChatForGroup:(isGroup: boolean, name: string, members: userFromChat[], description?: string)=>void
+  createChatforOneToOneUser:(targetUserId:number)=>void
 }
 
 function ChatItem({
@@ -36,15 +36,58 @@ function ChatItem({
   
 }:ChatItemProps ) {
 
-  const filteredUser = members?.find(
-    (member) => member.user?.id !== currentUserId
-  );
+  const targetUser = useMemo(()=>{
+    if(!members || !currentUserId){
+      return null;
+    }
+    const filteredUser = members
+    .filter(member=>
+      member?.user?.id && typeof member?.user?.id === "number" && 
+          member?.user?.id !== currentUserId
+    )
+    .map(member=>member?.user)
 
-  const user = filteredUser?.user;
+    return filteredUser.length > 0 ? filteredUser[0] : null
+  },[members,currentUserId])
+  
+  const handleOneToOneChat = ()=>{
+    if(!currentUserId){
+      toast.error("please first login!")
+      return;
+    }
+    if(!targetUser?.id){
+      toast.error("please provide target user id!")
+      return;
+    }
+    if(targetUser === currentUserId){
+      toast.error("You can not create chat with yourself!")
+      return;
+    }
+    createChatforOneToOneUser(targetUser?.id)
+  }
+  const handleGroupChat = ()=>{
+    if(!isGroup){
+      toast.error("this chat is not group chat!")
+      return;
+    }
+    if(!currentUserId){
+      toast.error("please provide current user id!")
+      return;
+    }
+    if(members?.length === 0 || !members){
+      toast.error("Atleast 2 members required to make chat in Group !")
+      return;
+    }
+    if (!name || name.trim().length === 0) {
+      toast.error("Group name is required.");
+      return;
+    }
+    createChatForGroup(true,name,members,description)
+  }
   if (isGroup) {
     return (
       <GroupChatItem
-        createChatForGroup={()=>createChatForGroup(isGroup,name="",members=[],description="")}
+        createChatForGroup={handleGroupChat}
         groupName={String(name)}
         messages={messages}
         updatedAt={String(updatedAt) || String(new Date())}
@@ -54,27 +97,27 @@ function ChatItem({
   }
   return (
     <div className="flex items-center w-full">
- {filteredUser?.user?.id !== currentUserId ? (
-   <div className="flex items-center space-x-3 w-full">
+    {targetUser?.id !== currentUserId ? (
+    <div className="flex items-center space-x-3 w-full">
      <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-       {user?.avatar ? (
+       {targetUser?.avatar ? (
          <img
-           src={user?.avatar}
+           src={targetUser?.avatar}
            className="w-full h-full rounded-full object-cover"
-           alt={`${user?.username}'s avatar`}
+           alt={`${targetUser?.username}'s avatar`}
          />
        ) : (
          <UserIcon size={18} />
        )}
      </div>
-     <Button onClick={()=>createChatforOneToOneUser(Number(filteredUser?.user?.id))} className="flex-1 min-w-0 text-left ">
+     <Button onClick={handleOneToOneChat} className="flex-1 min-w-0 text-left ">
        <div className="w-full">
          <div className="flex justify-between items-center mb-1">
            <p className="text-sm font-medium text-purple-400 truncate">
-             {user?.username}
+             {targetUser?.username}
            </p>
            <p className="text-[11px] text-gray-400 flex-shrink-0">
-             {user?.isOnline ? "Online" : "Offline"}
+             {targetUser?.isOnline ? "Online" : "Offline"}
            </p>
          </div>
          <p className="text-sm text-gray-500 truncate">
