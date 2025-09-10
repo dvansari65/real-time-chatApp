@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import {prisma} from "../../../lib/prisma"
-export const GET = async (req:NextRequest)=>{
+import {prisma} from "../../../../lib/prisma"
+export const GET = async (req:NextRequest,{params}:{params:Promise<{userId:string}>})=>{
     try {
-        const body =  await req.json()
-        const {userId}:{userId:number} = body
+        const userId = (await params).userId
+        console.log("user id from backedn",userId)
         const user = await prisma.user.findFirst({
             where:{
-                id:userId
+                id:Number(userId)
             }
         })
         if(!user){
@@ -18,6 +18,7 @@ export const GET = async (req:NextRequest)=>{
                 {status:404}
             )
         }
+        console.log("user from the bakedn",user)
         return NextResponse.json(
             {
                 user,
