@@ -64,8 +64,9 @@ export const GET = async (req:NextRequest)=>{
             },
             include:{
                 GroupMembers:{},
-                admins:{}
+                admins:{},
             },
+        
             
         })
         console.log("group from bakcend",group)
