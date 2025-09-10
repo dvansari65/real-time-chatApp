@@ -1,4 +1,5 @@
 "use client"
+import { createdChatReponse } from "@/types/chat"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -6,7 +7,6 @@ import { toast } from "sonner"
 
 
 export const useCreateChat = ()=>{
-  const queryClient = useQueryClient()
  return useMutation({
   mutationKey:["createChat"],
   mutationFn:async(userId:number)=>{
@@ -19,7 +19,6 @@ export const useCreateChat = ()=>{
       if(!response.ok){
         throw new Error(data?.message || "failed to create chat!")
       }
-      console.log("data from api",data)
       return data;
     } catch (error:any) {
       console.log("Server error!",error.message)

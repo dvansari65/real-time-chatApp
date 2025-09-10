@@ -13,6 +13,7 @@ export const useCreateChatForGroup = ()=>{
                     credentials:"include",
                     body:JSON.stringify(chatInputTypeForGroupChat)
                 })
+                console.log("reponse",response)
                 const data = await response.json();
                 if(!response.ok){
                     throw new Error(data?.message || "failed to create group chat!")
