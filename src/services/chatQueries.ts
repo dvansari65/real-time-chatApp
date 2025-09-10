@@ -7,20 +7,32 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
     try {
         const chat = await prisma.chat.findFirst({
             where:{
-                members:{
-                    every:{
-                        OR:[
-                            {userId:currentUserId},
-                            {userId:targetUserId}
-                        ]
+                isGroup:false,
+                AND:[
+                    {
+                        members:{
+                            some:{
+                                userId:currentUserId
+                            }
+                        }
                     },
-                    some:{userId:currentUserId}
-                },
-                AND:{
-                    members:{
-                        some:{userId:targetUserId}
+                    {
+                        members:{
+                            some:{
+                                userId:targetUserId
+                            }
+                        }
+                    },
+                    {
+                        members:{
+                            none:{
+                                userId:{
+                                    notIn:[currentUserId,targetUserId]
+                                }
+                            }
+                        }
                     }
-                }
+                ]
             },
             include:{
                 members:{
@@ -57,6 +69,7 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
             },
             
         })
+        console.log("chat from find chat",chat)
         return chat
     } catch (error:any) {
         console.log("failed to find chats!",error)
@@ -66,6 +79,14 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
 
 export const createChat = async (currentUserId:number,targetUserId:number)=>{
     try {
+       if(!targetUserId){
+        throw new Error("Please provide target user id!")
+       }
+       if(!currentUserId){
+        throw new Error("Please provide current user id!")
+       }
+       console.log("target user id from creaet chat ",targetUserId);
+       
         const targetUser = await prisma.user.findFirst({
             where:{
                 id:targetUserId
@@ -137,7 +158,10 @@ export const createChat = async (currentUserId:number,targetUserId:number)=>{
         })
         return newChat
     } catch (error:any) {
-        console.log("failed to create chat!",error)
+        console.log("failed to create chat!",error.message)
+        if(error.code === "P2002"){
+            throw new Error(error.message || "chat already exist!")
+        }
         throw error;
     }
 }
@@ -145,12 +169,13 @@ export const createChat = async (currentUserId:number,targetUserId:number)=>{
 export const getOrCreateChat = async (currentUserId:number,targetUserId:number)=>{
     try {
         let chat = await findExistingChat(currentUserId,targetUserId)
+        console.log("chat from getOrCreateChat",chat)
         if(!chat){
            chat = await createChat(currentUserId,targetUserId)
         }
         return chat;
-    } catch (error) {
-        console.log("something went wrong!",error);
+    } catch (error:any) {
+        console.log("something went wrong!",error.message);
         throw error;
     }
 }
