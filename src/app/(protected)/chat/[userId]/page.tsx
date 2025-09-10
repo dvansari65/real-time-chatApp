@@ -10,11 +10,13 @@ import MessageContainer from "@/components/ui/MessageContainer";
 import { messageStatus } from "@/types/message";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import RedirectPage from "../../Redirecting/page";
+import { useGetSingleUser } from "@/lib/api/getSingleUser";
 
 export default function Conversation() {
   const params = useParams();
   const chatId = params.id;
+  const searchParam = useSearchParams()
+  const userId = searchParam.get("userId")
   const router = useRouter()
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
@@ -32,6 +34,8 @@ export default function Conversation() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
 
   useJoinChat(Number(chatId), Number(user?.id));
 
@@ -143,13 +147,14 @@ export default function Conversation() {
   return (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900">
       <ChatHeader
+        currentUserId={user?.id}
         handleLeaveChat={navigateToPreviousPage}
-        userId={Number(queriedUser?.id)}
-        avatar={queriedUser?.avatar as string}
-        isOnline={isOnline}
-        username={queriedUser?.username as string}
+        userId={Number(data?.user?.id)}
+        avatar={data?.user?.avatar}
+        isOnline={data?.user?.isOnline}
+        username={data?.user?.username}
+        isLoadingUserData={singleUserDataLoading}
       />
-
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15">
         {[...(chatMessages || []), ...messages].map((msg) => (
           <div key={msg?.id}>

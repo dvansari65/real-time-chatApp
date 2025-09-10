@@ -133,7 +133,8 @@ function page() {
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 ">
       {
         (user?.id !== data?.user?.id) && <ChatHeader
-        handleLeaveChat={leavechat}
+          currentUserId={data?.user?.id}
+          handleLeaveChat={leavechat}
           userId={Number(user?.id)}
           avatar={user?.avatar as string}
           isOnline={user?.isOnline }
