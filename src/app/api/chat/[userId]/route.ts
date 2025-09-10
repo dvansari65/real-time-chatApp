@@ -17,6 +17,7 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
         }
         const currentUserId = session?.userId
         const targetUserId = (await params).userId
+        console.log("target user id ",targetUserId)
         if (!targetUserId || isNaN(Number(targetUserId))) {
             return NextResponse.json(
               { message: "Invalid user ID", success: false },

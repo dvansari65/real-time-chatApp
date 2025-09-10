@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
-import localFont from "next/font/local";
 import { Toaster } from "sonner";
-import { AuthProvider, useAuth } from "@/contextApi";
+import { AuthProvider } from "@/contextApi";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { SocketProvider } from "@/utils/SocketProvider";
 import ReduxProvider from "@/_App";
 
-const geistSans = Inter({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-inter",
+  display: "swap",
 });
 
-const geistMono = Roboto_Mono({
+const robotoMono = Roboto_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-roboto-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${robotoMono.variable} antialiased`}
       >
         <ReduxProvider>
           <SocketProvider>

@@ -16,7 +16,6 @@ export const useCreateGroup = () => {
       if (!response.ok) {
         // Try to get error message from response
         let errorMessage = "failed to create group!";
-        
         try {
           const errorData = await response.json();
           errorMessage = errorData?.error || errorData?.message || errorMessage;
@@ -30,7 +29,6 @@ export const useCreateGroup = () => {
             errorMessage = response.statusText || errorMessage;
           }
         }
-        
         toast.error(errorMessage);
         throw new Error(errorMessage);
       }

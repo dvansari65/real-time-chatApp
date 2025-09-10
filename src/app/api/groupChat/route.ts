@@ -5,7 +5,9 @@ import {prisma}  from "../../../lib/prisma"
 export const POST = async(req:NextRequest)=>{
     try {
         const body:chatInputTypeForGroupChat = await req.json()
+        console.log("body",body)
         const {isGroup,name,members,description} = body;
+        console.log("members",members)
         const potentialChats = await prisma.chat.findMany({
             where:{
                 isGroup:true,
@@ -26,7 +28,7 @@ export const POST = async(req:NextRequest)=>{
                 }
             }
         })
-        console.log(" potentialChats",potentialChats)
+        // console.log(" potentialChats",potentialChats)
         const memberIdsFromInputMembers = members.map(member=>Number(member?.id))
         const existinChat = potentialChats.find(chat=>{
             const memberIdsFromQueriedChat = chat?.members.map(member=>member?.userId)

@@ -139,7 +139,6 @@ export default function Conversation() {
   const navigateToPreviousPage = ()=>{
       router.push("/")
   }
-  if (isLoading) return <RedirectPage />;
 
   return (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900">

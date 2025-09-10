@@ -109,7 +109,6 @@ const StatCard = ({
 
 export default function Home() {
   const { data, isLoading } = useAuth();
-  const { isLoading: chatCreationLoading } = useSelector((state: RootState) => state.Loading);
 
   // Mock data for demo - replace with your actual auth data
   // const data = { user: { username: "John" } };
@@ -140,25 +139,12 @@ export default function Home() {
     setParticles(newParticles);
   }, []);
 
-  if (chatCreationLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-        <div className="relative">
-          <Loader />
-          <div className="absolute inset-0 animate-ping rounded-full bg-blue-500/20"></div>
-        </div>
-      </div>
-    );
-  }
-
   // if (!data?.user) {
   //   return null;
   // }
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
-      {chatCreationLoading && <div>Loading...</div>}
-
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/50 to-purple-900/50"></div>
       <div
@@ -167,7 +153,6 @@ export default function Home() {
           background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15) 0%, transparent 50%)`,
         }}
       ></div>
-
       {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((p, i) => (
@@ -183,7 +168,6 @@ export default function Home() {
           ></div>
         ))}
       </div>
-
       {/* Main Content */}
       <div className="relative z-10 container mx-auto px-6 py-8">
         {/* Header */}

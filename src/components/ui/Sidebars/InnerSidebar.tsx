@@ -9,13 +9,17 @@ import NewGroupModal from "@/components/NewGroupCreation/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { partialUser, User } from "@/types/user";
 import ChatItem from "../ChatItem";
 import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
 import { toast } from "sonner";
 import { setLoading } from "@/features/Redux/loadingSlice";
 import { setGroupId } from "@/features/Redux/groupDataSlice";
+import { useQueryClient } from "@tanstack/react-query";
+import { createdChatReponse, userFromChat } from "@/types/chat";
+import { useCreateChat } from "@/hooks/useCreateChat";
+import { RootState } from "@/lib/store";
 
 export default function InnerSidebar() {
   const router = useRouter();
@@ -24,9 +28,11 @@ export default function InnerSidebar() {
   const [giveNameToNewGroupModal, setGiveNameToNewGroupModal] = useState(false);
   const { data } = useAuth();
   const user = data?.user;
+  const queryClient = useQueryClient();
   const { data: allChatsData, isLoading: allChatsDataLoading } =
     useGetAllChats();
   // console.log(allChatsData?.chats)
+  const {isLoading} = useSelector((state:RootState)=>state.Loading)
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
     setGiveNameToNewGroupModal(true);
@@ -37,34 +43,70 @@ export default function InnerSidebar() {
     setSelectUserModal(true);
     setGiveNameToNewGroupModal(false);
   };
-  const {mutate,isPending,isError} = useCreateChatForGroup()
-  const createChatForGroup = (
-    isGroup:boolean,
-    name:string,
-    members:partialUser[],
-    description?:string)=>{
-      dispatch(setLoading(true))
-      const payload = {
-        isGroup,
-        name,
-        members,
-        description
-      }
-      if(!isGroup || !name || members.length==0 ){
-        toast.error("Please , provide all the fields!");
-        return;
-      }
-      mutate(payload,{
-        onSuccess:(data)=>{
-          toast.success("chat created successfully!")
-          dispatch(setLoading(false))
-          if(data?.chat?.id){
-            dispatch(setGroupId(2))
-            router.push(`/groupChat/${data?.chat?.id}`)
-          }
+  const {
+    mutate: createChatBetweenOneToOneMutation,
+    isPending: chatLoadingBetweenOneToOneUser,
+    error: OneToOneChatError,
+  } = useCreateChat();
+
+  const { mutate, isPending, error: groupChatError } = useCreateChatForGroup();
+
+  const createChatforOneToOneUser = useCallback((userId: number) => {
+    dispatch(setLoading(true));
+    createChatBetweenOneToOneMutation(userId, {
+      onSuccess: (data: createdChatReponse) => {
+        console.log("data from api", data);
+        toast.success("chat created successfully!");
+        if (data?.chat?.id) {
+          router.push(`/chat/${data?.chat?.id}&userId=${userId}`);
+        } else {
+          toast.error("please provide chat id!");
+          return;
         }
-      })
+      },
+      onError: (error) => {
+        toast.error(error.message);
+        return;
+      },
+    });
+  }, []);
+
+  const createChatForGroup = (
+    isGroup: boolean,
+    name: string | undefined,
+    members: userFromChat[] | undefined,
+    description?: string
+  ) => {
+    dispatch(setLoading(true));
+    const payload = {
+      isGroup,
+      name,
+      members,
+      description,
+    };
+    if (!isGroup || !name || members?.length == 0) {
+      toast.error("Please , provide all the fields!");
+      return;
     }
+    mutate(payload, {
+      onSuccess: (data) => {
+        console.log("data",data)
+        console.log("chat created!",data)
+        queryClient.invalidateQueries({ queryKey: ["getAllChats"] });
+        toast.success("chat created successfully!");
+        dispatch(setLoading(false));
+        if (data?.chat?.id) {
+          dispatch(setGroupId(2));
+          router.push(`/groupChat/${data?.chat?.id}`);
+        }
+      },
+      onError:(error)=>{
+        toast.error(error?.message)
+      }
+    },
+  
+  );
+  };
   const filteredUser: Partial<User>[] =
     allChatsData?.chats?.flatMap(
       (chat) =>
@@ -72,7 +114,7 @@ export default function InnerSidebar() {
           ?.map((member) => member?.user)
           .filter((u): u is Partial<User> => !!u) || []
     ) || [];
-  console.log("filtered user", filteredUser);
+  // console.log("filtered user", filteredUser);
 
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
@@ -118,6 +160,7 @@ export default function InnerSidebar() {
       {/* Navigation Links */}
       {selectUserModal && (
         <SelectUserForNewGroup
+          currentUserId={data?.user?.id}
           proceedAction={handleProceedAction}
           className={`relative`}
           isOpen={selectUserModal}
@@ -138,29 +181,42 @@ export default function InnerSidebar() {
           <UserListSkeleton />
         </div>
       )}
-      {!giveNameToNewGroupModal && !selectUserModal && allChatsData?.chats?.length === 0 && !allChatsDataLoading ? 
-      (
+
+      { !giveNameToNewGroupModal &&
+        !selectUserModal &&
+         allChatsData?.chats?.length === 0 &&
+        !allChatsDataLoading ? (
         <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
           No Chats Yet!
         </div>
       ) : !giveNameToNewGroupModal && !selectUserModal ? (
         <div className="px-2">
+          {
+
+          }
           {allChatsData?.chats?.map((chat) => (
             <div
               key={chat?.id}
               className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
             >
-              <ChatItem 
+              <ChatItem
                 currentUserId={Number(user?.id)}
                 name={chat?.name}
                 members={chat?.members}
                 messages={chat?.messages || []}
                 description={chat?.description}
                 isGroup={chat?.isGroup}
-                createChatForGroup={()=>{}}
+                createChatForGroup={() =>
+                  createChatForGroup(
+                    chat?.isGroup || true,
+                    chat?.name,
+                    chat?.members,
+                    chat?.description
+                  )
+                }
                 updatedAt={chat?.updatedAt}
-                createChatforOneToOneUser={()=>{}} 
-               />
+                createChatforOneToOneUser={createChatforOneToOneUser}
+              />
             </div>
           ))}
         </div>

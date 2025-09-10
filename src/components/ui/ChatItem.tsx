@@ -20,7 +20,7 @@ export interface ChatItemProps {
   members?: userFromChat[];
   currentUserId?:number;
   createChatForGroup:(isGroup: boolean, name: string, members: partialUser[], description?: string)=>void
-  createChatforOneToOneUser:()=>void
+  createChatforOneToOneUser:(userId:number)=>void
 }
 
 function ChatItem({
@@ -32,7 +32,8 @@ function ChatItem({
   isGroup,
   createChatForGroup,
   updatedAt,
-  createChatforOneToOneUser
+  createChatforOneToOneUser,
+  
 }:ChatItemProps ) {
 
   const filteredUser = members?.find(
@@ -66,7 +67,7 @@ function ChatItem({
          <UserIcon size={18} />
        )}
      </div>
-     <Button onClick={createChatforOneToOneUser} className="flex-1 min-w-0 text-left ">
+     <Button onClick={()=>createChatforOneToOneUser(Number(filteredUser?.user?.id))} className="flex-1 min-w-0 text-left ">
        <div className="w-full">
          <div className="flex justify-between items-center mb-1">
            <p className="text-sm font-medium text-purple-400 truncate">
