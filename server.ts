@@ -135,7 +135,7 @@ io.on("connection", (socket: Socket) => {
       });
       console.log("chatid",chatId)
       if(!message){
-        return NextResponse.json({message:"message is not created"})
+        return socket.to(`${chatId}`).emit("error",{message:"message not created!"})
       }
       await prisma.chat.update({
         where: {
@@ -147,7 +147,6 @@ io.on("connection", (socket: Socket) => {
       });
       // console.log("About to CREATE messageStatus - NOT UPDATE");
       // console.log("Message ID:", message.id, "User ID:", senderId);
-
       await prisma.messageStatus.create({
         data: {
           messageId: message.id,  // Use messageId instead of id
