@@ -1,6 +1,6 @@
 import { partialUser, User } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import NewGroupAddedUserCard from "./NewGroupAddedUserCard";
 import { useDispatch } from "react-redux";
 import { setGroupMembers } from "@/features/Redux/NewGroupMembersSlice";
@@ -12,6 +12,7 @@ interface newGroupProps {
   users: partialUser[] ;
   className?: string;
   proceedAction: () => void;
+  currentUserId:number | undefined
 }
 
 function SelectUserForNewGroup({
@@ -20,11 +21,11 @@ function SelectUserForNewGroup({
   users,
   className,
   proceedAction,
+  currentUserId
 }: newGroupProps) {
   const dispatch = useDispatch();
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [addedUsers, setAddedUser] = useState<partialUser[]>([]);
-  const { data } = useAuth();
   if (!isOpen) return null;
   const handleSelectUsers = (id: number) => {
     setSelectedUsers((prev) =>
@@ -48,6 +49,10 @@ function SelectUserForNewGroup({
     console.log("added users", addedUsers);
     dispatch(setGroupMembers(addedUsers));
   }, [addedUsers, addedUsers.length]);
+
+  const filteredUsers = useMemo(()=>{
+    return users.filter(user=>user?.id !== currentUserId)
+  },[users,currentUserId])
 
   return (
     <div
@@ -111,7 +116,7 @@ function SelectUserForNewGroup({
           {/* Users List */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
             <div className="space-y-3">
-              {users?.map((user) => (
+              {filteredUsers?.map((user) => (
                 <div
                   key={user?.id}
                   className="group flex flex-row justify-between items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"
