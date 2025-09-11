@@ -19,7 +19,6 @@ const GroupMessageContainer = ({
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end max-w-xs lg:max-w-md`}>
-        {/* Sender Avatar (only for others' messages) */}
         {!isOwnMessage && (
           <img
             src={sender?.avatar || '/default-avatar.png'}
@@ -28,13 +27,11 @@ const GroupMessageContainer = ({
           />
         )}
         <div className={`flex flex-col ${isOwnMessage ? 'items-end mr-2' : 'items-start ml-2'}`}>
-          {/* Sender Name (only for others' messages) */}
           {!isOwnMessage && (
             <p className="text-xs text-gray-400 mb-1 px-3">
               {sender?.username || 'Unknown User'}
             </p>
           )}
-          {/* Message Bubble */}
           <div
             className={`px-4 py-2 rounded-2xl ${
               isOwnMessage
@@ -44,7 +41,6 @@ const GroupMessageContainer = ({
           >
             <p className="text-sm">{message?.content}</p>
 
-            {/* Message Time and Status */}
             <div className={`flex items-center justify-end mt-1 space-x-1 ${
               isOwnMessage ? 'text-green-100' : 'text-gray-400'
             }`}>
@@ -55,8 +51,6 @@ const GroupMessageContainer = ({
                   hour12: false
                 })}
               </span>
-
-              {/* Status indicator (only for own messages) */}
               {isOwnMessage && (
                 <div className="flex">
                   {status === 'SENT' && (

@@ -1,5 +1,5 @@
 import { Paperclip, Send, Smile } from "lucide-react";
-import React, { MouseEventHandler, SetStateAction } from "react";
+import React, {  SetStateAction } from "react";
 
 interface messaegInputProps {
     setInput: (value: SetStateAction<string>) => void;

@@ -1,12 +1,8 @@
-
-import { NextRequest } from "next/server";
 import { cache } from "react";
 import { verifySession } from "./auth";
 import {prisma} from "./prisma"
 
-
-
-export const getUser = cache( async (req:NextRequest)=>{
+export const getUser = cache( async ()=>{
    const session = await verifySession()
    if(!session){
     throw new Error("failed to find session!")

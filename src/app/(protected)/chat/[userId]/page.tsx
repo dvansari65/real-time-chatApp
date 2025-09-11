@@ -1,52 +1,48 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Send, Smile, Paperclip } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
 import { useAuth } from "@/contextApi";
 import ChatHeader from "@/components/chat/chatHeader";
 import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
-import { messageStatus } from "@/types/message";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+import { Message, messageStatus } from "@/types/message";
+
 
 import { useGetSingleUser } from "@/lib/api/getSingleUser";
 import MessageInput from "@/components/MessageInput";
 import { toast } from "sonner";
+import { messageDeliveredType, newMesssageType, userAuthenticatedDataType, userJoinChatDataType } from "@/types/typesForSocketEvents";
+import { useGetChat } from "@/lib/api/useGetchat";
 
 export default function Conversation() {
   const params = useParams();
-  const chatId = params.id;
+  const chatId = params.chatId;
   const searchParam = useSearchParams()
   const userId = searchParam.get("userId")
+  console.log(userId)
   const router = useRouter()
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<messageStatus>("SENT");
-  const [isOnline, setIsonline] = useState(false);
   const socket = useSocket();
   const { data } = useAuth();
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  console.log("user id",userId)
-  console.log("current id",user?.id)
-
-  const { messages: chatMessages } = useSelector((state: RootState) => state.allChatData);
-  const { isLoading } = useSelector((state: RootState) => state.Loading);
+  console.log("chatId",chatId)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
-  console.log("single user data",singleUserData)
-  useJoinChat(Number(chatId), Number(user?.id));
+  const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
 
+  const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
+  useEffect(()=>{console.log("chatBetweenTwoUsersData",chatBetweenTwoUsersData)},[chatBetweenTwoUsersData])
+  useJoinChat(Number(chatId), Number(user?.id));
 
   useEffect(() => {
     if (!socket ) return;
-
     const handleConnect = () => {
       if (user) {
         socket.emit("user_authentication", {
@@ -56,39 +52,41 @@ export default function Conversation() {
       }
     };
 
-    const handleUserOnline = (data: any) => {
+    const handleUserOnline = (data: userAuthenticatedDataType) => {
       if (Number(singleUserData?.user?.id) === data.userId) {
-        setIsonline(true);
+       toast
       }
     };
 
-    const handleUserOffline = (data: any) => {
+    const handleUserLeavechat = (data: userJoinChatDataType) => {
       if (Number(singleUserData?.user?.id) === data.userId) {
-        setIsonline(false);
+        toast.error(`${data.userId} left chat ${data.chatId}`)
       }
     };
 
-    const handleNewMessage = (data: any) => {
-      setMessages((prev) => [...prev, data?.message]);
+    const handleNewMessage = (data: newMesssageType) => {
+      setMessages((prev) => [...prev, data.message]);
     };
 
-    const handleMessageDelivered = (data: any) => {
-      setStatus(data?.Status);
+    const handleMessageDelivered = (data: messageDeliveredType) => {
+      setStatus(data.status);
     };
 
-    const handleUserStatusResponse = (data: any) => {
-      if (Number(singleUserData?.user?.id) === data.userId) {
-        setIsonline(data.isOnline);
-      }
+    const handleUserleftChat = (data:userJoinChatDataType)=>{
+      toast.success(`${data.userId} left chat!`)
     };
+
+    const handleSuccessfullAuthentication = (data:userAuthenticatedDataType)=>{
+      toast.success(`${data?.username} ${data.message}`)
+    }
 
     socket.on("connect", handleConnect);
+    socket.on("authentication-success",handleSuccessfullAuthentication)
     socket.on("user-online", handleUserOnline);
-    socket.on("user-offline", handleUserOffline);
+    socket.on("user-offline", handleUserLeavechat);
     socket.on("new-message", handleNewMessage);
     socket.on("message-delivered", handleMessageDelivered);
-    socket.on("user-status-response", handleUserStatusResponse);
-
+    socket.on("user-left-chat",handleUserleftChat)
     if (socket.connected && user) {
       socket.emit("user_authentication", {
         userId: user?.id,
@@ -103,10 +101,10 @@ export default function Conversation() {
     return () => {
       socket.off("connect", handleConnect);
       socket.off("user-online", handleUserOnline);
-      socket.off("user-offline", handleUserOffline);
       socket.off("new-message", handleNewMessage);
       socket.off("message-delivered", handleMessageDelivered);
-      socket.off("user-status-response", handleUserStatusResponse);
+      socket.off("user-left-chat",handleUserleftChat)
+      socket.off("authentication-success",handleSuccessfullAuthentication)
     };
   }, [socket, user?.id, user?.username, singleUserData?.user?.id]);
 
@@ -144,6 +142,10 @@ export default function Conversation() {
   }
 
   if(singleUserError) return toast.error(singleUserError.message)
+  if(chatId && !userId) {
+    toast.error("user id not obtained!")
+    return router.push("/")
+  }
   return (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900">
       <ChatHeader
@@ -156,10 +158,11 @@ export default function Conversation() {
         isLoadingUserData={singleUserDataLoading}
       />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15">
-        {[...(chatMessages || []), ...messages].map((msg) => (
-          <div key={msg?.id}>
+        {[ ...(chatBetweenTwoUsersData?.chat?.messages ?? []),...messages].map((msg) => (
+          <div key={msg.id}>
             <MessageContainer
-              status={status || "DELIVERED"}
+              messageLoading={chatBetweenTwoUsersLoading}
+              status={status || "SENT"}
               id={msg?.id}
               createdAt={msg?.createdAt}
               senderId={msg?.senderId}

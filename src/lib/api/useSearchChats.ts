@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-
 export const useSearchUsers = (query:string)=>{
     return useQuery({
         queryKey:["searchChats",query],

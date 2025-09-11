@@ -12,14 +12,12 @@ export default function ProtectedLayout({
       <>
         <SimpleNavbar />
         <div className="w-full h-screen flex">
-          {/* Outer sidebar */}
           <div>
             <OuterSidebar />
           </div>
           <div className="hidden md:block">
             <InnerSidebar />
           </div>
-          {/* Main content */}
           <main className="flex-1 overflow-auto">{children}</main>
         </div>
       </>

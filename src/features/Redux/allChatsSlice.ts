@@ -1,5 +1,4 @@
-import { userFromChat } from "@/types/chat"
-import { Message, messageDataFromGetAllChatsResponse } from "@/types/message"
+import { Message } from "@/types/message"
 import { partialUser } from "@/types/user"
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"

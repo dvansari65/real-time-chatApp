@@ -1,5 +1,3 @@
-import { LucideIcon } from "lucide-react";
-import { JSX } from "react";
 
 
 export interface SidebarLink {

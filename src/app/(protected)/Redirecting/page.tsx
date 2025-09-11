@@ -11,8 +11,6 @@ function RedirectPage() {
         <p className="text-gray-600">
           Please wait while we process your request
         </p>
-
-        {/* Optional loading spinner */}
         <div className="mt-6">
           <div className="inline-block h-8 w-8 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
         </div>

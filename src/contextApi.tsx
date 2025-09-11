@@ -1,6 +1,6 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { meResponseProps, User } from "./types/user";
+import React, { createContext, useContext } from "react";
+import { meResponseProps } from "./types/user";
 import {
   QueryObserverResult,
   RefetchOptions,

@@ -1,10 +1,9 @@
 
 import { cookies } from "next/headers"
 import { sessionPayload } from "../types/session"
-import {jwtVerify, SignJWT} from "jose"
 const secretKey = process.env.AUTH_SECRET
 const key = new TextEncoder().encode(secretKey)
-
+import {SignJWT,jwtVerify} from "jose"
 
 export const encrypt = async(payload:sessionPayload)=>{
     return await new SignJWT(payload)

@@ -6,22 +6,22 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useGetSingleGroup } from '@/lib/api/getSingleGroup'
 import { useAuth } from '@/contextApi'
-import { Message, MessageData } from '@/types/message'
+import {  Message, MessageData } from '@/types/message'
 import MessageInput from '@/components/MessageInput'
 import { toast } from 'sonner'
 import { useParams, useRouter } from 'next/navigation'
 import { useSocket } from '@/utils/SocketProvider'
+import { messageDeliveredType, newMesssageType, UserAuthData, userAuthenticatedDataType, userJoinChatDataType } from '@/types/typesForSocketEvents'
 
-function page() {
+function GroupChat() {
     const {data:currentUserData} = useAuth()
     const params = useParams()
     const chatId = params.id
     const {id:groupId} = useSelector((state:RootState)=>state.groupData)
-    console.log("group id",groupId)
     const [input,setInput] = useState("")
     const router = useRouter()
     const {data:groupData,isLoading,error} = useGetSingleGroup(Number(groupId))
-    const [messages,setMessages] = useState<any[] >()
+    const [messages,setMessages] = useState<Message[] >()
     const [messageStatus,setMessageStatus] = useState<"DELIVERED" | "SENT" | "READ">("SENT")
     const socket = useSocket()
    
@@ -32,30 +32,33 @@ function page() {
         socket.emit("user_authentication",{userId:currentUserData?.user?.id, username:currentUserData?.user?.username})
       }
 
-      const handleUserOnline = (data:any)=>{
+      const handleUserOnline = (data:UserAuthData)=>{
         console.log("user online data",data)
-        toast.success(`${data?.username}`)
+        toast.success(`${data.username}`)
       }
-      const handleSuccessfullAuthentication = (data:any)=>{
+
+      const handleSuccessfullAuthentication = (data:userAuthenticatedDataType)=>{
         toast.success(`${data?.username} ${data.message}`)
       }
+
       if(chatId && currentUserData?.user?.id){
         socket.emit("join-chat",{chatId,userId: currentUserData?.user?.id})
         toast.success(`${currentUserData?.user?.username} joined the chat!`)
       }
-      const handleUserJoinChat = (data:any)=>{
+
+      const handleUserJoinChat = (data:userJoinChatDataType)=>{
         toast.success(`${data.userId} join the chat ${data.chatId}`)
       }
 
-      const handleNewMessage = (data:any)=>{
+      const handleNewMessage = (data:newMesssageType)=>{
         setMessages(prev=>[...(prev ?? []), data?.message])
       }
 
-      const handleMessageDelivered = (data:any)=>{
+      const handleMessageDelivered = (data:messageDeliveredType)=>{
         setMessageStatus(data?.status);
       }
 
-      const handleUserleftChat = (data:any)=>{
+      const handleUserleftChat = (data:userJoinChatDataType)=>{
         toast.success(`${data.userId} left chat!`)
       }
 
@@ -90,7 +93,7 @@ function page() {
       setMessages(prev=> [...(prev || []),payload])
       socket.emit("send-message",payload)
       setInput("")
-    },[currentUserData?.user,chatId,input])
+    },[currentUserData?.user,chatId,input,socket])
 
     const handleLeaveChat = ()=>{
       if(chatId || currentUserData?.user?.id){
@@ -111,7 +114,7 @@ function page() {
         <GroupChatHeader
         leaveChat={handleLeaveChat}
           isLoading={isLoading}
-          group={groupData?.group!}
+          group={groupData?.group}
         />
         {
           [...messages || []].map(message => (
@@ -133,4 +136,4 @@ function page() {
   )
 }
 
-export default page
+export default GroupChat

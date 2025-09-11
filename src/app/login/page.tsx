@@ -1,10 +1,8 @@
 "use client"
 import LoginForm from '@/components/LoginForm'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 function Login() {
-  
-
   return (
    <main>
     <LoginForm/>

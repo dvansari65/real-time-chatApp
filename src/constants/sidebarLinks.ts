@@ -1,7 +1,6 @@
 
 import { MessageCircle , Users2} from "lucide-react";
 
-// Define the type for your link items
 export type LinkItem = {
   name: string;
   path: string;

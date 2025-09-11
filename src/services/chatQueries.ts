@@ -1,7 +1,4 @@
-import { verifySession } from "@/lib/auth"
 import {prisma} from "../lib/prisma"
-import { NextResponse } from "next/server"
-
 
 export const findExistingChat = async (currentUserId:number,targetUserId:number)=>{
     try {

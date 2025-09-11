@@ -1,6 +1,4 @@
 import React from "react";
-import { User } from "@/types/user";
-import Loader from "./ui/Loader";
 import { User as UserIcon } from "lucide-react";
 
 interface userProps {

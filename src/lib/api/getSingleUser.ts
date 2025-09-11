@@ -1,6 +1,5 @@
 import { singleUserDataResponse } from "@/types/user"
 import { useQuery } from "@tanstack/react-query"
-import { NextResponse } from "next/server"
 import { toast } from "sonner"
 
 

@@ -28,7 +28,8 @@ export interface Chat {
 }
 export interface chatType {
   success: boolean;
-  chat: Chat;
+  chat: Chat | undefined;
+  message:string | undefined
 }
 
 export interface getAllChatsResponseType{

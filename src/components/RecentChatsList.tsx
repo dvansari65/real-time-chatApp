@@ -1,10 +1,4 @@
-import { User } from '@/types/user'
 import React from 'react'
-
-interface recentchatUserProps {
-    users : User[],
-    time:string
-}
 
 function RecentChatsList() {
   return (

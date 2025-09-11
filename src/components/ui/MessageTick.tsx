@@ -18,11 +18,8 @@ const CheckIcon = ({ className }: { className?: string }) => (
   
   export const MessageStatusTicks = ({ status }: { status: messageStatus }) => {
     if (status === "SENT") {
-      // Single gray tick
       return <CheckIcon className="text-gray-400 transition-colors duration-300" />;
     }
-  
-    // For DELIVERED and READ, show two ticks
     const tickColor =
       status === "READ" ? "text-sky-300" : "text-gray-400";
   

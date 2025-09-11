@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/Button";
-import { groupType } from "@/types/CreateGroup";
 import { Group } from "@/types/group";
 import { ArrowLeft, Settings, Users } from "lucide-react";
 
 interface GroupChatHeaderProps {
-  group: Group;
+  group: Group | undefined;
   onShowMembers?: () => void;
   onShowSettings?: () => void;
   isLoading: boolean;

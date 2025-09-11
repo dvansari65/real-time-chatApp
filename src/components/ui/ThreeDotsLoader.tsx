@@ -1,4 +1,3 @@
-// components/LoadingDots.tsx
 import React from 'react';
 
 export const LoadingDots = () => {

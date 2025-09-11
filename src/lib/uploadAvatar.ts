@@ -1,6 +1,5 @@
 import imageKit from "./imagekit";
 
-
 export const uploadFile = async (file:File):Promise<string>=>{
         try {
             const bytes = await file.arrayBuffer()

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button';
-import { Chat, userFromChat } from '@/types/chat';
-import { Message, messageStatus } from '@/types/message';
+import {  userFromChat } from '@/types/chat';
+import { Message } from '@/types/message';
 import { Users } from 'lucide-react'
 import React from 'react'
 
@@ -25,7 +25,7 @@ function GroupChatItem({groupName,updatedAt,createChatForGroup,messages,members}
   }
   const latestMessages = messages?.map(message=>({
     sender:message?.sender,
-    message:message?.content[0]
+    message:message.content?.[0]
   }))
   return (
     <div className="flex items-center gap-4 w-full ">

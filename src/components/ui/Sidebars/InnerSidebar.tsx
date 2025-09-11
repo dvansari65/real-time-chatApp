@@ -9,8 +9,8 @@ import NewGroupModal from "@/components/NewGroupCreation/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
 import { useGetAllChats } from "@/lib/api/useGetAllChats";
 import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { partialUser, User } from "@/types/user";
+import { useDispatch } from "react-redux";
+import {  User } from "@/types/user";
 import ChatItem from "../ChatItem";
 import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ import { setGroupId } from "@/features/Redux/groupDataSlice";
 import { useQueryClient } from "@tanstack/react-query";
 import { createdChatReponse, userFromChat } from "@/types/chat";
 import { useCreateChat } from "@/hooks/useCreateChat";
-import { RootState } from "@/lib/store";
+
 
 export default function InnerSidebar() {
   const router = useRouter();
@@ -29,10 +29,8 @@ export default function InnerSidebar() {
   const { data } = useAuth();
   const user = data?.user;
   const queryClient = useQueryClient();
-  const { data: allChatsData, isLoading: allChatsDataLoading } =
-    useGetAllChats();
-  // console.log(allChatsData?.chats)
-  const {isLoading} = useSelector((state:RootState)=>state.Loading)
+  const { data: allChatsData, isLoading: allChatsDataLoading } = useGetAllChats();
+  
   const handleProceedAction = useCallback(() => {
     console.log("Proceed action called!");
     setGiveNameToNewGroupModal(true);
@@ -45,7 +43,6 @@ export default function InnerSidebar() {
   };
   const {
     mutate: createChatBetweenOneToOneMutation,
-    isPending: chatLoadingBetweenOneToOneUser,
     error: OneToOneChatError,
   } = useCreateChat();
 
@@ -124,6 +121,7 @@ export default function InnerSidebar() {
     ) || [];
   },[allChatsData])
   
+  if(OneToOneChatError) return toast.error(OneToOneChatError.message)
   // console.log("filtered user", filteredUser);
 
   return (
@@ -201,9 +199,6 @@ export default function InnerSidebar() {
         </div>
       ) : !giveNameToNewGroupModal && !selectUserModal ? (
         <div className="px-2">
-          {
-
-          }
           {allChatsData?.chats?.map((chat) => (
             <div
               key={chat?.id}

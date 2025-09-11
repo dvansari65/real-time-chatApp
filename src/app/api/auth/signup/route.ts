@@ -1,32 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { partialUser } from "../../../../types/user";
-import { error } from "console";
+
 import { uploadFile } from "../../../../lib/uploadAvatar";
 import bcrypt from "bcryptjs";
 import {prisma} from "../../../../lib/prisma"
 export const POST = async (req: NextRequest) => {
+
   const formData = await req.formData();
-  const username = formData.get("username") as string;
-  const email = formData.get("email") as string;
+  const username =    formData.get("username") as string;
+  const email =       formData.get("email") as string;
   const phoneNumber = formData.get("phoneNumber") as string;
-  const password = formData.get("password") as string;
-  const bio = (formData.get("bio") as string) || "";
-  const avatar = formData.get("avatar") as File | null;
-   
-  // Validation
+  const password =    formData.get("password") as string;
+  const bio =        (formData.get("bio") as string) || "";
+  const avatar =      formData.get("avatar") as File | null;
+
   if (!username || !email || !phoneNumber || !password) {
     return NextResponse.json(
       { error: "Please fill all required fields!" },
       { status: 400 }
     );
   }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (!emailRegex.test(email)) {
     return NextResponse.json(
       { error: "Please provide a valid email address!" },
       { status: 400 }
     );
   }
+
   if (password.length < 6) {
     return NextResponse.json(
       { error: "Password must be at least 6 characters long!" },
@@ -35,6 +37,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   const phoneRegex = /^\+?[\d\s-()]+$/;
+  
   if (!phoneRegex.test(phoneNumber)) {
     return NextResponse.json(
       { error: "Please provide a valid phone number!" },

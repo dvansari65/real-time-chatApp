@@ -13,7 +13,6 @@ export const useJoinChat = (chatId:number , userId:number)=>{
         }else{
             socket.once("connect",joinChat)
         }
-
         return ()=>{
             if(socket.connected){
                 socket.emit("leave-chat",{
@@ -22,6 +21,5 @@ export const useJoinChat = (chatId:number , userId:number)=>{
                 })
             }
         }
-
     },[chatId,userId,socket])
 }

@@ -9,11 +9,9 @@ import { X, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
 import { removeUsers } from "@/features/Redux/NewGroupMembersSlice";
-import { createGroupInput } from "@/types/CreateGroup";
 import { useAuth } from "@/contextApi";
 import { useCreateGroup } from "@/lib/api/createGroup";
 import { toast } from "sonner";
-import { partialUser } from "@/types/user";
 import { useQueryClient } from "@tanstack/react-query";
 
 const NewGroupModal = ({

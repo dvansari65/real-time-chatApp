@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { verifySession } from "@/lib/auth";
 
-export const GET = async () => {
-
+ export const GET = async () => {
   const session = await verifySession();
   if (!session) {
     return NextResponse.json(
@@ -47,6 +46,6 @@ export const GET = async () => {
         {status:500}
       )
     }
-    return null;
+   throw error;
   }
 };

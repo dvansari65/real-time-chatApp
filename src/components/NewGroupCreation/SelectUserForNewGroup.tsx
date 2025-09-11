@@ -1,10 +1,10 @@
-import { partialUser, User } from "@/types/user";
+import { partialUser } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import NewGroupAddedUserCard from "./NewGroupAddedUserCard";
 import { useDispatch } from "react-redux";
 import { setGroupMembers } from "@/features/Redux/NewGroupMembersSlice";
-import { useAuth } from "@/contextApi";
+
 
 interface newGroupProps {
   isOpen: boolean;

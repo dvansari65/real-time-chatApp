@@ -1,4 +1,4 @@
-import { partialUser, User } from "./user";
+import { partialUser } from "./user";
 
 export interface useFetchResponse {
     success:boolean,

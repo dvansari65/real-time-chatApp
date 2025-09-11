@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setLoading } from "@/features/Redux/loadingSlice";
 import { useRouter } from "next/navigation";
-import { setQueriedUserData } from "@/features/Redux/searchedUserSlice";
-import { storeMessages } from "@/features/Redux/allChatsSlice";
 import { useCreateChatForGroup } from "@/hooks/useCreateChatForGroup";
 import { groupChatInput } from "@/types/CreateGroup";
 import { useQueryClient } from "@tanstack/react-query";
@@ -63,21 +61,18 @@ function SearchBar() {
   } = useCreateChatForGroup();
 
   const handleChatCreate = (userId: number) => {
-    const user = searchedUserData.user?.find((i: partialUser) => i?.id === userId) || null;
-    dispatch(setQueriedUserData(user));
     dispatch(setLoading(true));
+    console.log("userId",userId)
     mutate(userId, {
       onSuccess: (data) => {
         queryClient.invalidateQueries({queryKey:["getAllChats"]})
         queryClient.invalidateQueries({queryKey:["getGroups"]})
         setSearchModal(false);
-        dispatch(storeMessages(data?.chat?.messages));
-        dispatch(setLoading(false));
         if (data?.chat?.id) {
-          router.push(`/chat/${data.chat?.id}`);
+          router.push(`/chat/${data.chat?.id}?userId=${userId}`);
         } else {
           router.push("/");
-          toast.error(`chat id not found! ${data?.chat?.id}`);
+          toast.error(`chat id not found! ${data?.chat.id}`);
         }
       },
       onError: (error) => {
@@ -112,7 +107,7 @@ function SearchBar() {
         setSearchModal(false)
         console.log("data of group chat",data?.id)
         if(data?.chat?.id){
-          router.push(`/GroupChat/${data?.chat?.id}`)
+          router.push(`/GroupChat/${data.chat.id}`)
           dispatch(setLoading(false))
         }else{
           router.push("/");
@@ -127,14 +122,17 @@ function SearchBar() {
     });
   },[query,queryClient,debounceQuery])
   if(createGroupChatError)return toast.error(createChatError?.message || "some thing went wrong!")
-  // Check if we have any results
+  
   const hasResults =
     searchedUserData?.success &&
     (searchedUserData?.chat?.length > 0 || searchedUserData?.group?.length > 0);
+
   const hasUsers =
     searchedUserData?.user?.length > 0 && searchedUserData?.success;
+
   const hasGroups =
     searchedUserData?.group?.length > 0 && searchedUserData?.success;
+
   return (
     <>
       <div className="z-10 p-4 bg-white/5 backdrop-blur-sm border-b border-white/10">
@@ -193,10 +191,8 @@ function SearchBar() {
 
               {!isLoading && !isError && (
                 <div className="p-4 space-y-6">
-                  {/* Chat Results Section */}
                   {hasUsers && (
                     <div>
-                      {/* <span>{data?.user?.[0]?.username}</span> */}
                       <div className="flex items-center gap-2 mb-3">
                         <User className="w-4 h-4 text-blue-400" />
                         <h4 className="text-white font-medium text-sm">

@@ -1,5 +1,4 @@
-import { ChildProcessWithoutNullStreams } from "child_process";
-import { partialUser, User } from "./user";
+import { partialUser } from "./user";
 import { Chat } from "@prisma/client";
 import { userFromChat } from "./chat";
 

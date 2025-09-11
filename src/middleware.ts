@@ -15,7 +15,6 @@ export const middleware = async (req: NextRequest) => {
   }
   try {
     const session = await verifySession();
-
     if (!session || !session.expiresAt) {
       return NextResponse.redirect(new URL("/login", req.url));
     }

@@ -1,13 +1,11 @@
-import { useAuth } from "@/contextApi";
-import { chatMember, userFromChat } from "@/types/chat";
-import { Message, messageStatus } from "@/types/message";
-import { partialUser } from "@/types/user";
-import { UserIcon, Users } from "lucide-react";
+
+import {  userFromChat } from "@/types/chat";
+import { Message } from "@/types/message";
+import { UserIcon } from "lucide-react";
 import React, { useMemo } from "react";
 import { toast } from "sonner";
 import GroupChatItem from "../chat/GroupChat/GroupChatItem";
 import { Button } from "./Button";
-
 
 export interface ChatItemProps {
   id?: number;

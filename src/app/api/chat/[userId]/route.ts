@@ -1,6 +1,6 @@
 import { verifySession } from "@/lib/auth"
 import { getOrCreateChat } from "@/services/chatQueries"
-import { NextRequest, NextResponse } from "next/server"
+import {  NextRequest, NextResponse } from "next/server"
 
 
 export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:string}>})=>{

@@ -1,24 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
-// import { useAuth } from "@/contextApi";
-// import { useChatCreation } from "@/hooks/useCreateChat";
-// import { RootState } from "@/lib/store";
-// import { useSelector } from "react-redux";
-import Loader from "@/components/ui/Loader";
 import {
   MessageSquare,
   Sparkles,
   Zap,
   Users,
   Shield,
-  ArrowRight,
   ChevronDown,
-  Star,
-  Check,
+  
 } from "lucide-react";
 import { useAuth } from "@/contextApi";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+
 
 const FloatingElement = ({
   children,
@@ -86,35 +78,8 @@ const FeatureCard = ({
   </FloatingElement>
 );
 
-const StatCard = ({
-  number,
-  label,
-  delay = 0,
-}: {
-  number: string;
-  label: string;
-  delay?: number;
-}) => (
-  <FloatingElement delay={delay}>
-    <div className="text-center">
-      <div className="text-4xl font-bold text-white mb-2">
-        <GradientText>{number}</GradientText>
-      </div>
-      <div className="text-gray-400 text-sm uppercase tracking-wide">
-        {label}
-      </div>
-    </div>
-  </FloatingElement>
-);
-
 export default function Home() {
-  const { data, isLoading } = useAuth();
-
-  // Mock data for demo - replace with your actual auth data
-  // const data = { user: { username: "John" } };
-
-  // const isLoading = false;
-
+  const { data } = useAuth();
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -139,13 +104,8 @@ export default function Home() {
     setParticles(newParticles);
   }, []);
 
-  // if (!data?.user) {
-  //   return null;
-  // }
-
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
-      {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/50 to-purple-900/50"></div>
       <div
         className="absolute inset-0 opacity-30"
@@ -153,7 +113,6 @@ export default function Home() {
           background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15) 0%, transparent 50%)`,
         }}
       ></div>
-      {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((p, i) => (
           <div
@@ -168,9 +127,7 @@ export default function Home() {
           ></div>
         ))}
       </div>
-      {/* Main Content */}
       <div className="relative z-10 container mx-auto px-6 py-8">
-        {/* Header */}
         <FloatingElement>
           <header className="flex justify-between items-center mb-16">
             <div className="flex items-center space-x-3">
@@ -194,7 +151,6 @@ export default function Home() {
           </header>
         </FloatingElement>
 
-        {/* Welcome Hero Section */}
         <div className="text-center mb-20">
           <FloatingElement delay={200}>
             <div className="inline-flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-white/10">
@@ -221,26 +177,7 @@ export default function Home() {
               with friends, share moments, and stay connected like never before.
             </p>
           </FloatingElement>
-
-          {/* <FloatingElement delay={800}>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold text-lg hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl">
-                <span className="relative z-10 flex items-center space-x-2">
-                  <MessageSquare className="w-5 h-5" />
-                  <span>Start Chatting</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </button>
-              
-              <button className="px-8 py-4 border-2 border-white/20 text-white rounded-2xl font-semibold text-lg hover:bg-white/5 transition-all duration-300 backdrop-blur-sm">
-                View Messages
-              </button>
-            </div>
-          </FloatingElement> */}
         </div>
-
-        {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-20">
           <FeatureCard
             icon={Zap}
@@ -262,7 +199,6 @@ export default function Home() {
           />
         </div>
 
-        {/* Recent Activity Section */}
         <FloatingElement delay={1600}>
           <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
             <div className="flex items-center justify-between mb-6">
@@ -305,8 +241,6 @@ export default function Home() {
             </div>
           </div>
         </FloatingElement>
-
-        {/* Bottom CTA */}
         <FloatingElement delay={1800}>
           <div className="text-center mt-20 pb-12">
             <div className="inline-flex items-center space-x-2 text-gray-400 mb-4">

@@ -7,15 +7,15 @@ export interface MessageData {
 }
 
 export interface Message {
-  id: number;
-  content: string;
-  chatId: number;
-  senderId: number;
-  replyToId: number;
-  createdAt?: Date;
-  type?: string;
+  id?: number | undefined;
+  content?: string | undefined;
+  chatId?: number | null;
+  senderId?: number | undefined;
+  replyToId?: number | null;
+  createdAt?: Date | undefined;
+  type?: string | undefined;
   status?:messageStatus,
-  sender?:string
+  sender?:string | undefined
 }
 
 export type messageStatus = "SENT" | "DELIVERED" | "READ";
