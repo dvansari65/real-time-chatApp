@@ -10,17 +10,17 @@ interface messaegInputProps {
 
 function MessageInput({setInput,input,handleKeyPress,sendMessage}:messaegInputProps) {
   return (
-    <div className="bg-gray-900 border-t border-gray-500 px-4 py-4 fixed bottom-0 width">
+    <div className="bg-gray-900 border-t border-gray-500 px-4 py-4 fixed bottom-0 width sm:w-[100%]">
       <div className="flex items-center space-x-3">
         <div className="flex-1">
-          <div className="relative">
-            <textarea
+          <div className="relative ">
+          <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Type a message..."
               rows={1}
-              className="w-full px-4 py-3 pr-12 bg-gray-100 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-colors"
+              className="w-full px-4 py-3 pr-12 bg-gray-100 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-colors text-sm sm:text-base"
               style={{
                 minHeight: "48px",
                 maxHeight: "120px",
@@ -32,6 +32,7 @@ function MessageInput({setInput,input,handleKeyPress,sendMessage}:messaegInputPr
             </div>
           </div>
         </div>
+        <div className="">
         <button
           onClick={sendMessage}
           disabled={!input.trim()}
@@ -43,6 +44,7 @@ function MessageInput({setInput,input,handleKeyPress,sendMessage}:messaegInputPr
         >
           <Send className="w-5 h-5" />
         </button>
+        </div>
       </div>
     </div>
   );

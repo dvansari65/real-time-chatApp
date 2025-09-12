@@ -41,10 +41,12 @@ io.on("connection", (socket: Socket) => {
   // user authentication
   socket.on("user_authentication", async (data: UserAuthData) => {
     try {
+      console.log("user_authentication",data)
       const { userId, username } = data;
       activeUsers.set(userId, socket.id);
       socketServer.set(socket.id, userId);
       const isOnline = await updateUserStatus(Number(userId))
+      console.log(`${userId } with username ${username} is isonline:${isOnline}`)
       socket.broadcast.emit("user-online", { userId, username , isOnline:isOnline });
       socket.emit("authentication-success", {
         userId,

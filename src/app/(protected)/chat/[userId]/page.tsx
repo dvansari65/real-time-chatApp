@@ -17,7 +17,7 @@ import { useGetChat } from "@/lib/api/useGetchat";
 
 export default function Conversation() {
   const params = useParams();
-  const chatId = params.chatId;
+  const chatId = params.userId;
   const searchParam = useSearchParams()
   const userId = searchParam.get("userId")
   console.log(userId)
@@ -36,26 +36,30 @@ export default function Conversation() {
   };
 
   const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
-
+ useEffect(()=>{
+  console.log("chatBetweenTwoUsersData",chatBetweenTwoUsersData)
+ },[chatBetweenTwoUsersData])
   const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
-  useEffect(()=>{console.log("chatBetweenTwoUsersData",chatBetweenTwoUsersData)},[chatBetweenTwoUsersData])
+  useEffect(()=>{console.log("singleUserData",singleUserData)},[singleUserData])
   useJoinChat(Number(chatId), Number(user?.id));
 
   useEffect(() => {
     if (!socket ) return;
     const handleConnect = () => {
+      const payload = {
+        userId:user?.id ,
+        username: user?.username,
+        avatar: user?.avatar,
+        phoneNumber: user?.phoneNumber
+      }
       if (user) {
-        socket.emit("user_authentication", {
-          userId: user?.id,
-          username: user?.username,
-        });
+        socket.emit("user_authentication",payload);
       }
     };
 
     const handleUserOnline = (data: userAuthenticatedDataType) => {
-      if (Number(singleUserData?.user?.id) === data.userId) {
-       toast
-      }
+      console.log("userAuthenticatedData",data)
+      toast.success(`${data.username} is online`)
     };
 
     const handleUserLeavechat = (data: userJoinChatDataType) => {
@@ -126,7 +130,6 @@ export default function Conversation() {
       type: "TEXT",
       replyToId: null,
     };
-    setMessages((prev) => [...prev, messagePayload]);
 
     if (socket && socket.connected) {
       socket.emit("send-message", messagePayload);

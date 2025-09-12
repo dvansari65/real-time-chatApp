@@ -54,10 +54,9 @@ export default function InnerSidebar() {
     createChatBetweenOneToOneMutation(userId, {
       onSuccess: (data: createdChatReponse) => {
         console.log("data from api", data);
-        toast.success("chat created successfully!");
         queryClient.invalidateQueries({queryKey:["user"]})
-
         if (data?.chat?.id) {
+          toast.success("chat created successfully!");
           dispatch(setLoading(true));
           router.push(`/chat/${data?.chat?.id}?userId=${userId}`);
         } else {
