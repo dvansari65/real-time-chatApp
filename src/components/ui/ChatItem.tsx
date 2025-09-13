@@ -17,6 +17,7 @@ export interface ChatItemProps {
   messages?: Message[];
   members?: userFromChat[];
   currentUserId?:number;
+  groupId?:number | undefined;
   createChatForGroup:(isGroup: boolean, name: string, members: userFromChat[], description?: string)=>void
   createChatforOneToOneUser:(targetUserId:number)=>void
 }
@@ -31,7 +32,7 @@ function ChatItem({
   createChatForGroup,
   updatedAt,
   createChatforOneToOneUser,
-  
+  groupId,
 }:ChatItemProps ) {
 
   const targetUser = useMemo(()=>{
@@ -85,6 +86,8 @@ function ChatItem({
   if (isGroup) {
     return (
       <GroupChatItem
+        id={groupId}
+        isGroup={true}
         createChatForGroup={handleGroupChat}
         groupName={String(name)}
         messages={messages}
