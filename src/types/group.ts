@@ -18,3 +18,8 @@ export interface getSingleGroupResponse {
     message:string,
     group:Group
 }
+export interface groupChatResponse {
+  message:string,
+  chat:Chat,
+  success:boolean
+}

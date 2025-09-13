@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 export interface MessageData {
   content: string;
   senderId: number | undefined;
@@ -15,7 +17,7 @@ export interface Message {
   createdAt?: Date | undefined;
   type?: string | undefined;
   status?:messageStatus,
-  sender?:string | undefined
+  sender?:User | undefined
 }
 
 export type messageStatus = "SENT" | "DELIVERED" | "READ";

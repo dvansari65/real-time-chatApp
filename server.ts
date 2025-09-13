@@ -64,8 +64,8 @@ io.on("connection", (socket: Socket) => {
       const { chatId, userId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {
-          chatId: chatId,
-          userId: userId,
+          chatId: Number(chatId),
+          userId: Number(userId),
         },
       });
       if (!chatExist) {

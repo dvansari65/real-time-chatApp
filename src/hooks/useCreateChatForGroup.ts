@@ -1,5 +1,6 @@
 import { groupChatInput } from "@/types/CreateGroup"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 
 export const useCreateChatForGroup = ()=>{
@@ -8,17 +9,19 @@ export const useCreateChatForGroup = ()=>{
         mutationKey:["groupChat"],
         mutationFn:async(chatInputTypeForGroupChat:groupChatInput)=>{
             try {
-                const response = await fetch("/api/groupChat",{
+                if(!chatInputTypeForGroupChat.groupId){
+                    return toast.error("please provide group id")
+                }
+                const groupId = String(chatInputTypeForGroupChat.groupId)
+                const response = await fetch(`/api/groupChat/${groupId}`,{
                     method:"POST",
                     credentials:"include",
                     body:JSON.stringify(chatInputTypeForGroupChat)
                 })
-                console.log("reponse",response)
                 const data = await response.json();
                 if(!response.ok){
                     throw new Error(data?.message || "failed to create group chat!")
                 }
-                console.log("group chat",data)
                 return data;
             } catch (error:any) {
                 console.log("failed to create group chat!",error?.message)
