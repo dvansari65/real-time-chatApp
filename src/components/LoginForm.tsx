@@ -7,12 +7,14 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/Button";
 import Link from "next/link";
 import { useAuth } from "@/contextApi";
+import {  useQueryClient } from "@tanstack/react-query";
 
 function LoginForm() {
   const [formData, setFormData] = useState<loginProps>({
     email: "",
     password: "",
   });
+  const queryClient = useQueryClient()
   const router = useRouter();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +49,7 @@ function LoginForm() {
         return;
       }
       await refetch();
+      queryClient.invalidateQueries({queryKey:["getAllChats"]})
       setError("");
       setSuccess("logged in successfully");
       router.push("/");
