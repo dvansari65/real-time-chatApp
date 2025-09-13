@@ -50,17 +50,17 @@ export default function InnerSidebar() {
 
   const createChatforOneToOneUser = useCallback((userId: number) => {
     console.log("user id",userId)
-    dispatch(setLoading(true));
+    dispatch(setLoading(isPending));
     createChatBetweenOneToOneMutation(userId, {
       onSuccess: (data: createdChatReponse) => {
         console.log("data from api", data);
         queryClient.invalidateQueries({queryKey:["user"]})
         if (data?.chat?.id) {
           toast.success("chat created successfully!");
-          dispatch(setLoading(true));
+          dispatch(setLoading(isPending));
           router.push(`/chat/${data?.chat?.id}?userId=${userId}`);
         } else {
-          dispatch(setLoading(true));
+          dispatch(setLoading(false));
           toast.error("please provide chat id!");
           return;
         }
@@ -76,7 +76,8 @@ export default function InnerSidebar() {
     isGroup: boolean,
     name: string | undefined,
     members: userFromChat[] | undefined,
-    description?: string
+    description?: string,
+    groupId?:number
   ) => {
     dispatch(setLoading(true));
     const payload = {
@@ -84,6 +85,7 @@ export default function InnerSidebar() {
       name,
       members,
       description,
+      groupId
     };
     if (!isGroup || !name || members?.length == 0) {
       toast.error("Please , provide all the fields!");
@@ -100,11 +102,12 @@ export default function InnerSidebar() {
         dispatch(setLoading(false));
         if (data?.chat?.id) {
           toast.success("chat created successfully!");
-          dispatch(setGroupId(2));
-          router.push(`/groupChat/${data?.chat?.id}`);
+          dispatch(setGroupId(data?.chat?.groupId));
+          router.push(`/GroupChat/${data?.chat?.id}?groupId=${data?.chat?.groupId}`);
         }
       },
       onError:(error)=>{
+        console.log(error.message)
         toast.error(error?.message)
       }
     },
@@ -122,6 +125,7 @@ export default function InnerSidebar() {
   
   if(OneToOneChatError) return toast.error(OneToOneChatError.message)
   // console.log("filtered user", filteredUser);
+  if(groupChatError) return toast.error(groupChatError.message)
 
   return (
     <div className="w-[320px] bg-gray-900/95 backdrop-blur-xl border-r border-white/10 flex flex-col h-screen relative overflow-hidden">
@@ -200,7 +204,7 @@ export default function InnerSidebar() {
         <div className="px-2">
           {allChatsData?.chats?.map((chat) => (
             <div
-              key={chat?.id}
+              key={`${chat.id}-${user?.id}`}
               className="w-full flex flex-col mb-2  mt-2 group p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer"
             >
               <ChatItem
@@ -215,10 +219,12 @@ export default function InnerSidebar() {
                     chat?.isGroup || true,
                     chat?.name,
                     chat?.members,
-                    chat?.description
+                    chat?.description,
+                    chat?.groupId
                   )}
                 updatedAt={chat?.updatedAt}
                 createChatforOneToOneUser={createChatforOneToOneUser}
+                groupId={chat?.groupId}
               />
             </div>
           ))}
