@@ -14,6 +14,7 @@ import MessageInput from "@/components/MessageInput";
 import { toast } from "sonner";
 import { messageDeliveredType, newMesssageType, userAuthenticatedDataType, userJoinChatDataType } from "@/types/typesForSocketEvents";
 import { useGetChat } from "@/lib/api/useGetchat";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Conversation() {
   const params = useParams();
@@ -25,22 +26,21 @@ export default function Conversation() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<messageStatus>("SENT");
+  const [isOnline,setIsOnline] = useState(false)
   const socket = useSocket();
   const { data } = useAuth();
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   console.log("chatId",chatId)
-
+  const queryClient = useQueryClient()
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
- useEffect(()=>{
-  console.log("chatBetweenTwoUsersData",chatBetweenTwoUsersData)
- },[chatBetweenTwoUsersData])
+
   const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
-  useEffect(()=>{console.log("singleUserData",singleUserData)},[singleUserData])
+
   useJoinChat(Number(chatId), Number(user?.id));
 
   useEffect(() => {
@@ -59,8 +59,17 @@ export default function Conversation() {
 
     const handleUserOnline = (data: userAuthenticatedDataType) => {
       console.log("userAuthenticatedData",data)
-      toast.success(`${data.username} is online`)
+      if(singleUserData?.user?.id === data.userId){
+        queryClient.invalidateQueries({queryKey:["getAllChats"]})
+        queryClient.invalidateQueries({queryKey:["user"]})
+        setIsOnline(true)
+      }
     };
+
+    if(chatId && userId){
+      socket.emit("join-chat",{chatId,userId})
+      console.log("user joined the chat!")
+    }
 
     const handleUserLeavechat = (data: userJoinChatDataType) => {
       if (Number(singleUserData?.user?.id) === data.userId) {
@@ -69,6 +78,7 @@ export default function Conversation() {
     };
 
     const handleNewMessage = (data: newMesssageType) => {
+      console.log("new message ",data)
       setMessages((prev) => [...prev, data.message]);
     };
 
@@ -84,6 +94,12 @@ export default function Conversation() {
       toast.success(`${data?.username} ${data.message}`)
     }
 
+    const handleUserOffline = (userId:number)=>{
+      if(Number(singleUserData?.user?.id) === userId){
+        setIsOnline(true)
+      }
+    }
+
     socket.on("connect", handleConnect);
     socket.on("authentication-success",handleSuccessfullAuthentication)
     socket.on("user-online", handleUserOnline);
@@ -91,6 +107,7 @@ export default function Conversation() {
     socket.on("new-message", handleNewMessage);
     socket.on("message-delivered", handleMessageDelivered);
     socket.on("user-left-chat",handleUserleftChat)
+    socket.on("user-offline",handleUserOffline)
     if (socket.connected && user) {
       socket.emit("user_authentication", {
         userId: user?.id,
@@ -110,7 +127,11 @@ export default function Conversation() {
       socket.off("user-left-chat",handleUserleftChat)
       socket.off("authentication-success",handleSuccessfullAuthentication)
     };
-  }, [socket, user?.id, user?.username, singleUserData?.user?.id]);
+  }, [socket, user?.id, user?.username, singleUserData?.user?.id,]);
+
+  useEffect(()=>{
+    console.log("is online ",isOnline)
+  },[isOnline])
 
   useEffect(() => {
     scrollToBottom();
