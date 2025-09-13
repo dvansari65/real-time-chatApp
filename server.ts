@@ -4,7 +4,7 @@ import { Socket } from "socket.io";
 import { prisma } from "./src/lib/prisma";
 import { NextResponse } from "next/server";
 import { updateUserStatus } from "@/services/userQueries";
-
+import { verifySession } from "@/lib/auth";
 
 const server = createServer();
 const io = new Server(server, {
@@ -35,32 +35,45 @@ interface JoinChatData {
   userId: number;
 }
 
-io.on("connection", (socket: Socket) => {
-  console.log(`user connect: ${socket.id}`);
+interface callData {
+  chatId: number;
+  callerId: number;
+}
 
+io.on("connection", async (socket: Socket) => {
+  console.log(`user connect: ${socket.id}`);
+  const session = await verifySession();
+  if (!session || !session.userId) {
+    return NextResponse.json({
+      message: "User is not logged in!",
+      success: false,
+    });
+  }
+  const userId = session.userId;
+  const isOnline = await updateUserStatus(Number(userId));
+  console.log(`${session.userId} is isonline:${isOnline}`);
+  socket.broadcast.emit("user-online", { userId, isOnline: isOnline });
   // user authentication
   socket.on("user_authentication", async (data: UserAuthData) => {
     try {
-      console.log("user_authentication",data)
+      console.log("user_authentication", data);
       const { userId, username } = data;
       activeUsers.set(userId, socket.id);
       socketServer.set(socket.id, userId);
-      const isOnline = await updateUserStatus(Number(userId))
-      console.log(`${userId } with username ${username} is isonline:${isOnline}`)
-      socket.broadcast.emit("user-online", { userId, username , isOnline:isOnline });
+
       socket.emit("authentication-success", {
         userId,
         username,
-        message: "Successfully authenticated"
+        message: "Successfully authenticated",
       });
     } catch (error) {
       console.error("Authentication error:", error);
       socket.emit("error", { message: "Authentication failed" });
     }
-  })
+  });
   socket.on("join-chat", async (data: JoinChatData) => {
     try {
-      console.log("join room data",data)
+      console.log("join room data", data);
       const { chatId, userId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {
@@ -86,9 +99,24 @@ io.on("connection", (socket: Socket) => {
       socket.emit("error", { message: "Failed to join chat" });
     }
   });
+  socket.on("call-initiated", (data: callData) => {
+    const { chatId, callerId } = data;
+    io.to(`${chatId}`).emit("call-incoming", { chatId, callerId });
+  });
+  socket.on("call-accepted", ({ chatId }) => {
+    io.to(chatId).emit("call-accepted", { chatId });
+  });
+
+  socket.on("call-declined", ({ chatId }) => {
+    io.to(chatId).emit("call-declined", { chatId });
+  });
+
+  socket.on("call:ended", ({ chatId }) => {
+    io.to(chatId).emit("call:ended", { chatId });
+  });
   socket.on("send-message", async (data: MessageData) => {
     try {
-      console.log("message data",data)
+      console.log("message data", data);
       const { content, senderId, replyToId, type, chatId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {
@@ -135,9 +163,10 @@ io.on("connection", (socket: Socket) => {
           },
         },
       });
-      console.log("chatid",chatId)
-      if(!message){
-        return socket.to(`${chatId}`).emit("error",{message:"message not created!"})
+      if (!message) {
+        return socket
+          .to(`${chatId}`)
+          .emit("error", { message: "message not created!" });
       }
       await prisma.chat.update({
         where: {
@@ -151,68 +180,70 @@ io.on("connection", (socket: Socket) => {
       // console.log("Message ID:", message.id, "User ID:", senderId);
       await prisma.messageStatus.create({
         data: {
-          messageId: message.id,  // Use messageId instead of id
+          messageId: message.id, // Use messageId instead of id
           userId: senderId,
           status: "DELIVERED",
-          timestamp:new Date()
-        }
-      })
+          timestamp: new Date(),
+        },
+      });
       io.to(`chat-${chatId}`).emit("new-message", {
         message,
         timeStamp: new Date(),
       });
-      socket.emit("message-delivered",{
-        messageId:message?.id,
-        status:"DELIVERED",
-        chatId
-      })
+      socket.emit("message-delivered", {
+        messageId: message?.id,
+        status: "DELIVERED",
+        chatId,
+      });
       console.log(`Message sent in chat ${chatId} by user ${senderId}`);
     } catch (error) {
       console.log("failed to send message!", error);
       socket.emit("error", { message: "failed to send message!" });
     }
   });
-  socket.on("mark-as-read",async({chatId,userId}:{chatId:number,userId:number})=>{
-      socket.to(`chat-${chatId}`).emit(`mark-as-read`,{
-        status:"READ",
-        readerId:userId,
-        chatId
-      })
-  })
-  socket.on("leave-chat",async(data:JoinChatData)=>{
-    const {userId,chatId} = data
+  socket.on(
+    "mark-as-read",
+    async ({ chatId, userId }: { chatId: number; userId: number }) => {
+      socket.to(`chat-${chatId}`).emit(`mark-as-read`, {
+        status: "READ",
+        readerId: userId,
+        chatId,
+      });
+    }
+  );
+  socket.on("leave-chat", async (data: JoinChatData) => {
+    const { userId, chatId } = data;
     try {
-      console.log("leave chat data",userId,chatId)
-      console.log("db call initiated!")
+      console.log("leave chat data", userId, chatId);
+      console.log("db call initiated!");
       const chat = await prisma.chatMember.findFirst({
-        where:{
+        where: {
           chatId,
-          userId:userId
-        }
-      })
-      console.log("chat from leave chat",chat)
-      if(!chat){
+          userId: userId,
+        },
+      });
+      console.log("chat from leave chat", chat);
+      if (!chat) {
         return NextResponse.json(
           {
-            message:"chat not exist!",
-            success:false
+            message: "chat not exist!",
+            success: false,
           },
-          {status:404}
-        )
+          { status: 404 }
+        );
       }
-      socket.leave(`chat-${chatId}`)
+      socket.leave(`chat-${chatId}`);
       console.log(`${userId} left ${chatId}`);
-      socket.to(`chat-${chatId}`).emit("user-left-chat",{
+      socket.to(`chat-${chatId}`).emit("user-left-chat", {
         userId,
         chatId,
-        timeStamp:new Date()
-      })
-
+        timeStamp: new Date(),
+      });
     } catch (error) {
-      console.error("failed to leave chat!",error)
-      socket.emit("error",{message:"failed to leave chat!"})
+      console.error("failed to leave chat!", error);
+      socket.emit("error", { message: "failed to leave chat!" });
     }
-  })
+  });
   socket.on("disconnect", async () => {
     try {
       const userId = socketServer.get(socket.id);
