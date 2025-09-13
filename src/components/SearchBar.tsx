@@ -85,6 +85,7 @@ function SearchBar() {
     name,
     members,
     description,
+    groupId
   }: groupChatInput) => {
     dispatch(setLoading(true))
     console.log("payload", isGroup,
@@ -100,6 +101,7 @@ function SearchBar() {
       name,
       members,
       description,
+      groupId
     };
     mutateCreateGroupChat(payload,{
       onSuccess:(data)=>{
@@ -107,7 +109,7 @@ function SearchBar() {
         setSearchModal(false)
         console.log("data of group chat",data?.id)
         if(data?.chat?.id){
-          router.push(`/GroupChat/${data.chat.id}`)
+          router.push(`/GroupChat/${data.chat.id}&groupId=${groupId}`)
           dispatch(setLoading(false))
         }else{
           router.push("/");
@@ -245,7 +247,8 @@ function SearchBar() {
                                   isGroup:group?.isGroup || true ,
                                   name:group?.name, 
                                   members:group?.GroupMembers || [],
-                                  description:group?.description
+                                  description:group?.description,
+                                  groupId:Number(group.id)
                                  }
                               );
                              
