@@ -42,8 +42,32 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
             {status:200}
         )
 
-    } catch (error) {
+    } catch (error:any) {
         console.log("failed to create chat!",error)
-        throw error;
+        if (error.code === "P2002") {
+            return NextResponse.json(
+              {
+                message: "Chat already exists!",
+                success: false
+              },
+              { status: 409 } 
+            )
+        }
+        if (error.message) {
+            return NextResponse.json(
+              {
+                message: error.message,
+                success: false
+              },
+              { status: 500 }
+            )
+        }
+        return NextResponse.json(
+            {
+              message: "An unexpected error occurred",
+              success: false
+            },
+            { status: 500 }
+          )
     }
 }
