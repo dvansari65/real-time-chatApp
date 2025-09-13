@@ -21,7 +21,7 @@ const GroupChatHeader = ({
     group?.GroupMembers?.filter((member) => member.isOnline) || [];
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-4 py-3">
+    <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 mb-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {/* Group Avatar */}

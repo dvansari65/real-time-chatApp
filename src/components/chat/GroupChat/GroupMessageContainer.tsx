@@ -1,3 +1,5 @@
+import MessageSkeleton from "@/components/ui/Skeleton/MessageSkeleton";
+import { formatTime } from "@/helper/formatTime";
 import { Message } from "@/types/message";
 import { partialUser } from "@/types/user";
 
@@ -5,19 +7,24 @@ interface GroupMessageContainerProps {
   message: Message | null,
   currentUserId: number,
   groupMembers: partialUser[],
-  status: "SENT" | "DELIVERED" | "READ"
+  status: "SENT" | "DELIVERED" | "READ",
+  groupChatLoading:boolean
 }
 
 const GroupMessageContainer = ({
   message,
   currentUserId,
   groupMembers,
-  status
+  status,
+  groupChatLoading
 }: GroupMessageContainerProps) => {
   const isOwnMessage = message?.senderId === currentUserId;
   const sender = groupMembers?.find(member => member?.id === message?.senderId);
+
+  if(groupChatLoading) return <MessageSkeleton/>
+
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-3 ml-2`}>
       <div className={`flex ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} items-end max-w-xs lg:max-w-md`}>
         {!isOwnMessage && (
           <img
@@ -35,21 +42,16 @@ const GroupMessageContainer = ({
           <div
             className={`px-4 py-2 rounded-2xl ${
               isOwnMessage
-                ? 'bg-green-600 text-white rounded-br-md'
-                : 'bg-gray-700 text-gray-100 rounded-bl-md'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-md transform hover:scale-[1.02]'
+                : 'bg-gradient-to-r from-gray-800 to-gray-900 text-gray-100 rounded-bl-md border border-gray-700 transform hover:scale-[1.02]'
             }`}
           >
             <p className="text-sm">{message?.content}</p>
-
             <div className={`flex items-center justify-end mt-1 space-x-1 ${
               isOwnMessage ? 'text-green-100' : 'text-gray-400'
             }`}>
               <span className="text-xs">
-                {message?.createdAt?.toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                })}
+                {formatTime(message?.createdAt)}
               </span>
               {isOwnMessage && (
                 <div className="flex">

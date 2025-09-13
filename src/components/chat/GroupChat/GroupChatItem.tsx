@@ -39,8 +39,8 @@ function GroupChatItem({groupName,updatedAt,createChatForGroup,messages,members}
           </div>
           <div className="w-full flex justify-between items-center">
             <div className="text-[15px] text-gray-500 flex items-center ">
-              <span>{latestMessages?.[0]?.sender || "Last message preview..."}</span>
-              <span>{latestMessages?.[0]?.message}</span>
+              <span>{latestMessages?.[0]?.sender?.username }</span>
+              <span>{latestMessages?.[0]?.message || "Last message preview..."}</span>
             </div>
             <div className="flex items-center gap-1">
               <Users className="text-gray-500" size={12} />
