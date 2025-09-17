@@ -1,18 +1,17 @@
 import { partialUser } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import NewGroupAddedUserCard from "./NewGroupAddedUserCard";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setGroupMembers } from "@/features/Redux/NewGroupMembersSlice";
-
+import NewGroupAddedUsersCard from "./NewGroupAddedUserCard";
 
 interface newGroupProps {
   isOpen: boolean;
   onClose: () => void;
-  users: partialUser[] ;
+  users: partialUser[] 
   className?: string;
   proceedAction: () => void;
-  currentUserId:number | undefined
+  currentUserId: number | undefined;
 }
 
 function SelectUserForNewGroup({
@@ -21,38 +20,46 @@ function SelectUserForNewGroup({
   users,
   className,
   proceedAction,
-  currentUserId
+  currentUserId,
 }: newGroupProps) {
   const dispatch = useDispatch();
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [addedUsers, setAddedUser] = useState<partialUser[]>([]);
+
   if (!isOpen) return null;
-  const handleSelectUsers = (id: number) => {
-    setSelectedUsers((prev) =>
-      selectedUsers.includes(id)
-        ? prev.filter((userId) => userId !== id)
-        : [...prev, id]
+
+  const filteredUsers = useMemo(() => {
+    const uniqueUsers = users.filter(
+      (user, index, self) =>
+        user?.id !== currentUserId &&
+        index === self.findIndex((u) => u?.id === user?.id) // Remove duplicates
     );
-  };
-  useEffect(() => {
-    const addedUsers = selectedUsers.flatMap((i) => {
-      return users.filter((user) => user?.id === i);
+    return uniqueUsers;
+  }, [users, currentUserId]);
+
+  const addedUsers = useMemo(() => {
+    const userMap = new Map(users.map(user=>[user.id,user]))
+    return selectedUsers.map(i=>userMap.get(i)).filter(Boolean)
+  }, [selectedUsers, users]);
+
+  const handleSelectUsers = useCallback((id: number) => {
+    setSelectedUsers((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return Array.from(newSet);
     });
-    console.log("addedUsers", addedUsers);
-    setAddedUser(addedUsers);
-  }, [selectedUsers]);
+  }, []);
 
-  const handleRemoveUser = (userId: number) => {
+  const handleRemoveUser = useCallback((userId: number) => {
     setSelectedUsers((prev) => prev.filter((id) => id !== userId));
-  };
-  useEffect(() => {
-    console.log("added users", addedUsers);
-    dispatch(setGroupMembers(addedUsers));
-  }, [addedUsers, addedUsers.length]);
+  }, []);
 
-  const filteredUsers = useMemo(()=>{
-    return users.filter(user=>user?.id !== currentUserId)
-  },[users,currentUserId])
+  useEffect(() => {
+    dispatch(setGroupMembers(addedUsers));
+  }, [dispatch, addedUsers]);
 
   return (
     <div
@@ -88,7 +95,7 @@ function SelectUserForNewGroup({
           >
             <ArrowLeft size={15} />
           </button>
-          <div className="text-white font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          <div className="text-white font-bold text-lg bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text ">
             Add Members
           </div>
           <button
@@ -107,7 +114,7 @@ function SelectUserForNewGroup({
         <div className="flex flex-col justify-start gap-4 px-4">
           {/* Added Users Card */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-            <NewGroupAddedUserCard
+            <NewGroupAddedUsersCard
               addedUsers={addedUsers}
               onRemoveUser={handleRemoveUser}
             />
@@ -116,9 +123,9 @@ function SelectUserForNewGroup({
           {/* Users List */}
           <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
             <div className="space-y-3">
-              {filteredUsers?.map((user) => (
+              {filteredUsers?.map((user, index) => (
                 <div
-                  key={user?.id}
+                  key={`${user?.id || "unknown"}-${index}`}
                   className="group flex flex-row justify-between items-center p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300"
                 >
                   <div className="flex justify-start items-center gap-3">
