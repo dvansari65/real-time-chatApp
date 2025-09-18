@@ -4,7 +4,7 @@ import { Socket } from "socket.io";
 import { prisma } from "./src/lib/prisma";
 import { NextResponse } from "next/server";
 import { updateUserStatus } from "@/services/userQueries";
-import { verifySession } from "@/lib/auth";
+
 
 const server = createServer();
 const io = new Server(server, {
@@ -38,21 +38,14 @@ interface JoinChatData {
 interface callData {
   chatId: number;
   callerId: number;
+  targetUserId:number,
+  callerUsername:string
 }
 
 io.on("connection", async (socket: Socket) => {
   console.log(`user connect: ${socket.id}`);
-  const session = await verifySession();
-  if (!session || !session.userId) {
-    return NextResponse.json({
-      message: "User is not logged in!",
-      success: false,
-    });
-  }
-  const userId = session.userId;
-  const isOnline = await updateUserStatus(Number(userId));
-  console.log(`${session.userId} is isonline:${isOnline}`);
-  socket.broadcast.emit("user-online", { userId, isOnline: isOnline });
+
+  
   // user authentication
   socket.on("user_authentication", async (data: UserAuthData) => {
     try {
@@ -60,7 +53,9 @@ io.on("connection", async (socket: Socket) => {
       const { userId, username } = data;
       activeUsers.set(userId, socket.id);
       socketServer.set(socket.id, userId);
-
+      const isOnline = await updateUserStatus(Number(userId))
+      console.log("is online",isOnline)
+      socket.broadcast.emit("user-online", { userId, isOnline: isOnline });
       socket.emit("authentication-success", {
         userId,
         username,
@@ -100,18 +95,20 @@ io.on("connection", async (socket: Socket) => {
     }
   });
   socket.on("call-initiated", (data: callData) => {
-    const { chatId, callerId } = data;
-    io.to(`${chatId}`).emit("call-incoming", { chatId, callerId });
+    console.log("call-initiated triggered")
+    const { chatId, callerId ,targetUserId,callerUsername} = data;
+    io.to(`${chatId}`).emit("call-incoming", { chatId, callerId,targetUserId,callerUsername });
+    console.log("call-incoming triggered")
   });
-  socket.on("call-accepted", ({ chatId }) => {
-    io.to(chatId).emit("call-accepted", { chatId });
+  socket.on("call-accepted", ({ chatId, answer }) => {
+    io.to(`${chatId}`).emit("call-accepted", { chatId, answer });
   });
 
   socket.on("call-declined", ({ chatId }) => {
     io.to(chatId).emit("call-declined", { chatId });
   });
 
-  socket.on("call:ended", ({ chatId }) => {
+  socket.on("call-ended", ({ chatId }) => {
     io.to(chatId).emit("call:ended", { chatId });
   });
   socket.on("send-message", async (data: MessageData) => {

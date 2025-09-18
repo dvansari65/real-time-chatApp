@@ -1,7 +1,9 @@
-import { useAuth } from "@/contextApi";
+"use client"
 import { ArrowLeft, MoreVertical, Phone, User, Video } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../ui/Button";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface chatHeaderProps {
     avatar: string | undefined,
@@ -10,10 +12,20 @@ interface chatHeaderProps {
     userId: number | null,
     handleLeaveChat: () => void,
     isLoadingUserData?: boolean,
-    currentUserId:number | undefined
+    currentUserId:number | undefined,
 }
 
 function ChatHeader({ avatar, username, isOnline, userId, handleLeaveChat, isLoadingUserData , currentUserId }: chatHeaderProps) {
+    const router = useRouter()
+    const queryClient = useQueryClient()
+    useEffect(()=>{
+        if(currentUserId === userId){
+            queryClient.invalidateQueries({queryKey:["user"]})
+            queryClient.invalidateQueries({queryKey:["getAllChats"]})
+            router.push("/home")
+            return;
+        }
+    },[currentUserId,userId])
     return (
         <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -53,7 +65,7 @@ function ChatHeader({ avatar, username, isOnline, userId, handleLeaveChat, isLoa
                 </div>
                 <div className="flex items-center space-x-4">
                     <Phone className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
-                    <Video className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
+                    <Button className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800"><Video size={14} /></Button>
                     <MoreVertical className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
                 </div>
             </div>

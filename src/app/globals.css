@@ -30,7 +30,7 @@
   --shadow-colored: rgba(59, 130, 246, 0.25);
   
   /* Layout */
-  --width: calc(100% - 380px);
+  --width: calc(100% - 320px);
   --sidebar-width: 320px;
   --outer-sidebar-width: 70px;
   
@@ -426,4 +426,31 @@ button:disabled {
     background: white !important;
     border: 1px solid #ccc !important;
   }
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }

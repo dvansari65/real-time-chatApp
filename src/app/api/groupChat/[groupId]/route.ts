@@ -115,6 +115,7 @@ export const GET = async(req:NextRequest,{params}:{params:Promise<{groupId:strin
                 messages:{}
             }
         })
+        console.log("chat from backend",chat)
         if(!chat){
             return NextResponse.json(
                 {

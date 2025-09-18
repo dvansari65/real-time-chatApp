@@ -9,12 +9,21 @@ export const GET = async(req:NextRequest)=>{
         const uid = searchParams.get("uid") || "0"
         if (!channelName) {
             return NextResponse.json({ error: "Channel name required" }, { status: 400 });
-          }
+        }
         const appId = process.env.AGORA_APP_ID
-        const agoraCertificate = process.env.AGORA_APP_CERTIFICAT
+        const agoraCertificate = process.env.AGORA_APP_CERTIFICATE
         const role = RtcRole.PUBLISHER
         const expireTime = 3600;
-        const token = RtcTokenBuilder.buildTokenWithUid(
+        if(!appId || !agoraCertificate || !role || !expireTime){
+            return NextResponse.json(
+                {
+                    message:"Provide all the key and parameters!",
+                    success:false
+                },
+                {status:400}
+            )
+        }
+        const  token = RtcTokenBuilder.buildTokenWithUid(
             String(appId),
             String(agoraCertificate),
             channelName,
@@ -35,6 +44,9 @@ export const GET = async(req:NextRequest)=>{
             {
                 message:"Token created successfully!",
                 token,
+                appId,
+                channelName,
+                uid,
                 success:true
             },
             {status:200}

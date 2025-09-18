@@ -1,16 +1,19 @@
 "use client"
 import { partialUser } from '@/types/user'
 import { X } from 'lucide-react'
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 interface NewGroupAddedUserCardProps {
-  addedUsers: partialUser[],
+  addedUsers:(partialUser | undefined)[],
   onRemoveUser?: (userId: number) => void; // Optional callback to remove user
 }
 
 function NewGroupAddedUsersCard({ addedUsers, onRemoveUser }: NewGroupAddedUserCardProps) {
   if (addedUsers.length === 0) return null;
 
+  useEffect(()=>{
+    console.log("addedUsers",addedUsers)
+  },[addedUsers])
   return (
     <div className="px-4 py-4 bg-white/5 backdrop-blur-sm border-b border-white/10 relative overflow-hidden">
   {/* Subtle animated background */}
@@ -32,7 +35,7 @@ function NewGroupAddedUsersCard({ addedUsers, onRemoveUser }: NewGroupAddedUserC
     <div className="flex overflow-x-auto space-x-4 pb-3 scrollbar-hide">
       {addedUsers.map((user, index) => (
         <div
-          key={user?.id}
+          key={`${user?.id || "unknown"}-${index}`}
           className="flex-shrink-0 relative group animate-in slide-in-from-right-2 duration-500"
           style={{ 
             animationDelay: `${index * 100}ms`,
@@ -64,7 +67,7 @@ function NewGroupAddedUsersCard({ addedUsers, onRemoveUser }: NewGroupAddedUserC
               {/* Remove button */}
               {onRemoveUser && (
                 <button
-                  onClick={() => onRemoveUser(Number(user.id))}
+                  onClick={() => onRemoveUser(Number(user?.id))}
                   className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl border-2 border-gray-900 z-20"
                 >
                   <X size={12} className="text-white" />

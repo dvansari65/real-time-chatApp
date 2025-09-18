@@ -17,11 +17,11 @@ export const groupSlice = createSlice({
     name:"NewGroup",
     initialState,
     reducers:{
-        setGroupMembers : (state , action:PayloadAction<partialUser[]>)=>{
+        setGroupMembers : (state , action:PayloadAction<(partialUser | undefined)[]>)=>{
            state.GroupMembers = action.payload
         },
         removeUsers : (state,action:PayloadAction<number>)=>{
-            state.GroupMembers?.filter(user => user.id !== action.payload)
+            state.GroupMembers?.filter(user => user?.id !== action.payload)
         }
     }
 })

@@ -2,9 +2,22 @@ import {prisma} from "../lib/prisma"
 
 export const findExistingChat = async (currentUserId:number,targetUserId:number)=>{
     try {
+        if(!currentUserId || !targetUserId){
+            throw new Error("Both current user id and target user id are required!")
+        }
+        if(currentUserId === targetUserId ){
+            throw new Error("You can not create cat with yourself!")
+        }
         const chat = await prisma.chat.findFirst({
             where:{
                 isGroup:false,
+                members: {
+                    every: {
+                        userId: {
+                            in: [currentUserId, targetUserId]
+                        }
+                    }
+                },
                 AND:[
                     {
                         members:{
@@ -66,7 +79,10 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
             },
             
         })
-        console.log("chat from find chat",chat)
+        if (chat && chat.members.length !== 2) {
+            console.warn(` Chat ${chat.id} has ${chat.members.length} members instead of 2`);
+            throw new Error(` Chat ${chat.id} has ${chat.members.length} members instead of 2`)
+        }
         return chat
     } catch (error:any) {
         console.log("failed to find chats!",error)
@@ -76,14 +92,15 @@ export const findExistingChat = async (currentUserId:number,targetUserId:number)
 
 export const createChat = async (currentUserId:number,targetUserId:number)=>{
     try {
-       if(!targetUserId){
-        throw new Error("Please provide target user id!")
-       }
-       if(!currentUserId){
-        throw new Error("Please provide current user id!")
-       }
-       console.log("target user id from creaet chat ",targetUserId);
-       
+        if (!targetUserId) {
+            throw new Error("Please provide target user id!");
+        }
+        if (!currentUserId) {
+            throw new Error("Please provide current user id!");
+        }
+        if (currentUserId === targetUserId) {
+            throw new Error("Cannot create chat with yourself!");
+        }
         const targetUser = await prisma.user.findFirst({
             where:{
                 id:targetUserId

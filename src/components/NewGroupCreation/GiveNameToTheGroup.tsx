@@ -1,8 +1,4 @@
-interface GiveNameToTheGroupProps {
-  className: string;
-  isOpen: boolean;
-  backToPreviousModal: () => void;
-}
+
 
 import React, { useState } from "react";
 import { X, ChevronRight } from "lucide-react";
@@ -13,21 +9,37 @@ import { useAuth } from "@/contextApi";
 import { useCreateGroup } from "@/lib/api/createGroup";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { User } from "@/types/user";
+
+interface GiveNameToTheGroupProps {
+  className: string;
+  isOpen: boolean;
+  backToPreviousModal: () => void;
+  handleCreateGroup:()=>void,
+  GroupMembers: (Partial<User> | undefined)[],
+  isPending:boolean,
+  setGroupName: (value: React.SetStateAction<string>) => void,
+  groupName:string,
+  discription:string,
+  setDiscription:(value: React.SetStateAction<string>) => void,
+  handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}
 
 const NewGroupModal = ({
   className,
   backToPreviousModal,
   isOpen,
+  handleCreateGroup,
+  GroupMembers,
+  isPending,
+  setGroupName,
+  groupName,
+  setDiscription,
+  discription,
+  handleAvatarChange
 }: GiveNameToTheGroupProps) => {
-  const { data } = useAuth();
-  const { GroupMembers } = useSelector((state: RootState) => state.NewGroup);
   if (!isOpen) return;
-  const [groupName, setGroupName] = useState("");
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [discription, setDiscription] = useState("");
   const dispatch = useDispatch();
-  const groupMembersAfterAddingCurrentUser = [...GroupMembers, data?.user!];
-  const queryClient = useQueryClient()
   // const createGroupInputs: createGroupInput = {
   //   admins: [data?.user!],
   //   GroupMembers: groupMembersAfterAddingCurrentUser,
@@ -36,47 +48,9 @@ const NewGroupModal = ({
   //   profileImage: avatar || null,
   //   discription,
   // };
-  const { mutate, isPending } = useCreateGroup();
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setAvatar(file);
-  };
   const removerSelectedUsers = (id: number) => {
-    dispatch(removeUsers(id));
-  };
-  const handleCreateGroup = () => {
-    try {
-      const formData = new FormData();
-      if (avatar) {
-        formData.append("profileImage", avatar);
-      }
-      formData.append(
-        "data",
-        JSON.stringify({
-          admins: [data?.user!],
-          GroupMembers: groupMembersAfterAddingCurrentUser,
-          userId: data.user?.id!,
-          name: groupName,
-          profileImage: avatar || null,
-          discription,
-        })
-      );
-      mutate(formData, {
-        onSuccess: (data) => {
-          queryClient.invalidateQueries({queryKey:["getAllChats"]})
-          console.log("Success!", data);
-          toast.success("Group successfully created!");
-        },
-        onError: (error) => {
-          toast.error(error.message || "failed to create group!");
-          console.error("failed to create group!", error);
-        },
-      });
-    } catch (error) {
-      console.error("failed to create group!", error);
-      throw error;
-    }
-  };
+      dispatch(removeUsers(id));
+    };
   return (
     <div
       className={`fixed inset-0 z-50 h-[100%] max-w-[330px] bg-slate-100 overflow-y-auto flex flex-col   ${className}`}
@@ -182,7 +156,7 @@ const NewGroupModal = ({
           <div className="flex flex-wrap gap-4">
             {GroupMembers?.map((member) => (
               <div
-                key={member.id}
+                key={member?.id}
                 className="flex flex-col items-center relative"
               >
                 {/* Avatar with Remove Button */}

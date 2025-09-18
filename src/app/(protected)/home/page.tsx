@@ -7,8 +7,10 @@ import {
   Users,
   Shield,
   ChevronDown,
+  
 } from "lucide-react";
 import { useAuth } from "@/contextApi";
+
 
 const FloatingElement = ({
   children,
@@ -153,12 +155,6 @@ export default function Home() {
           <FloatingElement delay={200}>
             <div className="inline-flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 mb-6 border border-white/10">
               <Sparkles className="w-4 h-4 text-yellow-400" />
-              <div className="flex flex-col gap-2 relative group">
-                <span className="">{"New Chat"}</span>
-                <span className="absolute opacity-0 group-hover:opacity-100 bg-gray-800 text-white px-2 py-1 rounded">
-                  handleLogout
-                </span>
-              </div>
               <span className="text-sm text-gray-300">
                 Welcome back, {data?.user?.username}!
               </span>

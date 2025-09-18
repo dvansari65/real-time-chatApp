@@ -8,13 +8,13 @@ import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { Message, messageStatus } from "@/types/message";
 
-
 import { useGetSingleUser } from "@/lib/api/getSingleUser";
 import MessageInput from "@/components/MessageInput";
 import { toast } from "sonner";
 import { messageDeliveredType, newMesssageType, userAuthenticatedDataType, userJoinChatDataType } from "@/types/typesForSocketEvents";
 import { useGetChat } from "@/lib/api/useGetchat";
 import { useQueryClient } from "@tanstack/react-query";
+
 
 export default function Conversation() {
   const params = useParams();
@@ -27,24 +27,21 @@ export default function Conversation() {
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<messageStatus>("SENT");
   const [isOnline,setIsOnline] = useState(false)
+  const [inCall, setInCall] = useState(false);
   const socket = useSocket();
   const { data } = useAuth();
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  console.log("chatId",chatId)
+  console.log("user",user)
   const queryClient = useQueryClient()
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
-
   const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
 
   useJoinChat(Number(chatId), Number(user?.id));
 
   useEffect(() => {
     if (!socket ) return;
+    console.log("socket",socket)
     const handleConnect = () => {
       const payload = {
         userId:user?.id ,
@@ -59,7 +56,7 @@ export default function Conversation() {
 
     const handleUserOnline = (data: userAuthenticatedDataType) => {
       console.log("userAuthenticatedData",data)
-      if(singleUserData?.user?.id === data.userId){
+      if(Number(singleUserData?.user?.id) === Number(data.userId)){
         queryClient.invalidateQueries({queryKey:["getAllChats"]})
         queryClient.invalidateQueries({queryKey:["user"]})
         setIsOnline(true)
@@ -91,14 +88,17 @@ export default function Conversation() {
     };
 
     const handleSuccessfullAuthentication = (data:userAuthenticatedDataType)=>{
-      toast.success(`${data?.username} ${data.message}`)
+      toast.success(`${data?.userId} ${data.message}`)
     }
 
     const handleUserOffline = (userId:number)=>{
       if(Number(singleUserData?.user?.id) === userId){
+        queryClient.invalidateQueries({queryKey:["getAllChats"]})
+        queryClient.invalidateQueries({queryKey:["user"]})
         setIsOnline(true)
       }
     }
+  
 
     socket.on("connect", handleConnect);
     socket.on("authentication-success",handleSuccessfullAuthentication)
@@ -133,6 +133,10 @@ export default function Conversation() {
     console.log("is online ",isOnline)
   },[isOnline])
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -140,6 +144,7 @@ export default function Conversation() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      sendMessage()
     }
   };
 
@@ -164,14 +169,13 @@ export default function Conversation() {
   const navigateToPreviousPage = ()=>{
       router.push("/")
   }
-
   if(singleUserError) return toast.error(singleUserError.message)
   if(chatId && !userId) {
     toast.error("user id not obtained!")
     return router.push("/")
   }
   return (
-    <main className="flex-1 flex flex-col h-[100vh] bg-gray-900">
+    <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 w-full">
       <ChatHeader
         currentUserId={user?.id}
         handleLeaveChat={navigateToPreviousPage}
@@ -197,12 +201,14 @@ export default function Conversation() {
         ))}
         <div ref={messagesEndRef} />
       </div>
+      <div className="w-full">
       <MessageInput
         setInput={setInput}
         input={input}
         handleKeyPress={handleKeyPress}
         sendMessage={sendMessage}
       />
+      </div>
     </main>
   );
 }

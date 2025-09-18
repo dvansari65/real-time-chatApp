@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-
 import { useRouter } from "next/navigation";
 import { loginProps } from "@/types/user";
 import { Input } from "./ui/input";
@@ -41,8 +40,6 @@ function LoginForm() {
         body: JSON.stringify(formData),
       });
       const result = await response.json();
-      console.log("result", result);
-
       if (!response.ok) {
         setError(result.error || "something went wrong!");
         setIsLoading(false);
@@ -55,7 +52,6 @@ function LoginForm() {
       router.push("/");
       router.refresh();
     } catch (error: any) {
-      console.error("failed to login!", error);
       setError(error.Error || "server error!");
     } finally {
       setIsLoading(false);
@@ -72,26 +68,27 @@ function LoginForm() {
     <main className="w-full h-screen bg-slate-200 flex justify-center items-center">
       <div className="w-[500px] ">
         {error && (
-          <span className="absolute left-[43%] top-[35%] bg-transparent border border-slate-200 text-red-400 py-2 px-3">
+          <span className="absolute w-full text-start left-[42%] top-[28%] bg-transparent border border-slate-200 text-red-400 py-2 px-3">
             {error}
           </span>
         )}
         {success && (
-          <span className="absolute left-[43%] top-[35%] bg-transparent border border-slate-200 text-green-500 py-2 px-3">
+          <span className="absolute left-[42%] top-[35%] bg-transparent border border-slate-200 text-green-500 py-2 px-3">
             {success}
           </span>
         )}
         <form
           onSubmit={handleSubmit}
-          className="relative w-full p-5 rounded-2xl border border-gray-300 flex justify-center items-center flex-col gap-3 "
+          className=" w-full p-5 rounded-2xl border border-gray-300 flex justify-center items-center flex-col gap-3 "
         >
-          <span className="text-slate-500 text-3xl">LOGIN</span>
+          <span className="relative text-slate-500 text-3xl">LOGIN</span>
           <Input
             name="email"
             type="email"
             onChange={handleChange}
             value={formData.email}
             placeholder="enter gmail.."
+            className="text-gray-700"
           />
           <Input
             name="password"
@@ -99,6 +96,7 @@ function LoginForm() {
             onChange={handleChange}
             value={formData.password}
             placeholder="enter password..."
+            className="text-gray-700"
           />
           <div>
             <Button disabled={isLoading === true} type="submit">

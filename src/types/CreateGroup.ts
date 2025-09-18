@@ -5,7 +5,7 @@ import { userFromChat } from "./chat";
 export interface createGroupInput {
   userId: number | null;
   admins: partialUser[];
-  GroupMembers: partialUser[];
+  GroupMembers: (partialUser | undefined)[]
   discription?: string;
   name: string;
   profileImage: File | null;

@@ -4,6 +4,10 @@ import {prisma} from  "../../../../lib/prisma"
 export const GET = async (req:NextRequest,{params}:{params:Promise<{id:string}>})=>{
     try {
         const groupId = Number((await params).id)
+        console.log("group id",groupId)
+        if(!groupId || isNaN(groupId)){
+            throw new Error("Please provide groupd ID!")
+        }
         const group = await prisma.group.findFirst({
             where:{
                 id:groupId

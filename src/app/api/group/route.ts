@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
         discription: body?.discription,
         profileImage: String(profileImage),
         GroupMembers: {
-          connect: body?.GroupMembers.map((member) => ({ id: member.id })),
+          connect: body?.GroupMembers.map((member) => ({ id: member?.id })),
         },
       },
     });

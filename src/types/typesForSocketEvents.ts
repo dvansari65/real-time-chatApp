@@ -38,7 +38,6 @@ export interface MessageData {
    
 export interface userAuthenticatedDataType {
     userId:number,
-    username:string,
     message: string
 }
 

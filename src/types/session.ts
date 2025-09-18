@@ -4,6 +4,6 @@ export interface sessionPayload {
     userId:string,
     email:string,
     role?:string,
-    expiresAt:Date
+    expiresAt:Date,
     [key:string]: any
 } 

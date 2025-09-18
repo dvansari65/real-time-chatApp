@@ -123,6 +123,7 @@ function SearchBar() {
       }
     });
   },[query,queryClient,debounceQuery])
+  
   if(createGroupChatError)return toast.error(createChatError?.message || "some thing went wrong!")
   
   const hasResults =

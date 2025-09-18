@@ -10,6 +10,7 @@ export const getChatsOfGroup = (groupId:string)=>{
         queryKey:["groupChatOfSingleGroup",groupId],
         queryFn:async()=>{
             try {
+                console.log("group from hook",groupId)
                 if(!groupId){
                     return toast.error("please provide group id")
                 }
