@@ -249,10 +249,14 @@ export default function InnerSidebar() {
         </div>
       )}
 
+      {
+        !user && <div className="flex justify-center h-[50vh] items-center">Your are not Login!</div>
+      }
+
       {!giveNameToNewGroupModal &&
-      !selectUserModal &&
-      allChatsData?.chats?.length === 0 &&
-      !allChatsDataLoading ? (
+       !selectUserModal &&
+       allChatsData?.chats?.length === 0 &&
+       !allChatsDataLoading ? (
         <div className="w-full text-gray-300 text-center mt-20 text-3xl  ">
           No Chats Yet!
         </div>
