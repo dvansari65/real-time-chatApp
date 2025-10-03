@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: nextjs_postgres_db
+    container_name: whatsapp_postgres
     restart: always
     environment:
-      POSTGRES_USER: dvansari65
-      POSTGRES_PASSWORD: dvansari65
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: whatsapp
     ports:
       - "5432:5432"

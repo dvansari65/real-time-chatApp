@@ -21,6 +21,7 @@ export const POST = async (req: NextRequest) => {
         email: email,
       },
     });
+    console.log("user",user)
     if (!user) {
       return NextResponse.json({ error: "user not found!" }, { status: 404 });
     }
