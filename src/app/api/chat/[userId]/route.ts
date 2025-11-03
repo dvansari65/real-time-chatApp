@@ -24,6 +24,8 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
               { status: 400 }
             );
           }
+          console.log("current user id",currentUserId)
+          console.log("targetUserId  id",targetUserId)
         const chat = await getOrCreateChat(Number(currentUserId),Number(targetUserId))
         if(!chat){
             return NextResponse.json(

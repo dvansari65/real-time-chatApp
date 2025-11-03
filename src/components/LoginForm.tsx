@@ -47,6 +47,8 @@ function LoginForm() {
       }
       await refetch();
       queryClient.invalidateQueries({queryKey:["getAllChats"]})
+      queryClient.invalidateQueries({queryKey:["users"]})
+      queryClient.invalidateQueries({queryKey:["currentUser"]})
       setError("");
       setSuccess("logged in successfully");
       router.push("/");

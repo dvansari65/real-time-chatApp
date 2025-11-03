@@ -93,6 +93,7 @@ export default function Conversation() {
 
     const handleUserOffline = (userId:number)=>{
       if(Number(singleUserData?.user?.id) === userId){
+        queryClient.invalidateQueries({queryKey:["currentUser"]})
         queryClient.invalidateQueries({queryKey:["getAllChats"]})
         queryClient.invalidateQueries({queryKey:["user"]})
         setIsOnline(true)
