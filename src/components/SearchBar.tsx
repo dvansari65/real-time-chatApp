@@ -13,6 +13,8 @@ import { groupChatInput } from "@/types/CreateGroup";
 import { useQueryClient } from "@tanstack/react-query";
 import { setGroupId } from "@/features/Redux/groupDataSlice";
 import { userFromChat } from "@/types/chat";
+import ResultModaUserCard from "./ui/ResultModaUserCard";
+import { useAuth } from "@/contextApi";
 
 interface GroupResult {
   isGroup?:boolean,
@@ -31,6 +33,7 @@ function SearchBar() {
   const queryClient = useQueryClient()
   const dispatch = useDispatch();
   const router = useRouter();
+  const {data} = useAuth()
   useEffect(() => {
     const timeOut = setTimeout(() => setDebounceQuery(query), 300);
     return () => clearTimeout(timeOut);
@@ -204,27 +207,15 @@ function SearchBar() {
                       </div>
                       <div className="space-y-2">
                         {searchedUserData?.user?.map((user: partialUser) => (
-                          <Button
-                            onClick={() => handleChatCreate(Number(user?.id))}
-                            key={user?.id}
-                            className="p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-white/5 group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                                <User className="w-4 h-4 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="text-white font-medium">
-                                  {user?.username}
-                                </div>
-                                {user?.email && (
-                                  <div className="text-gray-400 text-sm">
-                                    {user?.email}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </Button>
+                          <div key={user.id}>
+                            <ResultModaUserCard
+                              username={user.username}
+                              email={user.email}
+                              id={user.id}
+                              currenUserId={data?.user?.id}
+                              handleChatCreate={handleChatCreate}
+                            />
+                          </div>
                         ))}
                       </div>
                     </div>
