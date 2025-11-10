@@ -116,7 +116,7 @@ function SearchBar() {
         setSearchModal(false)
         console.log("data of group chat",data?.id)
         if(data?.chat?.id){
-          router.push(`/GroupChat/${data.chat.id}&groupId=${groupId}`)
+          router.push(`/GroupChat/${data?.chat.id}?groupId=${groupId}`)
           dispatch(setLoading(false))
         }
       },
@@ -128,7 +128,10 @@ function SearchBar() {
     });
   },[query,queryClient,debounceQuery])
   
-  if(createGroupChatError)return toast.error(createChatError?.message || "some thing went wrong!")
+  if(createGroupChatError){
+    toast.error(createChatError?.message || "some thing went wrong!")
+    return
+  }
   
   const hasResults =
     searchedUserData?.success &&

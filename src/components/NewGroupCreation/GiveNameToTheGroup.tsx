@@ -1,42 +1,41 @@
-
-
+"use client";
 import React, { useState } from "react";
 import { X, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/store";
 import { removeUsers } from "@/features/Redux/NewGroupMembersSlice";
 import { useAuth } from "@/contextApi";
-import { useCreateGroup } from "@/lib/api/createGroup";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { User } from "@/types/user";
+import { useCreateGroup } from "@/hooks/useCreateGroup";
 
 interface GiveNameToTheGroupProps {
   className: string;
   isOpen: boolean;
   backToPreviousModal: () => void;
-  handleCreateGroup:()=>void,
-  GroupMembers: (Partial<User> | undefined)[],
-  isPending:boolean,
-  setGroupName: (value: React.SetStateAction<string>) => void,
-  groupName:string,
-  discription:string,
-  setDiscription:(value: React.SetStateAction<string>) => void,
-  handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  handleCreateGroup: () => void;
+  GroupMembers: (Partial<User> | undefined)[];
+  isPending: boolean;
+  setGroupName: (value: React.SetStateAction<string>) => void;
+  groupName: string;
+  discription: string;
+  setDiscription: (value: React.SetStateAction<string>) => void;
+  handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const NewGroupModal = ({
   className,
   backToPreviousModal,
   isOpen,
-  handleCreateGroup,
   GroupMembers,
   isPending,
   setGroupName,
   groupName,
   setDiscription,
   discription,
-  handleAvatarChange
+  handleAvatarChange,
+  handleCreateGroup
 }: GiveNameToTheGroupProps) => {
   if (!isOpen) return;
   const dispatch = useDispatch();
@@ -49,8 +48,8 @@ const NewGroupModal = ({
   //   discription,
   // };
   const removerSelectedUsers = (id: number) => {
-      dispatch(removeUsers(id));
-    };
+    dispatch(removeUsers(id));
+  };
   return (
     <div
       className={`fixed inset-0 z-50 h-[100%] max-w-[330px] bg-slate-100 overflow-y-auto flex flex-col   ${className}`}
@@ -66,6 +65,7 @@ const NewGroupModal = ({
         <h1 className="text-xl font-medium text-gray-800">New group</h1>
         <button
           onClick={handleCreateGroup}
+          aria-disabled = {isPending}
           className={`font-medium text-lg ${
             groupName.trim() || GroupMembers?.length > 0
               ? "text-green-600"
@@ -78,7 +78,6 @@ const NewGroupModal = ({
           {isPending ? "Creating..." : "Create"}
         </button>
       </div>
-
       {/* Group Info Section */}
       <div className="p-4 bg-white border-b border-gray-100">
         <div className="flex items-start gap-3 flex-col space-x-4">

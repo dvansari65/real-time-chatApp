@@ -9,7 +9,8 @@ export const useCreateChatForGroup = ()=>{
         mutationKey:["groupChat"],
         mutationFn:async(chatInputTypeForGroupChat:groupChatInput)=>{
             try {
-                if(!chatInputTypeForGroupChat.groupId){
+                console.log("group id",chatInputTypeForGroupChat?.groupId)
+                if(!chatInputTypeForGroupChat?.groupId){
                     throw new Error("Please provide group ID!")
                 }
                 const groupId = String(chatInputTypeForGroupChat.groupId)

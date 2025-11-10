@@ -1,5 +1,4 @@
 "use client";
-import { SimpleNavbar } from "@/components/Navbar";
 import InnerSidebar from "@/components/ui/Sidebars/InnerSidebar";
 
 // app/(protected)/layout.tsx
@@ -10,7 +9,6 @@ export default function ProtectedLayout({
 }) {
   return (
     <>
-      <SimpleNavbar />
       <div className="w-full h-screen flex">
         <div className="hidden md:block">
           <InnerSidebar />

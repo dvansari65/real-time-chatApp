@@ -30,18 +30,19 @@ function GroupChat() {
   const { id: groupId } = useSelector((state: RootState) => state.groupData);
   const [input, setInput] = useState("");
   const router = useRouter();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageStatus, setMessageStatus] = useState<
+    "DELIVERED" | "SENT" | "READ"
+  >("SENT");
+
+  const socket = useSocket();
+  const queryClient = useQueryClient();
+  const messageRef = useRef<HTMLDivElement>(null);
   const {
     data: groupData,
     isLoading,
     error,
   } = useGetSingleGroup( String(groupIdFromSearchParams) || String(groupId));
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [messageStatus, setMessageStatus] = useState<
-    "DELIVERED" | "SENT" | "READ"
-  >("SENT");
-  const socket = useSocket();
-  const queryClient = useQueryClient();
-  const messageRef = useRef<HTMLDivElement>(null);
 
   const {
     data: groupChatData,
@@ -52,7 +53,8 @@ function GroupChat() {
   useEffect(() => {
     console.log("groupChatData", groupChatData);
     console.log("groupIdFromSearchParams", groupIdFromSearchParams);
-  }, [groupChatData,groupIdFromSearchParams]);
+    console.log("group id",groupId)
+  }, [groupChatData,groupIdFromSearchParams,groupId]);
 
   useEffect(() => {
     if (!socket) return;
