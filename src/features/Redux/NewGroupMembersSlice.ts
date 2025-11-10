@@ -1,5 +1,5 @@
 import {  createGroupInput } from "@/types/CreateGroup";
-import { partialUser, User } from "@/types/user";
+import { partialUser } from "@/types/user";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 

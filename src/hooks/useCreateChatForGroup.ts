@@ -10,7 +10,7 @@ export const useCreateChatForGroup = ()=>{
         mutationFn:async(chatInputTypeForGroupChat:groupChatInput)=>{
             try {
                 if(!chatInputTypeForGroupChat.groupId){
-                    return toast.error("please provide group id")
+                    throw new Error("Please provide group ID!")
                 }
                 const groupId = String(chatInputTypeForGroupChat.groupId)
                 const response = await fetch(`/api/groupChat/${groupId}`,{

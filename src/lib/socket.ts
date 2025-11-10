@@ -11,5 +11,5 @@ export const initializeSocket = ()=>{
 
 export const getSocket  = ()=>{
     if(!socket) throw new Error("socket not found!")
-        return socket
+    return socket
 }

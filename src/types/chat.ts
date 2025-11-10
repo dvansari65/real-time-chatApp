@@ -19,7 +19,7 @@ export interface Chat {
   id?: number;
   name?: string;
   isGroup?:boolean,
-  groupId?:number | undefined,
+  groupId?:string | undefined,
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;

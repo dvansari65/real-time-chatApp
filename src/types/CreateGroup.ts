@@ -32,5 +32,5 @@ export interface groupChatInput {
   name: string | undefined;
   members: userFromChat[] | undefined;
   description?: string;
-  groupId:number | undefined
+  groupId:string | undefined
 }

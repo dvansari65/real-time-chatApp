@@ -17,7 +17,7 @@ export interface ChatItemProps {
   messages?: Message[];
   members?: userFromChat[];
   currentUserId?:number;
-  groupId?:number | undefined;
+  groupId?:string | undefined;
   createChatForGroup:(isGroup: boolean, name: string, members: userFromChat[], description?: string)=>void
   createChatforOneToOneUser:(targetUserId:number)=>void
 }

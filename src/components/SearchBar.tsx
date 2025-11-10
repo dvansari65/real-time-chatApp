@@ -99,6 +99,10 @@ function SearchBar() {
       toast.error("Please , provide all the fields!");
       return;
     }
+    if(!groupId){
+      toast.error("Please provide group ID!");
+      return;
+    }
     const payload = {
       isGroup,
       name,
@@ -114,13 +118,10 @@ function SearchBar() {
         if(data?.chat?.id){
           router.push(`/GroupChat/${data.chat.id}&groupId=${groupId}`)
           dispatch(setLoading(false))
-        }else{
-          router.push("/");
-          toast.error(`chat id not found! ${data?.chat?.id}`);
-          dispatch(setLoading(false))
         }
       },
       onError:(error)=>{
+        router.push("/");
         dispatch(setLoading(false))
         toast.error(error.message)
       }
@@ -240,7 +241,7 @@ function SearchBar() {
                                   name:group?.name, 
                                   members:group?.GroupMembers || [],
                                   description:group?.description,
-                                  groupId:Number(group.id)
+                                  groupId:group.id
                                  }
                               );
                              

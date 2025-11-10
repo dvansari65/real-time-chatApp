@@ -7,7 +7,7 @@ import React from 'react'
 
 interface GroupChatItemProps {
   groupName:string,
-  id?: number;
+  id?: string | undefined;
   name?: string;
   isGroup?:boolean,
   createdAt?: Date;

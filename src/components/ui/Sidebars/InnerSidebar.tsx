@@ -1,9 +1,7 @@
 "use client";
-import { MessageCircle } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "@/contextApi";
 import { UserListSkeleton } from "../Skeleton";
-import { Button } from "../Button";
 import SelectUserForNewGroup from "@/components/NewGroupCreation/SelectUserForNewGroup";
 import NewGroupModal from "@/components/NewGroupCreation/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
@@ -21,7 +19,6 @@ import { createdChatReponse, userFromChat } from "@/types/chat";
 import { useCreateChat } from "@/hooks/useCreateChat";
 import { RootState } from "@/lib/store";
 import { useCreateGroup } from "@/lib/api/createGroup";
-import { removeUsers } from "@/features/Redux/NewGroupMembersSlice";
 import QuickActions from "../QuickActions";
 
 export default function InnerSidebar() {
@@ -92,7 +89,7 @@ export default function InnerSidebar() {
     name: string | undefined,
     members: userFromChat[] | undefined,
     description?: string,
-    groupId?: number
+    groupId?: string | undefined
   ) => {
     dispatch(setLoading(true));
     const payload = {
@@ -227,11 +224,7 @@ export default function InnerSidebar() {
           setDiscription={setDiscription}
         />
       )}
-      {allChatsDataLoading && (
-        <div className="p-4">
-          <UserListSkeleton />
-        </div>
-      )}
+      {allChatsDataLoading && <UserListSkeleton />}
       {
         !user && <div className="flex justify-center h-[50vh] items-center">Your are not Login!</div>
       }
