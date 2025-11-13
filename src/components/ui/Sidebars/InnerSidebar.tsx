@@ -122,9 +122,7 @@ export default function InnerSidebar() {
       {allChatsDataLoading && <UserListSkeleton />}
 
       {!user && (
-        <div className="flex justify-center h-[50vh] items-center">
-          Your are not Login!
-        </div>
+        <Label text={"User Not Login!"}/>
       )}
 
       {shouldShowEmptyLabel && <Label text="No Chats Found!" />}

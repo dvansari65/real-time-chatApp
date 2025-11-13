@@ -20,41 +20,37 @@ import {
 } from "@/types/typesForSocketEvents";
 import { useQueryClient } from "@tanstack/react-query";
 import { getChatsOfGroup } from "@/lib/api/getChatsOfGroup";
+import GroupInfoModal from "@/components/modal/Group/GroupInfo";
 
 function GroupChat() {
-  const { data: currentUserData } = useAuth();
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageStatus, setMessageStatus] = useState<
+    "DELIVERED" | "SENT" | "READ"
+  >("SENT");
+  const [isGroupInfoModalOpen, setIsGroupInfoModalOpen] = useState(false);
   const params = useParams();
   const chatId = Number(params.chatId);
   const searchParams = useSearchParams();
   const groupIdFromSearchParams = searchParams.get("groupId");
   const { id: groupId } = useSelector((state: RootState) => state.groupData);
-  const [input, setInput] = useState("");
-  const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [messageStatus, setMessageStatus] = useState<
-    "DELIVERED" | "SENT" | "READ"
-  >("SENT");
+  const { data: currentUserData } = useAuth();
 
   const socket = useSocket();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const messageRef = useRef<HTMLDivElement>(null);
   const {
     data: groupData,
     isLoading,
     error,
-  } = useGetSingleGroup( String(groupIdFromSearchParams) || String(groupId));
+  } = useGetSingleGroup(String(groupIdFromSearchParams) || String(groupId));
 
   const {
     data: groupChatData,
     isLoading: groupChatLoading,
     error: groupChatError,
-  } = getChatsOfGroup(String(groupIdFromSearchParams) || String(groupId) );
-
-  useEffect(() => {
-    console.log("groupChatData", groupChatData);
-    console.log("groupIdFromSearchParams", groupIdFromSearchParams);
-    console.log("group id",groupId)
-  }, [groupChatData,groupIdFromSearchParams,groupId]);
+  } = getChatsOfGroup(String(groupIdFromSearchParams) || String(groupId));
 
   useEffect(() => {
     if (!socket) return;
@@ -177,6 +173,7 @@ function GroupChat() {
         leaveChat={handleLeaveChat}
         isLoading={isLoading}
         group={groupData?.group}
+        onShowMembers={() => setIsGroupInfoModalOpen(true)}
       />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-16">
         {[...(groupChatData?.chat?.messages ?? []), ...(messages || [])].map(
@@ -200,6 +197,14 @@ function GroupChat() {
         handleKeyPress={handleKeyPress}
         sendMessage={sendMessage}
       />
+      {isGroupInfoModalOpen && (
+        <GroupInfoModal
+          group={groupData?.group}
+          isOpen={isGroupInfoModalOpen}
+          onClose={() => setIsGroupInfoModalOpen(false)}
+          currentUserId={currentUserData.user?.id}
+        />
+      )}
     </div>
   );
 }
