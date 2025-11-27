@@ -17,15 +17,12 @@ export const POST = async (req:NextRequest,{params}:{params:Promise<{userId:stri
         }
         const currentUserId = session?.userId
         const targetUserId = (await params).userId
-        console.log("target user id ",targetUserId)
         if (!targetUserId || isNaN(Number(targetUserId))) {
             return NextResponse.json(
               { message: "Invalid user ID", success: false },
               { status: 400 }
             );
           }
-          console.log("current user id",currentUserId)
-          console.log("targetUserId  id",targetUserId)
         const chat = await getOrCreateChat(Number(currentUserId),Number(targetUserId))
         if(!chat){
             return NextResponse.json(

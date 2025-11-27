@@ -29,7 +29,8 @@ export default function InnerSidebar() {
   const { data } = useAuth();
   const user = data?.user;
 
-  const { data: allChatsData, isLoading: allChatsDataLoading } = useGetAllChats();
+  const { data: allChatsData, isLoading: allChatsDataLoading } =
+    useGetAllChats();
   const { createGroup, isCreatingGroup, createGroupError } = useCreateGroup();
   const { createChatforOneToOneUser, createChatForGroup } = useChatOperations();
 
@@ -121,9 +122,7 @@ export default function InnerSidebar() {
 
       {allChatsDataLoading && <UserListSkeleton />}
 
-      {!user && (
-        <Label text={"User Not Login!"}/>
-      )}
+      {!user && <Label text={"User Not Login!"} />}
 
       {shouldShowEmptyLabel && <Label text="No Chats Found!" />}
 
@@ -136,23 +135,7 @@ export default function InnerSidebar() {
             >
               <ChatItem
                 currentUserId={Number(user?.id)}
-                name={chat?.name}
-                members={chat?.members}
-                messages={chat?.messages || []}
-                description={chat?.description}
-                isGroup={chat?.isGroup}
-                createChatForGroup={() =>
-                  createChatForGroup(
-                    chat?.isGroup ?? true,
-                    chat?.name,
-                    chat?.members,
-                    chat?.description,
-                    chat?.groupId
-                  )
-                }
-                updatedAt={chat?.updatedAt}
-                createChatforOneToOneUser={createChatforOneToOneUser}
-                groupId={chat?.groupId}
+                chat={chat}
               />
             </div>
           ))}

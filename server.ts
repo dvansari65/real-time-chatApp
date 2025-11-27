@@ -68,7 +68,6 @@ io.on("connection", async (socket: Socket) => {
   });
   socket.on("join-chat", async (data: JoinChatData) => {
     try {
-      console.log("join room data", data);
       const { chatId, userId } = data;
       const chatExist = await prisma.chatMember.findFirst({
         where: {
@@ -77,10 +76,7 @@ io.on("connection", async (socket: Socket) => {
         },
       });
       if (!chatExist) {
-        return NextResponse.json({
-          message: "chat not exist!",
-          success: false,
-        });
+        throw new Error("Chat not exist!")
       }
       socket.join(`chat-${chatId}`);
       console.log(`${userId} joined ${chatId}`);
@@ -89,9 +85,9 @@ io.on("connection", async (socket: Socket) => {
         chatId,
         timeStamp: new Date(),
       });
-    } catch (error) {
+    } catch (error:any) {
       console.error("Join chat error:", error);
-      socket.emit("error", { message: "Failed to join chat" });
+      socket.emit("error", { message: error.message ||  "Failed to join chat" });
     }
   });
   socket.on("call-initiated", (data: callData) => {

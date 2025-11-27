@@ -58,3 +58,15 @@ export interface createdChatReponse {
   success:boolean,
   chat:Chat
 }
+
+export interface ChatItemProps {
+  chat: Chat;
+  currentUserId: number | undefined;
+  onSelectChat: (chatId: number) => void;
+  isActive?: boolean;
+}
+
+export interface ChatValidationResult {
+  isValid: boolean;
+  error?: string;
+}
