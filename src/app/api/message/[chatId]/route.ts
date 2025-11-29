@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
+
 export const GET = async (
-  req: NextResponse,
+  req: NextRequest,
   { params }: { params: Promise<{ chatId: string }> }
 ) => {
   try {
     const chatId = (await params).chatId;
-    console.log("chat id from backedn",Number(chatId))
     if(!chatId || isNaN(Number(chatId))){
         throw new Error("Please provide chat id!")
     }
