@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGetAllChats } from '@/lib/api/useGetAllChats';
+import { useGetAllChats } from '@/apis/api/useGetAllChats';
 import { User } from '@/types/user';
 
 export function useChatList() {

@@ -6,7 +6,7 @@ import { UserListSkeleton } from "../Skeleton";
 import SelectUserForNewGroup from "@/components/NewGroupCreation/SelectUserForNewGroup";
 import NewGroupModal from "@/components/NewGroupCreation/GiveNameToTheGroup";
 import SearchBar from "@/components/SearchBar";
-import { useGetAllChats } from "@/lib/api/useGetAllChats";
+import { useGetAllChats } from "@/apis/api/useGetAllChats";
 import { useSelector } from "react-redux";
 import { User } from "@/types/user";
 import ChatItem from "../ChatItem";
@@ -18,6 +18,7 @@ import { useCreateGroup } from "@/hooks/useCreateGroup";
 import AnimatedBG from "../AnimatedBG";
 import { Label } from "../Label";
 import BottomGradient from "./BottomGradient";
+import { Button } from "../Button";
 
 export default function InnerSidebar() {
   const [selectUserModal, setSelectUserModal] = useState<boolean>(false);

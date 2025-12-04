@@ -2,7 +2,7 @@
 import { useAuth } from "@/contextApi";
 import { RootState } from "@/lib/store";
 import { useSelector } from "react-redux";
-import { CreateGroup } from "@/lib/api/createGroup";
+import { CreateGroup } from "@/apis/api/createGroup";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

@@ -9,16 +9,22 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/contextApi";
+import { Button } from "@/components/ui/Button";
+import { UpdateUserData, useUpdateUser } from "@/apis/updateUser";
+import UserProfileModal from "@/components/modal/UserProfile";
+
+
+interface FloatingElementProps {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}
 
 const FloatingElement = ({
   children,
   delay = 0,
   className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) => {
+}: FloatingElementProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -37,13 +43,12 @@ const FloatingElement = ({
   );
 };
 
-const GradientText = ({
-  children,
-  className = "",
-}: {
+interface GradientTextProps {
   children: React.ReactNode;
   className?: string;
-}) => (
+}
+
+const GradientText = ({ children, className = "" }: GradientTextProps) => (
   <span
     className={`bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent ${className}`}
   >
@@ -51,17 +56,19 @@ const GradientText = ({
   </span>
 );
 
+interface FeatureCardProps {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  delay?: number;
+}
+
 const FeatureCard = ({
   icon: Icon,
   title,
   description,
   delay = 0,
-}: {
-  icon: React.ComponentType<any>;
-  title: string;
-  description: string;
-  delay?: number;
-}) => (
+}: FeatureCardProps) => (
   <FloatingElement delay={delay}>
     <div className="group relative p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:shadow-2xl">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -76,8 +83,17 @@ const FeatureCard = ({
   </FloatingElement>
 );
 
+interface Particle {
+  left: string;
+  top: string;
+  delay: string;
+  duration: string;
+}
+
 export default function Home() {
   const { data } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const updateUserMutation = useUpdateUser(data?.user?.id || 0);
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -88,12 +104,11 @@ export default function Home() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-  const [particles, setParticles] = useState<
-    { left: string; top: string; delay: string; duration: string }[]
-  >([]);
+
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    const newParticles = Array.from({ length: 20 }).map(() => ({
+    const newParticles: Particle[] = Array.from({ length: 20 }).map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
       delay: `${Math.random() * 3}s`,
@@ -101,6 +116,14 @@ export default function Home() {
     }));
     setParticles(newParticles);
   }, []);
+
+  const handleProfileClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateProfile = async (formData: UpdateUserData): Promise<void> => {
+    updateUserMutation.mutateAsync(formData);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
@@ -142,9 +165,20 @@ export default function Home() {
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-sm text-gray-300">Online</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
-                {data?.user?.username?.charAt(0).toUpperCase()}
-              </div>
+              <Button 
+                onClick={handleProfileClick}
+                className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm cursor-pointer hover:scale-110 transition-transform"
+              >
+                {data?.user?.avatar ? (
+                  <img
+                    src={data?.user?.avatar}
+                    alt="Avatar"
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  data?.user?.username?.charAt(0).toUpperCase()
+                )}
+              </Button>
             </div>
           </header>
         </FloatingElement>
@@ -252,6 +286,14 @@ export default function Home() {
           </div>
         </FloatingElement>
       </div>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        user={data?.user}
+        onUpdate={handleUpdateProfile}
+      />
     </div>
   );
 }

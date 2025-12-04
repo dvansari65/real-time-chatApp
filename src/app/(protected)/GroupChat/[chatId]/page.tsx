@@ -4,7 +4,7 @@ import GroupMessageContainer from "@/components/chat/GroupChat/GroupMessageConta
 import { RootState } from "@/lib/store";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetSingleGroup } from "@/lib/api/getSingleGroup";
+import { useGetSingleGroup } from "@/apis/api/getSingleGroup";
 import { useAuth } from "@/contextApi";
 import { Message, MessageData } from "@/types/message";
 import MessageInput from "@/components/MessageInput";
@@ -19,7 +19,7 @@ import {
   userJoinChatDataType,
 } from "@/types/typesForSocketEvents";
 import { useQueryClient } from "@tanstack/react-query";
-import { getChatsOfGroup } from "@/lib/api/getChatsOfGroup";
+import { getChatsOfGroup } from "@/apis/api/getChatsOfGroup";
 import GroupInfoModal from "@/components/modal/Group/GroupInfo";
 
 function GroupChat() {

@@ -1,4 +1,4 @@
-import { useSearchUsers } from "@/lib/api/useSearchChats";
+import { useSearchUsers } from "@/apis/api/useSearchChats";
 import { Search, X, User, Users } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/Button";

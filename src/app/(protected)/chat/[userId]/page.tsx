@@ -8,11 +8,11 @@ import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { Message, messageStatus } from "@/types/message";
 
-import { useGetSingleUser } from "@/lib/api/getSingleUser";
+import { useGetSingleUser } from "@/apis/api/getSingleUser";
 import MessageInput from "@/components/MessageInput";
 import { toast } from "sonner";
 import { messageDeliveredType, newMesssageType, userAuthenticatedDataType, userJoinChatDataType } from "@/types/typesForSocketEvents";
-import { useGetChat } from "@/lib/api/useGetchat";
+import { useGetChat } from "@/apis/api/useGetchat";
 import { useQueryClient } from "@tanstack/react-query";
 
 
