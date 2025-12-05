@@ -12,6 +12,8 @@ import { useAuth } from "@/contextApi";
 import { Button } from "@/components/ui/Button";
 import { UpdateUserData, useUpdateUser } from "@/apis/updateUser";
 import UserProfileModal from "@/components/modal/UserProfile";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 interface FloatingElementProps {
@@ -93,8 +95,8 @@ interface Particle {
 export default function Home() {
   const { data } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const updateUserMutation = useUpdateUser(data?.user?.id || 0);
-
+  const {mutate} = useUpdateUser(data?.user?.id || 0);
+  const queryClient = useQueryClient()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -122,7 +124,22 @@ export default function Home() {
   };
 
   const handleUpdateProfile = async (formData: UpdateUserData): Promise<void> => {
-    updateUserMutation.mutateAsync(formData);
+   mutate(formData,{
+    onSuccess: (response) => {
+      // Invalidate and refetch user queries
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      // Optional: Update the cache directly for immediate UI update
+      queryClient.setQueryData(["user", data?.user?.id], response.user);
+      if(response.user){
+        toast.success("User updated successfully!")
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+      console.error("Error updating user:", error);
+      return
+    },
+   })
   };
 
   return (
@@ -163,7 +180,7 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-300">Online</span>
+                <span className="text-sm text-gray-300">{data?.user ? "Online" : "Offline"}</span>
               </div>
               <Button 
                 onClick={handleProfileClick}
@@ -288,12 +305,14 @@ export default function Home() {
       </div>
 
       {/* User Profile Modal */}
-      <UserProfileModal
+      {
+        data?.user && <UserProfileModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         user={data?.user}
         onUpdate={handleUpdateProfile}
       />
+      }
     </div>
   );
 }
