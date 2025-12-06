@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { X, Upload, User, Mail, Phone, FileText } from "lucide-react";
 import { partialUser } from "@/types/user";
 
@@ -10,11 +10,11 @@ interface UserProfileModalProps {
 }
 
 interface UpdateUserFormData {
-  username: string;
-  email: string;
-  phoneNumber: number;
-  bio: string;
-  avatar: string;
+  username?: string;
+  email?: string;
+  phoneNumber?: number;
+  bio?: string;
+  avatar?: string;
 }
 
 const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalProps) => {
@@ -27,10 +27,22 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, avatar: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async () => {
@@ -52,60 +64,48 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      {/* Modal */}
       <div className="relative w-full max-w-lg bg-gray-800 rounded-2xl shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-gray-800 border-b border-white/10 p-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
-            <p className="text-sm text-gray-400 mt-1">
-              Update your personal information
-            </p>
+            <p className="text-sm text-gray-400 mt-1">Update your personal information</p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center"
-          >
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        {/* Form Content */}
         <div className="p-6 space-y-6">
-          {/* Avatar Section */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl font-bold">
                 {formData.avatar ? (
-                  <img
-                    src={formData.avatar}
-                    alt="Avatar"
-                    className="w-full h-full rounded-full object-cover"
-                  />
+                  <img src={formData.avatar} alt="Avatar" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   formData.username?.charAt(0).toUpperCase() || "U"
                 )}
               </div>
               <button
                 type="button"
+                onClick={() => fileInputRef.current?.click()}
                 className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors flex items-center justify-center"
               >
                 <Upload className="w-4 h-4 text-white" />
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
             </div>
           </div>
 
-          {/* Avatar URL Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Avatar URL
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Avatar URL</label>
             <div className="relative">
               <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -119,11 +119,8 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
             </div>
           </div>
 
-          {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Username
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Username</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -137,11 +134,8 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
             </div>
           </div>
 
-          {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -155,11 +149,8 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
             </div>
           </div>
 
-          {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Phone Number
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -173,11 +164,8 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
             </div>
           </div>
 
-          {/* Bio */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Bio
-            </label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Bio</label>
             <div className="relative">
               <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
               <textarea
@@ -191,14 +179,12 @@ const UserProfileModal = ({ isOpen, onClose, user, onUpdate }: UserProfileModalP
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
               <p className="text-red-400 text-sm">{error}</p>
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
