@@ -14,7 +14,6 @@ export class UserUpdateError extends Error {
 }
 
 export const updateUser = async (id: number, data: UpdateUserInput) => {
-  console.log("user id",id)
   try {
   
     // Check if user exists first

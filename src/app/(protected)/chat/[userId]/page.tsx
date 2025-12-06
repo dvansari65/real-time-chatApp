@@ -21,21 +21,19 @@ export default function Conversation() {
   const chatId = params.userId;
   const searchParam = useSearchParams()
   const userId = searchParam.get("userId")
-  console.log(userId)
-  const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<messageStatus>("SENT");
   const [isOnline,setIsOnline] = useState(false)
-  const [inCall, setInCall] = useState(false);
   const socket = useSocket();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
+  const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
   const { data } = useAuth();
   const user = data?.user;
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  console.log("user",user)
-  const queryClient = useQueryClient()
-  const {data:chatBetweenTwoUsersData,isLoading:chatBetweenTwoUsersLoading,error} = useGetChat(String(chatId))
-  const {data:singleUserData,isLoading:singleUserDataLoading,error:singleUserError} = useGetSingleUser(Number(userId))
+  
 
   useJoinChat(Number(chatId), Number(user?.id));
 
@@ -185,6 +183,7 @@ export default function Conversation() {
         isOnline={singleUserData?.user?.isOnline}
         username={singleUserData?.user?.username}
         isLoadingUserData={singleUserDataLoading}
+        phoneNumber={singleUserData?.user?.phoneNumber}
       />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15">
         {[ ...(chatBetweenTwoUsersData?.chat?.messages ?? []),...messages].map((msg) => (

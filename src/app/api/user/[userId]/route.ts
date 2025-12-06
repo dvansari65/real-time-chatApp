@@ -21,7 +21,6 @@ export const GET = async (req:NextRequest,{params}:{params:Promise<{userId:strin
                 {status:404}
             )
         }
-        console.log("user from the bakedn",user)
         return NextResponse.json(
             {
                 user,

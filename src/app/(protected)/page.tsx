@@ -128,8 +128,7 @@ export default function Home() {
     onSuccess: (response) => {
       // Invalidate and refetch user queries
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      // Optional: Update the cache directly for immediate UI update
-      queryClient.setQueryData(["user", data?.user?.id], response.user);
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       if(response.user){
         toast.success("User updated successfully!")
       }
