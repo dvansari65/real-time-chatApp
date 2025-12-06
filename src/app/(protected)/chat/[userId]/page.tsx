@@ -2,8 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSocket } from "@/utils/SocketProvider";
-import { useAuth } from "@/contextApi";
-import ChatHeader from "@/components/chat/chatHeader";
+import { useAuth } from "@/contextApi";;
 import { useJoinChat } from "@/hooks/useJoinRoom";
 import MessageContainer from "@/components/ui/MessageContainer";
 import { Message, messageStatus } from "@/types/message";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 import { messageDeliveredType, newMesssageType, userAuthenticatedDataType, userJoinChatDataType } from "@/types/typesForSocketEvents";
 import { useGetChat } from "@/apis/api/useGetchat";
 import { useQueryClient } from "@tanstack/react-query";
+import UnifiedChatHeader from "@/components/chat/unifiedChatHeader";
 
 
 export default function Conversation() {
@@ -175,7 +175,8 @@ export default function Conversation() {
   }
   return (
     <main className="flex-1 flex flex-col h-[100vh] bg-gray-900 w-full">
-      <ChatHeader
+      <UnifiedChatHeader
+        type="personal"
         currentUserId={user?.id}
         handleLeaveChat={navigateToPreviousPage}
         userId={Number(singleUserData?.user?.id)}
@@ -185,6 +186,7 @@ export default function Conversation() {
         isLoadingUserData={singleUserDataLoading}
         phoneNumber={singleUserData?.user?.phoneNumber}
       />
+      
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-15">
         {[ ...(chatBetweenTwoUsersData?.chat?.messages ?? []),...messages].map((msg) => (
           <div key={msg.id}>

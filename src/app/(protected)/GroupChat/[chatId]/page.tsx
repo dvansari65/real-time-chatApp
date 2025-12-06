@@ -1,5 +1,4 @@
 "use client";
-import GroupChatHeader from "@/components/chat/GroupChat/GroupChatHeader";
 import GroupMessageContainer from "@/components/chat/GroupChat/GroupMessageContainer";
 import { RootState } from "@/lib/store";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -21,6 +20,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { getChatsOfGroup } from "@/apis/api/getChatsOfGroup";
 import GroupInfoModal from "@/components/modal/Group/GroupInfo";
+import UnifiedChatHeader from "@/components/chat/unifiedChatHeader";
 
 function GroupChat() {
   const [input, setInput] = useState("");
@@ -169,11 +169,13 @@ function GroupChat() {
 
   return (
     <div>
-      <GroupChatHeader
-        leaveChat={handleLeaveChat}
-        isLoading={isLoading}
-        group={groupData?.group}
-        onShowMembers={() => setIsGroupInfoModalOpen(true)}
+      <UnifiedChatHeader
+      currentUserId={currentUserData?.user?.id}
+      type="group"
+      handleLeaveChat={handleLeaveChat}
+      isLoadingUserData={isLoading}
+      group={groupData?.group}
+      onShowMembers={() => setIsGroupInfoModalOpen(true)}
       />
       <div className="flex-1 overflow-y-auto p-4 space-y-4 mb-16">
         {[...(groupChatData?.chat?.messages ?? []), ...(messages || [])].map(
